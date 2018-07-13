@@ -288,16 +288,7 @@
 		// Batting
         foreach ($players as $player_id)
         {
-            $statement = $db->prepare('
-                ;WITH "HighestScore" AS (
-                    SELECT
-                         p.PlayerId
-                        ,MAX(bp.Runs) as HighestScore
-                    FROM "Player" p
-                    INNER JOIN "BattingPerformance" bp on bp.PlayerId = p.PlayerId
-                    GROUP BY p.PlayerId
-                    )
-                
+            $statement = $db->prepare('               
                 SELECT
                      p.PlayerId
                     ,p.Name
@@ -315,8 +306,6 @@
                 FROM "Player" p
                 INNER JOIN "PlayerPerformance" pp on pp.PlayerId = p.PlayerId
                 LEFT JOIN "BattingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
-                LEFT JOIN "HighestScore" hs on hs.PlayerId = p.PlayerId
-                LEFT JOIN "BattingPerformance" bpMax on bpMax.PlayerId = p.PlayerId and bpMax.Runs = hs.HighestScore
                 WHERE p.Name = \'Matt Bolshaw\'
                 GROUP BY p.PlayerId, p.Name
                 --ORDER BY Runs DESC
@@ -329,29 +318,16 @@
             print_r($row);
         }
         
-        $statement = $db->prepare('
-            ;WITH "HighestScore" AS (
-                SELECT
-                     p.PlayerId
-                    ,MAX(bp.Runs) as HighestScore
-                FROM "Player" p
-                INNER JOIN "BattingPerformance" bp on bp.PlayerId = p.PlayerId
-                GROUP BY p.PlayerId
-                )
-        
+        $statement = $db->prepare('       
             SELECT
 				 p.*
                 ,m.*
                 ,pp.*
                 ,bp.*
-                ,hs.*
-                ,bpMax.*
             FROM "Player" p
             INNER JOIN "PlayerPerformance" pp on pp.PlayerId = p.PlayerId
             INNER JOIN "Match" m on m.MatchId = pp.MatchId
             LEFT JOIN "BattingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
-            LEFT JOIN "HighestScore" hs on hs.PlayerId = p.PlayerId
-            LEFT JOIN "BattingPerformance" bpMax on bpMax.PlayerId = p.PlayerId and bpMax.Runs = hs.HighestScore
             WHERE p.Name = \'Matt Bolshaw\'
             ORDER BY m.MatchId
             '
