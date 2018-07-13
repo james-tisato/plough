@@ -254,47 +254,55 @@
         }
 		
 		// Build summaries
+        // Get players
+        $players = array();
+        $statement = $db->prepare('SELECT PlayerId FROM "Player" ORDER BY PlayerId');
+        $result = $statement->execute();
+        while ($row = $result->fetchArray(SQLITE3_ASSOC))
+            array_push($players, $row["PlayerId"];
+        
 		// Batting
-        $statement = $db->prepare('
-            ;WITH "HighestScore" AS (
+        foreach ($players as $player_id)
+        {
+            $statement = $db->prepare('
+                ;WITH "HighestScore" AS (
+                    SELECT
+                         p.PlayerId
+                        ,MAX(bp.Runs) as HighestScore
+                    FROM "Player" p
+                    INNER JOIN "BattingPerformance" bp on bp.PlayerId = p.PlayerId
+                    GROUP BY p.PlayerId
+                    )
+                
                 SELECT
                      p.PlayerId
-                    ,MAX(bp.Runs) as HighestScore
+                    ,p.Name
+                    ,COUNT(pp.PlayerPerformanceId) AS Matches
+                    ,COUNT(bp.BattingPerformanceId) AS Innings
+                    ,SUM(CASE bp.HowOut WHEN "no" THEN 1 ELSE 0 END) AS NotOuts
+                    ,SUM(bp.Runs) AS Runs
+                    ,(CAST(SUM(bp.Runs) AS FLOAT) / (COUNT(bp.BattingPerformanceId) - SUM(CASE bp.HowOut WHEN "no" THEN 1 ELSE 0 END))) AS Average
+                    ,((CAST(SUM(bp.Runs) AS FLOAT) / SUM(bp.Balls)) * 100.0) AS StrikeRate
+                    ,SUM(CASE WHEN bp.Runs >= 50 AND bp.Runs < 100 THEN 1 ELSE 0 END) AS Fifties
+                    ,SUM(CASE WHEN bp.Runs >= 100 THEN 1 ELSE 0 END) AS Hundreds
+                    ,SUM(bp.Balls) as Balls
+                    ,SUM(bp.Fours) as Fours
+                    ,SUM(bp.Sixes) as Sixes
                 FROM "Player" p
-                INNER JOIN "BattingPerformance" bp on bp.PlayerId = p.PlayerId
-                GROUP BY p.PlayerId
-                )
-            
-            SELECT
-				 p.PlayerId
-                ,p.Name
-                ,COUNT(pp.PlayerPerformanceId) AS Matches
-                ,COUNT(bp.BattingPerformanceId) AS Innings
-				,SUM(CASE bp.HowOut WHEN "no" THEN 1 ELSE 0 END) AS NotOuts
-                ,SUM(bp.Runs) AS Runs
-				,(CAST(SUM(bp.Runs) AS FLOAT) / (COUNT(bp.BattingPerformanceId) - SUM(CASE bp.HowOut WHEN "no" THEN 1 ELSE 0 END))) AS Average
-                ,((CAST(SUM(bp.Runs) AS FLOAT) / SUM(bp.Balls)) * 100.0) AS StrikeRate
-				,hs.HighestScore
-                --,MAX(CASE bpMax.HowOut WHEN "no" THEN 1 ELSE 0 END) AS HighestScoreNotOut
-				,SUM(CASE WHEN bp.Runs >= 50 AND bp.Runs < 100 THEN 1 ELSE 0 END) AS Fifties
-                ,SUM(CASE WHEN bp.Runs >= 100 THEN 1 ELSE 0 END) AS Hundreds
-				,SUM(bp.Balls) as Balls
-				,SUM(bp.Fours) as Fours
-                ,SUM(bp.Sixes) as Sixes
-            FROM "Player" p
-            INNER JOIN "PlayerPerformance" pp on pp.PlayerId = p.PlayerId
-            LEFT JOIN "BattingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
-            LEFT JOIN "HighestScore" hs on hs.PlayerId = p.PlayerId
-            LEFT JOIN "BattingPerformance" bpMax on bpMax.PlayerId = p.PlayerId and bpMax.Runs = hs.HighestScore
-            WHERE p.Name = \'Matt Bolshaw\'
-            GROUP BY p.PlayerId, p.Name
-            --ORDER BY Runs DESC
-            '
-            );
+                INNER JOIN "PlayerPerformance" pp on pp.PlayerId = p.PlayerId
+                LEFT JOIN "BattingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
+                LEFT JOIN "HighestScore" hs on hs.PlayerId = p.PlayerId
+                LEFT JOIN "BattingPerformance" bpMax on bpMax.PlayerId = p.PlayerId and bpMax.Runs = hs.HighestScore
+                WHERE p.Name = \'Matt Bolshaw\'
+                GROUP BY p.PlayerId, p.Name
+                --ORDER BY Runs DESC
+                '
+                );
+        }
         $result = $statement->execute();
         while ($row = $result->fetchArray(SQLITE3_ASSOC))
         {
-            print_r($row);
+            //print_r($row);
         }
         
         $statement = $db->prepare('
@@ -327,7 +335,7 @@
         $result = $statement->execute();
         while ($row = $result->fetchArray(SQLITE3_ASSOC))
         {
-            print_r($row);
+            //print_r($row);
         }
         
         $statement = $db->prepare('
