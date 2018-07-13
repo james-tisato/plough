@@ -9,6 +9,8 @@
     const URL_SEASON = "season=2018";
     const URL_API_TOKEN = "api_token=cd3d9f47cef70496b9b3bfbab5231214";
     
+    const FILE_MATCHES = "testdata\\matches.json";
+    
     const CLUB_NAME = "Ploughmans CC";
     const DELETED = "Deleted";
     
@@ -30,6 +32,10 @@
     
     function main()
     {
+        // Dumping / data sourcing
+        $dump_to_disk = false;
+        $source_from_file = true;
+        
         // Delete previous database
         unlink(DB_PATH);
         
@@ -53,8 +59,16 @@
         // Get match list
         echo "Fetching match list..." . PHP_EOL;
         $matches_from_date = "26/01/2018";
-        $matches_url = URL_PREFIX . "matches.json?" . URL_SITE_ID . "&" . URL_SEASON . "&" . URL_API_TOKEN . "&from_entry_date=$matches_from_date";
-        $matches = json_decode(file_get_contents($matches_url), true)["matches"];
+        if ($source_from_file)
+            $matches_url = FILE_MATCHES;
+        else
+            $matches_url = URL_PREFIX . "matches.json?" . URL_SITE_ID . "&" . URL_SEASON . "&" . URL_API_TOKEN . "&from_entry_date=$matches_from_date";
+        $matches_str = file_get_contents($matches_url);
+        
+        if ($dump_to_disk)
+            file_put_contents(FILE_MATCHES, $matches_str);
+        
+        $matches = json_decode($matches_str, true)["matches"];
         $num_matches = count($matches);
         echo "  $num_matches matches found" . PHP_EOL . PHP_EOL;
         
@@ -68,8 +82,18 @@
             echo "  Processing match $match_idx (Play-Cricket id $pc_match_id)..." . PHP_EOL;
             
             // Get match detail
-            $match_detail_url = URL_PREFIX . "match_detail.json?match_id=$pc_match_id&" . URL_API_TOKEN;
-            $match_detail = json_decode(file_get_contents($match_detail_url), true)["match_details"][0];
+            $match_detail_local_path = "testdata\\match_$pc_match_id.json";
+            
+            if ($source_from_file)
+                $match_detail_url = $match_detail_local_path;
+            else
+                $match_detail_url = URL_PREFIX . "match_detail.json?match_id=$pc_match_id&" . URL_API_TOKEN;
+            $match_detail_str = file_get_contents($match_detail_url);
+            
+            if ($dump_to_disk)
+                file_put_contents($match_detail_local_path, $match_detail_str);
+            
+            $match_detail = json_decode($match_detail_str, true)["match_details"][0];
             
             if ($match_detail["status"] == DELETED)
             {
@@ -259,7 +283,7 @@
         $statement = $db->prepare('SELECT PlayerId FROM "Player" ORDER BY PlayerId');
         $result = $statement->execute();
         while ($row = $result->fetchArray(SQLITE3_ASSOC))
-            array_push($players, $row["PlayerId"];
+            array_push($players, $row["PlayerId"]);
         
 		// Batting
         foreach ($players as $player_id)
@@ -302,7 +326,7 @@
         $result = $statement->execute();
         while ($row = $result->fetchArray(SQLITE3_ASSOC))
         {
-            //print_r($row);
+            print_r($row);
         }
         
         $statement = $db->prepare('
