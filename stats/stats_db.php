@@ -13,6 +13,7 @@
             "MatchId" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             "PCMatchId" INTEGER,
             "Status" TEXT,
+            "MatchDate" DATETIME,
             "PloughTeam" TEXT,
             "PloughTeamId" INTEGER,
             "OppoClub" TEXT,
@@ -42,6 +43,7 @@
         $db->query('CREATE TABLE "BattingPerformance" (
             "BattingPerformanceId" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             "PlayerPerformanceId" INTEGER,
+            "PlayerId" INTEGER,
             "Position" INTEGER,
             "HowOut" TEXT,
             "Runs" INTEGER,
@@ -49,11 +51,13 @@
             "Fours" INTEGER,
             "Sixes" INTEGER,
             FOREIGN KEY("PlayerPerformanceId") REFERENCES "PlayerPerformance"("PlayerPerformanceId")
+            FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
             )');
             
         $db->query('CREATE TABLE "BowlingPerformance" (
             "BowlingPerformanceId" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             "PlayerPerformanceId" INTEGER,
+            "PlayerId" INTEGER,
             "Position" INTEGER,
             "CompletedOvers" INTEGER,
             "PartialBalls" INTEGER,
@@ -63,15 +67,18 @@
             "Wides" INTEGER,
             "NoBalls" INTEGER,
             FOREIGN KEY("PlayerPerformanceId") REFERENCES "PlayerPerformance"("PlayerPerformanceId")
+            FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
             )');
             
         $db->query('CREATE TABLE "FieldingPerformance" (
             "FieldingPerformanceId" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             "PlayerPerformanceId" INTEGER,
+            "PlayerId" INTEGER,
             "Catches" INTEGER,
             "RunOuts" INTEGER,
             "Stumpings" INTEGER,
             FOREIGN KEY("PlayerPerformanceId") REFERENCES "PlayerPerformance"("PlayerPerformanceId")
+            FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
             )');
 			
 		// Performance summaries
@@ -100,10 +107,10 @@
     {
         return $db->prepare(
             'INSERT INTO "Match" (
-				"PCMatchId", "Status", "PloughTeam", "PloughTeamId", "OppoClub", "OppoTeam", "OppoTeamId", "Home", "Result"
+				"PCMatchId", "Status", "MatchDate", "PloughTeam", "PloughTeamId", "OppoClub", "OppoTeam", "OppoTeamId", "Home", "Result"
 				)
              VALUES (
-				 :pc_match_id, :status, :plough_team, :plough_team_id, :oppo_club, :oppo_team, :oppo_team_id, :home, :result
+				 :pc_match_id, :status, :match_date, :plough_team, :plough_team_id, :oppo_club, :oppo_team, :oppo_team_id, :home, :result
 			 	)'
             );
     }
@@ -136,10 +143,10 @@
     {
         return $db->prepare(
             'INSERT INTO "BattingPerformance" (
-				"PlayerPerformanceId", "Position", "HowOut", "Runs", "Balls", "Fours", "Sixes"
+				"PlayerPerformanceId", "PlayerId", "Position", "HowOut", "Runs", "Balls", "Fours", "Sixes"
 				)
              VALUES (
-				 :player_perf_id, :position, :how_out, :runs, :balls, :fours, :sixes
+				 :player_perf_id, :player_id, :position, :how_out, :runs, :balls, :fours, :sixes
 			 	)'
             );
     }
@@ -148,10 +155,10 @@
     {
         return $db->prepare(
             'INSERT INTO "BowlingPerformance" (
-				"PlayerPerformanceId", "Position", "CompletedOvers", "PartialBalls", "Maidens", "Runs", "Wickets", "Wides", "NoBalls"
+				"PlayerPerformanceId", "PlayerId", "Position", "CompletedOvers", "PartialBalls", "Maidens", "Runs", "Wickets", "Wides", "NoBalls"
 				)
              VALUES (
-				 :player_perf_id, :position, :completed_overs, :partial_balls, :maidens, :runs, :wickets, :wides, :no_balls
+				 :player_perf_id, :player_id, :position, :completed_overs, :partial_balls, :maidens, :runs, :wickets, :wides, :no_balls
 			 	)'
             );
     }
@@ -160,10 +167,10 @@
     {
         return $db->prepare(
             'INSERT INTO "FieldingPerformance" (
-				"PlayerPerformanceId", "Catches", "RunOuts", "Stumpings"
+				"PlayerPerformanceId", "PlayerId", "Catches", "RunOuts", "Stumpings"
 				)
              VALUES (
-				 :player_perf_id, :catches, :run_outs, :stumpings
+				 :player_perf_id, :player_id, :catches, :run_outs, :stumpings
 			 	)'
             );
     }
