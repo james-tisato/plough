@@ -9,7 +9,7 @@
     const URL_SEASON = "season=2018";
     const URL_API_TOKEN = "api_token=cd3d9f47cef70496b9b3bfbab5231214";
     
-    const FILE_MATCHES = "testdata\\matches.json";
+    const FILE_MATCHES = "testdata/matches.json";
     
     const CLUB_NAME = "Ploughmans CC";
     const DELETED = "Deleted";
@@ -82,7 +82,7 @@
             echo "  Processing match $match_idx (Play-Cricket id $pc_match_id)..." . PHP_EOL;
             
             // Get match detail
-            $match_detail_local_path = "testdata\\match_$pc_match_id.json";
+            $match_detail_local_path = "testdata/match_$pc_match_id.json";
             
             if ($source_from_file)
                 $match_detail_url = $match_detail_local_path;
