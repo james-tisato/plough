@@ -4,6 +4,12 @@
         $insert_statement->execute();
         return $db->querySingle("SELECT last_insert_rowid()");
     }
+	
+	function db_bind_values_from_row($insert_statement, $row)
+	{
+		foreach($row as $key => $value)
+			$insert_statement->bindValue(":$key", $value);
+	}
     
     function db_create_schema($db)
     {   
@@ -101,6 +107,26 @@
 			"Sixes" INTEGER,
 			FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
 			)');
+			
+		$db->query('CREATE TABLE "BowlingSummary" (
+			"BowlingSummaryId" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			"PlayerId" INTEGER,
+			"Matches" INTEGER,
+			"CompletedOvers" INTEGER,
+			"PartialBalls" INTEGER,
+			"Maidens" INTEGER,
+			"Runs" INTEGER,
+			"Wickets" INTEGER,
+			"Average" REAL,
+			"EconomyRate" REAL,
+			"StrikeRate" REAL,
+			"BestBowlingWickets" INTEGER,
+			"BestBowlingRuns" INTEGER,
+			"FiveFors" INTEGER,
+			"Wides" INTEGER,
+			"NoBalls" INTEGER,
+			FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
+			)');
     }
     
     function db_create_insert_match($db)
@@ -185,6 +211,20 @@
              VALUES (
 				 :player_id, :matches, :innings, :not_outs, :runs, :average, :strike_rate, 
 				 :high_score, :high_score_not_out, :fifties, :hundreds, :ducks, :balls, :fours, :sixes
+			 	)'
+            );
+    }
+	
+    function db_create_insert_bowling_summary($db)
+    {
+        return $db->prepare(
+            'INSERT INTO "BowlingSummary" (
+				"PlayerId", "Matches", "CompletedOvers", "PartialBalls", "Maidens", "Runs", "Wickets", "Average",  
+				"EconomyRate", "StrikeRate", "BestBowlingWickets", "BestBowlingRuns", "FiveFors", "Wides", "NoBalls"
+				)
+             VALUES (
+				 :player_id, :matches, :completed_overs, :partial_balls, :maidens, :runs, :wickets, :average,  
+				 :economy_rate, :strike_rate, :best_bowling_wickets, :best_bowling_runs, :five_fors, :wides, :no_balls
 			 	)'
             );
     }
