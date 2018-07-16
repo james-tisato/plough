@@ -35,8 +35,20 @@
 		$insert_batting_summary = db_create_insert_batting_summary($db);
 		
 		foreach ($players as $player_id)
-		{
-			// Batting
+		{	
+			// Filter
+			$db->query('DROP TABLE IF EXISTS "IncludedPerformance"');
+			$db->query('CREATE TEMPORARY TABLE "IncludedPerformance" (
+				"PlayerPerformanceId" INTEGER PRIMARY KEY
+				)');
+			$db->query(
+				'INSERT INTO "IncludedPerformance"
+				 SELECT pp.PlayerPerformanceId FROM "PlayerPerformance" pp
+				 INNER JOIN "BattingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
+				 WHERE
+				 		bp.Position in (8)
+				');
+
 			// Basic fields
 	        $statement = $db->prepare('               
 	            SELECT
@@ -55,6 +67,7 @@
 	                ,SUM(bp.Sixes) as sixes
 	            FROM "Player" p
 	            INNER JOIN "PlayerPerformance" pp on pp.PlayerId = p.PlayerId
+				--INNER JOIN "IncludedPerformance" ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
 	            LEFT JOIN "BattingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
 				WHERE
 						p.PlayerId = :player_id
@@ -63,6 +76,8 @@
 	            );
 			$statement->bindValue(":player_id", $player_id);
 		    $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
+			if (empty($result))
+				continue;
 			db_bind_values_from_row($insert_batting_summary, $result);
 		
 			// High score
@@ -167,6 +182,49 @@
 				// Insert
 				$insert_bowling_summary->execute();
 			}
+		}
+	}
+	
+	function generate_fielding_summary($players, $db)
+	{
+		$insert_fielding_summary = db_create_insert_fielding_summary($db);
+		
+		foreach ($players as $player_id)
+		{	
+			// Filter
+			
+
+			// Basic fields
+	        $statement = $db->prepare('               
+	            SELECT
+	                 p.PlayerId as player_id
+	                ,COUNT(pp.PlayerPerformanceId) AS matches
+					,SUM(CASE WHEN pp.Wicketkeeper = 0 THEN fp.Catches ELSE 0 END) as catches_fielding
+	                ,SUM(fp.RunOuts) as run_outs
+					,SUM(CASE WHEN pp.Wicketkeeper = 1 THEN fp.Catches ELSE 0 END) as catches_keeping
+					,SUM(fp.Stumpings) as stumpings
+	            FROM "Player" p
+	            INNER JOIN "PlayerPerformance" pp on pp.PlayerId = p.PlayerId
+	            LEFT JOIN "FieldingPerformance" fp on fp.PlayerPerformanceId = pp.PlayerPerformanceId
+				WHERE
+						p.PlayerId = :player_id
+	            GROUP BY p.PlayerId, p.Name
+	            '
+	            );
+			$statement->bindValue(":player_id", $player_id);
+		    $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
+			if (empty($result))
+				continue;
+			db_bind_values_from_row($insert_fielding_summary, $result);
+			
+			// Totals
+			$total_fielding = $result["catches_fielding"] + $result["run_outs"];
+			$insert_fielding_summary->bindValue("total_fielding_wickets", $total_fielding);
+			$total_keeping = $result["catches_keeping"] + $result["stumpings"];
+			$insert_fielding_summary->bindValue("total_keeping_wickets", $total_keeping);
+		
+			// Insert
+			$insert_fielding_summary->execute();
 		}
 	}
     
@@ -426,6 +484,7 @@
         
 		generate_batting_summary($players, $db);
 		generate_bowling_summary($players, $db);
+		generate_fielding_summary($players, $db);
         
         $statement = $db->prepare('       
             SELECT
@@ -433,14 +492,16 @@
 				 ,bs.*
             FROM "Player" p
             INNER JOIN "BattingSummary" bs on bs.PlayerId = p.PlayerId
-            --WHERE p.Name = \'Matt Bolshaw\'
+            --WHERE p.Name = \'Chris Ovens\'
+			WHERE bs.Innings > 0
 			ORDER by bs.Runs DESC, bs.Average DESC
+			LIMIT 10
             '
             );
         $result = $statement->execute();
         while ($row = $result->fetchArray(SQLITE3_ASSOC))
         {
-            print_r($row);
+           print_r($row);
         }
 		
         $statement = $db->prepare('       
@@ -451,12 +512,30 @@
             INNER JOIN "BowlingSummary" bs on bs.PlayerId = p.PlayerId
             --WHERE p.Name = \'Matt Bolshaw\'
 			ORDER by bs.Wickets DESC, bs.Average DESC
+			LIMIT 10
             '
             );
         $result = $statement->execute();
         while ($row = $result->fetchArray(SQLITE3_ASSOC))
         {
-            print_r($row);
+            //print_r($row);
+        }
+		
+        $statement = $db->prepare('       
+            SELECT
+				  p.Name
+				 ,fs.*
+            FROM "Player" p
+            INNER JOIN "FieldingSummary" fs on fs.PlayerId = p.PlayerId
+            --WHERE p.Name = \'Matt Bolshaw\'
+			ORDER by fs.TotalKeepingWickets DESC
+			LIMIT 10
+            '
+            );
+        $result = $statement->execute();
+        while ($row = $result->fetchArray(SQLITE3_ASSOC))
+        {
+            //print_r($row);
         }
     }
     

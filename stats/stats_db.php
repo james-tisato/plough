@@ -6,7 +6,7 @@
     }
 	
 	function db_bind_values_from_row($insert_statement, $row)
-	{
+	{	
 		foreach($row as $key => $value)
 			$insert_statement->bindValue(":$key", $value);
 	}
@@ -127,6 +127,19 @@
 			"NoBalls" INTEGER,
 			FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
 			)');
+			
+		$db->query('CREATE TABLE "FieldingSummary" (
+			"FieldingSummaryId" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			"PlayerId" INTEGER,
+			"Matches" INTEGER,
+			"CatchesFielding" INTEGER,
+			"RunOuts" INTEGER,
+			"TotalFieldingWickets" INTEGER,
+			"CatchesKeeping" INTEGER,
+			"Stumpings" INTEGER,
+			"TotalKeepingWickets" INTEGER,
+			FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
+			)');
     }
     
     function db_create_insert_match($db)
@@ -225,6 +238,20 @@
              VALUES (
 				 :player_id, :matches, :completed_overs, :partial_balls, :maidens, :runs, :wickets, :average,  
 				 :economy_rate, :strike_rate, :best_bowling_wickets, :best_bowling_runs, :five_fors, :wides, :no_balls
+			 	)'
+            );
+    }
+	
+    function db_create_insert_fielding_summary($db)
+    {
+        return $db->prepare(
+            'INSERT INTO "FieldingSummary" (
+				"PlayerId", "Matches", "CatchesFielding", "RunOuts", "TotalFieldingWickets",
+				"CatchesKeeping", "Stumpings", "TotalKeepingWickets"
+				)
+             VALUES (
+				 :player_id, :matches, :catches_fielding, :run_outs, :total_fielding_wickets,
+				 :catches_keeping, :stumpings, :total_keeping_wickets
 			 	)'
             );
     }
