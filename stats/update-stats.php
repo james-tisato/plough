@@ -30,6 +30,30 @@
             return 0;
     }
 	
+	function generate_csv_output($output_dir, $output_name, $header, $statement)
+	{
+		$out = fopen("$output_dir/$output_name.csv", "w");
+		fputcsv($out, $header);
+		
+        $result = $statement->execute();
+        while ($row = $result->fetchArray(SQLITE3_ASSOC))
+        {
+			$formatted_row = array();
+			foreach ($row as $key => $value)
+			{
+				$formatted_value = $value;
+				
+				if (is_float($value))
+					$formatted_value = sprintf("%.2f", $value);
+				
+				array_push($formatted_row, $formatted_value);
+			}
+			
+			fputcsv($out, $formatted_row);
+        }
+		fclose($out);
+	}
+	
 	function generate_batting_summary($players, $db)
 	{
 		$insert_batting_summary = db_create_insert_batting_summary($db);
@@ -78,6 +102,7 @@
 		    $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
 			if (empty($result))
 				continue;
+			
 			db_bind_values_from_row($insert_batting_summary, $result);
 		
 			// High score
@@ -101,12 +126,57 @@
 			$insert_batting_summary->execute();
 		}
 		
+		function generate_batting_summary_csv($db)
+		{
+			$header = array(
+				"Player", "Matches", "Innings", "Not Outs", "Runs", "Average", "Strike Rate", 
+				"High Score", "50s", "100s", "Ducks", "Fours", "Sixes"
+				);
+			
+	        $statement = $db->prepare('
+	            SELECT
+					  p.Name
+					 ,bs.Matches
+					 ,bs.Innings
+					 ,bs.NotOuts
+					 ,bs.Runs
+					 ,bs.Average
+					 ,bs.StrikeRate
+					 ,(CAST(bs.HighScore AS TEXT) || CASE bs.HighScoreNotOut WHEN 1 THEN \'*\' ELSE \'\' END)
+					 ,bs.Fifties
+					 ,bs.Hundreds
+					 ,bs.Ducks
+					 ,bs.Fours
+					 ,bs.Sixes
+	            FROM "Player" p
+	            INNER JOIN "BattingSummary" bs on bs.PlayerId = p.PlayerId
+				WHERE bs.Innings > 0
+				ORDER by bs.Runs DESC, bs.Average DESC
+	            '
+	            );
+			
+	        generate_csv_output("output", "batting", $header, $statement);
+		}
+		
 		function generate_bowling_summary($players, $db)
 		{
 			$insert_bowling_summary = db_create_insert_bowling_summary($db);
 			
 			foreach ($players as $player_id)
 			{
+				// Filter
+				$db->query('DROP TABLE IF EXISTS "IncludedPerformance"');
+				$db->query('CREATE TEMPORARY TABLE "IncludedPerformance" (
+					"PlayerPerformanceId" INTEGER PRIMARY KEY
+					)');
+				$db->query(
+					'INSERT INTO "IncludedPerformance"
+					 SELECT pp.PlayerPerformanceId FROM "PlayerPerformance" pp
+					 INNER JOIN "BowlingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
+					 WHERE
+					 		bp.Position in (1, 2)
+					');
+				
 				// Basic fields
 		        $statement = $db->prepare('               
 		            SELECT
@@ -121,6 +191,7 @@
 		                ,SUM(bp.NoBalls) as no_balls
 		            FROM "Player" p
 		            INNER JOIN "PlayerPerformance" pp on pp.PlayerId = p.PlayerId
+					--INNER JOIN "IncludedPerformance" ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
 		            LEFT JOIN "BowlingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
 					WHERE
 							p.PlayerId = :player_id
@@ -129,6 +200,9 @@
 		            );
 				$statement->bindValue(":player_id", $player_id);
 			    $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
+				if (empty($result))
+					continue;
+				
 				$runs = $result["runs"];
 				$wickets = $result["wickets"];
 				db_bind_values_from_row($insert_bowling_summary, $result);
@@ -185,6 +259,38 @@
 		}
 	}
 	
+	function generate_bowling_summary_csv($db)
+	{
+		$header = array(
+			"Player", "Matches", "Overs", "Maidens", "Runs", "Wickets", "Average", 
+			"Economy Rate", "Strike Rate", "Best Bowling", "5wi", "Wides", "No Balls"
+			);
+		
+        $statement = $db->prepare('
+            SELECT
+				  p.Name
+				 ,bs.Matches
+				 ,(CAST(bs.CompletedOvers AS TEXT) || \'.\' || CAST(bs.PartialBalls AS TEXT)) 
+				 ,bs.Maidens
+				 ,bs.Runs
+				 ,bs.Wickets
+				 ,bs.Average
+				 ,bs.EconomyRate
+				 ,bs.StrikeRate
+				 ,(CAST(bs.BestBowlingWickets AS TEXT) || \'/\' || CAST(bs.BestBowlingRuns AS TEXT))
+				 ,bs.FiveFors
+				 ,bs.Wides
+				 ,bs.NoBalls
+            FROM "Player" p
+            INNER JOIN "BowlingSummary" bs on bs.PlayerId = p.PlayerId
+			WHERE (bs.CompletedOvers > 0 OR bs.PartialBalls > 0)
+			ORDER by bs.Wickets DESC, bs.Average
+            '
+            );
+		
+        generate_csv_output("output", "bowling", $header, $statement);
+	}
+	
 	function generate_fielding_summary($players, $db)
 	{
 		$insert_fielding_summary = db_create_insert_fielding_summary($db);
@@ -226,6 +332,52 @@
 			// Insert
 			$insert_fielding_summary->execute();
 		}
+	}
+	
+	function generate_fielding_summary_csv($db)
+	{
+		$header = array(
+			"Player", "Matches", "Fielding Catches", "Run Outs", "Fielding Dismissals"
+			);
+		
+        $statement = $db->prepare('
+            SELECT
+				  p.Name
+				 ,fs.Matches
+				 ,fs.CatchesFielding
+				 ,fs.RunOuts
+				 ,fs.TotalFieldingWickets
+            FROM "Player" p
+            INNER JOIN "FieldingSummary" fs on fs.PlayerId = p.PlayerId
+			WHERE fs.TotalFieldingWickets > 0
+			ORDER by fs.TotalFieldingWickets DESC, fs.CatchesFielding DESC
+            '
+            );
+		
+        generate_csv_output("output", "fielding", $header, $statement);
+	}
+	
+	function generate_keeping_summary_csv($db)
+	{
+		$header = array(
+			"Player", "Matches", "Keeping Catches", "Stumpings", "Keeping Dismissals"
+			);
+		
+        $statement = $db->prepare('
+            SELECT
+				  p.Name
+				 ,fs.Matches
+				 ,fs.CatchesKeeping
+				 ,fs.Stumpings
+				 ,fs.TotalKeepingWickets
+            FROM "Player" p
+            INNER JOIN "FieldingSummary" fs on fs.PlayerId = p.PlayerId
+			WHERE fs.TotalKeepingWickets > 0
+			ORDER by fs.TotalKeepingWickets DESC, fs.CatchesKeeping DESC
+            '
+            );
+		
+        generate_csv_output("output", "keeping", $header, $statement);
 	}
     
     function main()
@@ -475,7 +627,6 @@
         }
 		
 		// Build summaries
-        // Get players
         $players = array();
         $statement = $db->prepare('SELECT PlayerId FROM "Player" ORDER BY PlayerId');
         $result = $statement->execute();
@@ -486,57 +637,11 @@
 		generate_bowling_summary($players, $db);
 		generate_fielding_summary($players, $db);
         
-        $statement = $db->prepare('       
-            SELECT
-				  p.Name
-				 ,bs.*
-            FROM "Player" p
-            INNER JOIN "BattingSummary" bs on bs.PlayerId = p.PlayerId
-            --WHERE p.Name = \'Chris Ovens\'
-			WHERE bs.Innings > 0
-			ORDER by bs.Runs DESC, bs.Average DESC
-			LIMIT 10
-            '
-            );
-        $result = $statement->execute();
-        while ($row = $result->fetchArray(SQLITE3_ASSOC))
-        {
-           print_r($row);
-        }
-		
-        $statement = $db->prepare('       
-            SELECT
-				  p.Name
-				 ,bs.*
-            FROM "Player" p
-            INNER JOIN "BowlingSummary" bs on bs.PlayerId = p.PlayerId
-            --WHERE p.Name = \'Matt Bolshaw\'
-			ORDER by bs.Wickets DESC, bs.Average DESC
-			LIMIT 10
-            '
-            );
-        $result = $statement->execute();
-        while ($row = $result->fetchArray(SQLITE3_ASSOC))
-        {
-            //print_r($row);
-        }
-		
-        $statement = $db->prepare('       
-            SELECT
-				  p.Name
-				 ,fs.*
-            FROM "Player" p
-            INNER JOIN "FieldingSummary" fs on fs.PlayerId = p.PlayerId
-            --WHERE p.Name = \'Matt Bolshaw\'
-			ORDER by fs.TotalKeepingWickets DESC
-			LIMIT 10
-            '
-            );
-        $result = $statement->execute();
-        while ($row = $result->fetchArray(SQLITE3_ASSOC))
-        {
-            //print_r($row);
-        }
+		// Generate outputs
+		generate_batting_summary_csv($db);
+		generate_bowling_summary_csv($db);
+		generate_fielding_summary_csv($db);
+		generate_keeping_summary_csv($db);
     }
     
     main();
