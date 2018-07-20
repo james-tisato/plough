@@ -1,5 +1,5 @@
 <?php
-	require_once("stats_db.php");
+	require_once("stats-db.php");
 
     // Constants
     const DB_PATH = "stats_db.sqlite";
@@ -9,7 +9,7 @@
     const URL_SEASON = "season=2018";
     const URL_API_TOKEN = "api_token=cd3d9f47cef70496b9b3bfbab5231214";
     
-    const FILE_MATCHES = "testdata/matches.json";
+    const FILE_MATCHES = "test/data/Basic/matches.json";
     
     const CLUB_NAME = "Ploughmans CC";
     const DELETED = "Deleted";
@@ -155,7 +155,7 @@
 	            '
 	            );
 			
-	        generate_csv_output("output", "batting", $header, $statement);
+	        generate_csv_output("output", "batting_ind_summary", $header, $statement);
 		}
 		
 		function generate_bowling_summary($players, $db)
@@ -288,7 +288,7 @@
             '
             );
 		
-        generate_csv_output("output", "bowling", $header, $statement);
+        generate_csv_output("output", "bowling_ind_summary", $header, $statement);
 	}
 	
 	function generate_fielding_summary($players, $db)
@@ -354,7 +354,7 @@
             '
             );
 		
-        generate_csv_output("output", "fielding", $header, $statement);
+        generate_csv_output("output", "fielding_ind_summary", $header, $statement);
 	}
 	
 	function generate_keeping_summary_csv($db)
@@ -377,7 +377,7 @@
             '
             );
 		
-        generate_csv_output("output", "keeping", $header, $statement);
+        generate_csv_output("output", "keeping_ind_summary", $header, $statement);
 	}
     
     function main()
@@ -431,7 +431,7 @@
             echo "  Processing match $match_idx (Play-Cricket id $pc_match_id)..." . PHP_EOL;
             
             // Get match detail
-            $match_detail_local_path = "testdata/match_$pc_match_id.json";
+            $match_detail_local_path = "test/data/Basic/match_$pc_match_id.json";
             
             if ($source_from_file)
                 $match_detail_url = $match_detail_local_path;
