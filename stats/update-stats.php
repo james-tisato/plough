@@ -1,8 +1,9 @@
 <?php
+	namespace plough;
 	require_once("stats-db.php");
 
     // Constants
-    const DB_PATH = "stats_db.sqlite";
+    const DB_PATH = "output/stats_db.sqlite";
     
     const URL_PREFIX = "http://play-cricket.com/api/v2/";
     const URL_SITE_ID = "site_id=8087";
@@ -380,17 +381,17 @@
         generate_csv_output("output", "keeping_ind_summary", $header, $statement);
 	}
     
-    function main()
+    function update_stats()
     {
         // Dumping / data sourcing
         $dump_to_disk = false;
-        $source_from_file = true;
+        $source_from_file = false;
         
         // Delete previous database
         unlink(DB_PATH);
         
         // Open database and create schema if required
-        $db = new SQLite3(DB_PATH);
+        $db = new \SQLite3(DB_PATH);
         db_create_schema($db);
         
         // Prepare statements
@@ -407,7 +408,7 @@
         
         // Get match list
         echo "Fetching match list..." . PHP_EOL;
-        $matches_from_date = "26/01/2018";
+        $matches_from_date = "01/01/2018";
         if ($source_from_file)
             $matches_url = FILE_MATCHES;
         else
@@ -627,22 +628,31 @@
         }
 		
 		// Build summaries
+		echo PHP_EOL . "Building summary tables..." . PHP_EOL;
         $players = array();
         $statement = $db->prepare('SELECT PlayerId FROM "Player" ORDER BY PlayerId');
         $result = $statement->execute();
         while ($row = $result->fetchArray(SQLITE3_ASSOC))
             array_push($players, $row["PlayerId"]);
         
+		echo "  Batting" . PHP_EOL;
 		generate_batting_summary($players, $db);
+		echo "  Bowling" . PHP_EOL;
 		generate_bowling_summary($players, $db);
+		echo "  Fielding" . PHP_EOL;
 		generate_fielding_summary($players, $db);
         
 		// Generate outputs
+		echo PHP_EOL . "Generating CSV output..." . PHP_EOL;
+		echo "  Batting" . PHP_EOL;
 		generate_batting_summary_csv($db);
+		echo "  Bowling" . PHP_EOL;
 		generate_bowling_summary_csv($db);
+		echo "  Fielding" . PHP_EOL;
 		generate_fielding_summary_csv($db);
+		echo "  Keeping" . PHP_EOL;
 		generate_keeping_summary_csv($db);
+		
+		echo PHP_EOL;
     }
-    
-    main();
 ?>

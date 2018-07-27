@@ -1,4 +1,5 @@
 <?php
+	namespace plough;
     function db_insert_and_return_id($db, $insert_statement)
     {
         $insert_statement->execute();

@@ -10,20 +10,14 @@ __TODO__
   * Configs:
     * Default - from web, no caching, output to folder
 	* Test - Basic - from file, no caching, output to result
+* Logging
+  * Bundle proper logging package with our plugin? If not, write our own
+  * Add logging throughout
+  * Add custom exception handler?
+  * Can we do the same for warnings?
 * WP Cron plugin
-  * Best option?
-  * Which hook to trigger?
+  * Where is my action?
 * Plugin
-  * Folder / file structure
-    * Where does code go?
-	* Where should the plugin write data to?
-  * Hook - define new?
-  * Cron - 15 minute interval? See table auto-update plugin as an example
-  * Packaging:
-    * Package structure
-	* Automated package build
-  * Deployment:
-    * Just manually deploy via admin UI for now?
 * Integration
   * Plugin hook into Cron job
   * Test Cron job manually and on schedule
