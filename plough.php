@@ -8,10 +8,16 @@ Author:			James Tisato
 
 require_once("stats/init.php");
 
+function init()
+{
+    plough\init_stats();
+}
+
 function plough_activate()
 {
 	plough\activate_stats();
 }
+
 
 function plough_deactivate()
 {
@@ -20,4 +26,6 @@ function plough_deactivate()
 
 register_activation_hook(__FILE__, "plough_activate");
 register_deactivation_hook(__FILE__, "plough_deactivate");
+
+init();
 ?>

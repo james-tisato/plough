@@ -3,7 +3,8 @@
 	require_once("stats-db.php");
 
     // Constants
-    const DB_PATH = "output/stats_db.sqlite";
+    const OUTPUT_DIR = WP_PLUGIN_DIR . "/plough/output";
+    const DB_PATH = OUTPUT_DIR . "/stats_db.sqlite";
     
     const URL_PREFIX = "http://play-cricket.com/api/v2/";
     const URL_SITE_ID = "site_id=8087";
@@ -156,7 +157,7 @@
 	            '
 	            );
 			
-	        generate_csv_output("output", "batting_ind_summary", $header, $statement);
+	        generate_csv_output(OUTPUT_DIR, "batting_ind_summary", $header, $statement);
 		}
 		
 		function generate_bowling_summary($players, $db)
@@ -289,7 +290,7 @@
             '
             );
 		
-        generate_csv_output("output", "bowling_ind_summary", $header, $statement);
+        generate_csv_output(OUTPUT_DIR, "bowling_ind_summary", $header, $statement);
 	}
 	
 	function generate_fielding_summary($players, $db)
@@ -355,7 +356,7 @@
             '
             );
 		
-        generate_csv_output("output", "fielding_ind_summary", $header, $statement);
+        generate_csv_output(OUTPUT_DIR, "fielding_ind_summary", $header, $statement);
 	}
 	
 	function generate_keeping_summary_csv($db)
@@ -378,11 +379,16 @@
             '
             );
 		
-        generate_csv_output("output", "keeping_ind_summary", $header, $statement);
+        generate_csv_output(OUTPUT_DIR, "keeping_ind_summary", $header, $statement);
 	}
     
     function update_stats()
     {
+        if (!file_exists(OUTPUT_DIR))
+        {
+            mkdir(OUTPUT_DIR);
+        }
+        
         // Dumping / data sourcing
         $dump_to_disk = false;
         $source_from_file = false;
