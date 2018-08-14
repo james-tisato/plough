@@ -3,7 +3,9 @@
 	require_once("stats-db.php");
 
     // Constants
+    echo WP_PLUGIN_DIR . PHP_EOL;
     const OUTPUT_DIR = WP_PLUGIN_DIR . "/plough/output";
+    echo OUTPUT_DIR . PHP_EOL;
     const DB_PATH = OUTPUT_DIR . "/stats_db.sqlite";
     
     const URL_PREFIX = "http://play-cricket.com/api/v2/";
