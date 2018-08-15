@@ -415,137 +415,137 @@
                 // Insert
                 $insert_batting_summary->execute();
             }
+        }
             
-            function generate_batting_summary_csv($db)
+        private function generate_batting_summary_csv($db)
+        {
+            $header = array(
+                "Player", "Matches", "Innings", "Not Outs", "Runs", "Average", "Strike Rate", 
+                "High Score", "50s", "100s", "Ducks", "Fours", "Sixes"
+                );
+            
+            $statement = $db->prepare('
+                SELECT
+                      p.Name
+                     ,bs.Matches
+                     ,bs.Innings
+                     ,bs.NotOuts
+                     ,bs.Runs
+                     ,bs.Average
+                     ,bs.StrikeRate
+                     ,(CAST(bs.HighScore AS TEXT) || CASE bs.HighScoreNotOut WHEN 1 THEN \'*\' ELSE \'\' END)
+                     ,bs.Fifties
+                     ,bs.Hundreds
+                     ,bs.Ducks
+                     ,bs.Fours
+                     ,bs.Sixes
+                FROM "Player" p
+                INNER JOIN "BattingSummary" bs on bs.PlayerId = p.PlayerId
+                WHERE bs.Innings > 0
+                ORDER by bs.Runs DESC, bs.Average DESC
+                '
+                );
+            
+            $this->generate_csv_output(OUTPUT_DIR, "batting_ind_summary", $header, $statement);
+        }
+            
+        private function generate_bowling_summary($players, $db)
+        {
+            $insert_bowling_summary = db_create_insert_bowling_summary($db);
+            
+            foreach ($players as $player_id)
             {
-                $header = array(
-                    "Player", "Matches", "Innings", "Not Outs", "Runs", "Average", "Strike Rate", 
-                    "High Score", "50s", "100s", "Ducks", "Fours", "Sixes"
-                    );
+                // Filter
+                $db->query('DROP TABLE IF EXISTS "IncludedPerformance"');
+                $db->query('CREATE TEMPORARY TABLE "IncludedPerformance" (
+                    "PlayerPerformanceId" INTEGER PRIMARY KEY
+                    )');
+                $db->query(
+                    'INSERT INTO "IncludedPerformance"
+                     SELECT pp.PlayerPerformanceId FROM "PlayerPerformance" pp
+                     INNER JOIN "BowlingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
+                     WHERE
+                            bp.Position in (1, 2)
+                    ');
                 
-                $statement = $db->prepare('
+                // Basic fields
+                $statement = $db->prepare('               
                     SELECT
-                          p.Name
-                         ,bs.Matches
-                         ,bs.Innings
-                         ,bs.NotOuts
-                         ,bs.Runs
-                         ,bs.Average
-                         ,bs.StrikeRate
-                         ,(CAST(bs.HighScore AS TEXT) || CASE bs.HighScoreNotOut WHEN 1 THEN \'*\' ELSE \'\' END)
-                         ,bs.Fifties
-                         ,bs.Hundreds
-                         ,bs.Ducks
-                         ,bs.Fours
-                         ,bs.Sixes
+                         p.PlayerId as player_id
+                        ,COUNT(pp.PlayerPerformanceId) AS matches
+                        ,SUM(bp.Maidens) as maidens
+                        ,SUM(bp.Runs) AS runs
+                        ,SUM(bp.Wickets) AS wickets
+                        ,(CAST(SUM(bp.Runs) AS FLOAT) / (SUM(bp.Wickets))) AS average
+                        ,SUM(CASE WHEN bp.Wickets >= 5 THEN 1 ELSE 0 END) AS five_fors
+                        ,SUM(bp.Wides) as wides
+                        ,SUM(bp.NoBalls) as no_balls
                     FROM "Player" p
-                    INNER JOIN "BattingSummary" bs on bs.PlayerId = p.PlayerId
-                    WHERE bs.Innings > 0
-                    ORDER by bs.Runs DESC, bs.Average DESC
+                    INNER JOIN "PlayerPerformance" pp on pp.PlayerId = p.PlayerId
+                    --INNER JOIN "IncludedPerformance" ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
+                    LEFT JOIN "BowlingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
+                    WHERE
+                            p.PlayerId = :player_id
+                    GROUP BY p.PlayerId, p.Name
                     '
                     );
+                $statement->bindValue(":player_id", $player_id);
+                $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
+                if (empty($result))
+                    continue;
                 
-                generate_csv_output(OUTPUT_DIR, "batting_ind_summary", $header, $statement);
-            }
-            
-            function generate_bowling_summary($players, $db)
-            {
-                $insert_bowling_summary = db_create_insert_bowling_summary($db);
+                $runs = $result["runs"];
+                $wickets = $result["wickets"];
+                db_bind_values_from_row($insert_bowling_summary, $result);
+        
+                // Overs, balls, economy rate, strike rate
+                $statement = $db->prepare('
+                    SELECT
+                         p.PlayerId
+                        ,SUM(bp.CompletedOvers) as completed_overs
+                        ,SUM(bp.PartialBalls) as partial_balls
+                    FROM "Player" p
+                    JOIN "BowlingPerformance" bp on bp.PlayerId = p.PlayerId
+                    WHERE
+                        p.PlayerId = :player_id
+                    ');
+                $statement->bindValue(":player_id", $player_id);
+                $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
+                $partial_overs = floor($result["partial_balls"] / 6);
+                $partial_balls = $result["partial_balls"] % 6;
+                $completed_overs = $result["completed_overs"] + $partial_overs;
+                $total_balls = $completed_overs * 6 + $partial_balls;
                 
-                foreach ($players as $player_id)
-                {
-                    // Filter
-                    $db->query('DROP TABLE IF EXISTS "IncludedPerformance"');
-                    $db->query('CREATE TEMPORARY TABLE "IncludedPerformance" (
-                        "PlayerPerformanceId" INTEGER PRIMARY KEY
-                        )');
-                    $db->query(
-                        'INSERT INTO "IncludedPerformance"
-                         SELECT pp.PlayerPerformanceId FROM "PlayerPerformance" pp
-                         INNER JOIN "BowlingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
-                         WHERE
-                                bp.Position in (1, 2)
-                        ');
-                    
-                    // Basic fields
-                    $statement = $db->prepare('               
-                        SELECT
-                             p.PlayerId as player_id
-                            ,COUNT(pp.PlayerPerformanceId) AS matches
-                            ,SUM(bp.Maidens) as maidens
-                            ,SUM(bp.Runs) AS runs
-                            ,SUM(bp.Wickets) AS wickets
-                            ,(CAST(SUM(bp.Runs) AS FLOAT) / (SUM(bp.Wickets))) AS average
-                            ,SUM(CASE WHEN bp.Wickets >= 5 THEN 1 ELSE 0 END) AS five_fors
-                            ,SUM(bp.Wides) as wides
-                            ,SUM(bp.NoBalls) as no_balls
-                        FROM "Player" p
-                        INNER JOIN "PlayerPerformance" pp on pp.PlayerId = p.PlayerId
-                        --INNER JOIN "IncludedPerformance" ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
-                        LEFT JOIN "BowlingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
-                        WHERE
-                                p.PlayerId = :player_id
-                        GROUP BY p.PlayerId, p.Name
-                        '
-                        );
-                    $statement->bindValue(":player_id", $player_id);
-                    $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
-                    if (empty($result))
-                        continue;
-                    
-                    $runs = $result["runs"];
-                    $wickets = $result["wickets"];
-                    db_bind_values_from_row($insert_bowling_summary, $result);
-            
-                    // Overs, balls, economy rate, strike rate
-                    $statement = $db->prepare('
-                        SELECT
-                             p.PlayerId
-                            ,SUM(bp.CompletedOvers) as completed_overs
-                            ,SUM(bp.PartialBalls) as partial_balls
-                        FROM "Player" p
-                        JOIN "BowlingPerformance" bp on bp.PlayerId = p.PlayerId
-                        WHERE
+                $economy_rate = NULL;
+                if ($total_balls > 0)
+                    $economy_rate = $runs / ($total_balls / 6.0);
+                $strike_rate = NULL;
+                if ($wickets > 0)
+                    $strike_rate = $total_balls / $wickets;
+                $insert_bowling_summary->bindValue(":completed_overs", $completed_overs);
+                $insert_bowling_summary->bindValue(":partial_balls", $partial_balls);
+                $insert_bowling_summary->bindValue(":economy_rate", $economy_rate);
+                $insert_bowling_summary->bindValue(":strike_rate", $strike_rate);
+        
+                // Best bowling
+                $statement = $db->prepare('
+                    SELECT
+                         p.PlayerId as player_id
+                        ,bp.Wickets as best_bowling_wickets
+                        ,bp.Runs as best_bowling_runs
+                    FROM "Player" p
+                    LEFT JOIN "BowlingPerformance" bp on bp.PlayerId = p.PlayerId
+                    WHERE
                             p.PlayerId = :player_id
-                        ');
-                    $statement->bindValue(":player_id", $player_id);
-                    $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
-                    $partial_overs = floor($result["partial_balls"] / 6);
-                    $partial_balls = $result["partial_balls"] % 6;
-                    $completed_overs = $result["completed_overs"] + $partial_overs;
-                    $total_balls = $completed_overs * 6 + $partial_balls;
-                    
-                    $economy_rate = NULL;
-                    if ($total_balls > 0)
-                        $economy_rate = $runs / ($total_balls / 6.0);
-                    $strike_rate = NULL;
-                    if ($wickets > 0)
-                        $strike_rate = $total_balls / $wickets;
-                    $insert_bowling_summary->bindValue(":completed_overs", $completed_overs);
-                    $insert_bowling_summary->bindValue(":partial_balls", $partial_balls);
-                    $insert_bowling_summary->bindValue(":economy_rate", $economy_rate);
-                    $insert_bowling_summary->bindValue(":strike_rate", $strike_rate);
-            
-                    // Best bowling
-                    $statement = $db->prepare('
-                        SELECT
-                             p.PlayerId as player_id
-                            ,bp.Wickets as best_bowling_wickets
-                            ,bp.Runs as best_bowling_runs
-                        FROM "Player" p
-                        LEFT JOIN "BowlingPerformance" bp on bp.PlayerId = p.PlayerId
-                        WHERE
-                                p.PlayerId = :player_id
-                        ORDER BY best_bowling_wickets DESC, best_bowling_runs ASC
-                        LIMIT 1
-                        ');
-                    $statement->bindValue(":player_id", $player_id);
-                    $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
-                    db_bind_values_from_row($insert_bowling_summary, $result);
-            
-                    // Insert
-                    $insert_bowling_summary->execute();
-                }
+                    ORDER BY best_bowling_wickets DESC, best_bowling_runs ASC
+                    LIMIT 1
+                    ');
+                $statement->bindValue(":player_id", $player_id);
+                $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
+                db_bind_values_from_row($insert_bowling_summary, $result);
+        
+                // Insert
+                $insert_bowling_summary->execute();
             }
         }
         
@@ -578,7 +578,7 @@
                 '
                 );
             
-            generate_csv_output(OUTPUT_DIR, "bowling_ind_summary", $header, $statement);
+            $this->generate_csv_output(OUTPUT_DIR, "bowling_ind_summary", $header, $statement);
         }
         
         private function generate_fielding_summary($players, $db)
@@ -644,7 +644,7 @@
                 '
                 );
             
-            generate_csv_output(OUTPUT_DIR, "fielding_ind_summary", $header, $statement);
+            $this->generate_csv_output(OUTPUT_DIR, "fielding_ind_summary", $header, $statement);
         }
         
         private function generate_keeping_summary_csv($db)
@@ -667,7 +667,7 @@
                 '
                 );
             
-            generate_csv_output(OUTPUT_DIR, "keeping_ind_summary", $header, $statement);
+            $this->generate_csv_output(OUTPUT_DIR, "keeping_ind_summary", $header, $statement);
         }
     }
 ?>
