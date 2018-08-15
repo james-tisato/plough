@@ -1,5 +1,4 @@
 __TODO__
-* WP mocking for local run
 * XML-based configuration as input
   * Or JSON?
   * Pass as command line argument

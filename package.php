@@ -22,8 +22,8 @@
 		{
 			add_file($zip, "plough.php");
 		    add_file($zip, "stats/init.php");
-			add_file($zip, "stats/stats-db.php");
-			add_file($zip, "stats/update-stats.php");
+			add_file($zip, "stats/db.php");
+			add_file($zip, "stats/update.php");
 
 		    $zip->close();
 		}

@@ -10,18 +10,18 @@ require_once("stats/init.php");
 
 function init()
 {
-    plough\init_stats();
+    plough\stats\init();
 }
 
 function plough_activate()
 {
-	plough\activate_stats();
+	plough\stats\activate();
 }
 
 
 function plough_deactivate()
 {
-	plough\deactivate_stats();
+	plough\stats\deactivate();
 }
 
 register_activation_hook(__FILE__, "plough_activate");
