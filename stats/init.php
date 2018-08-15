@@ -1,14 +1,16 @@
 <?php
 	namespace plough\stats;
 	
-	require_once("update.php");
+	require_once("updater.php");
 	
 	const UPDATE_HOOK_NAME = "plough_update_stats";
-	const UPDATE_FUNCTION = __NAMESPACE__ . "\\update_stats";
+	const UPDATE_FUNCTION = "update_stats";
 	
 	function init()
 	{
-	    add_action(UPDATE_HOOK_NAME, UPDATE_FUNCTION);
+        $updater = new Updater();
+        
+	    add_action(UPDATE_HOOK_NAME, array($updater, UPDATE_FUNCTION);
 	}
 	
 	function activate()

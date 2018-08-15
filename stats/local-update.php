@@ -1,7 +1,8 @@
 <?php
 	namespace plough\stats;
     require_once("local-wp-mock.php");
-	require_once("update.php");
+	require_once("updater.php");
 	
-	update_stats();
+	$updater = new Updater();
+    $updater->update_stats();
 ?>
