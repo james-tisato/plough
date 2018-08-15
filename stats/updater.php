@@ -1,6 +1,9 @@
 <?php
 	namespace plough\stats;
-	require_once("db.php");
+    
+    require_once("config.php");
+	require_once("data-mapper.php");
+    require_once("db.php");
     require_once("utils.php");
 
     // Constants
@@ -11,8 +14,6 @@
     const URL_SITE_ID = "site_id=8087";
     const URL_SEASON = "season=2018";
     const URL_API_TOKEN = "api_token=cd3d9f47cef70496b9b3bfbab5231214";
-    
-    const FILE_MATCHES = "test/data/Basic/matches.json";
     
     const CLUB_NAME = "Ploughmans CC";
     const DELETED = "Deleted";
@@ -27,12 +28,12 @@
     class Updater
     {
         // Properties
-        
+        private $_config;
         
         // Public methods
-        public function __construct()
+        public function __construct(Config $config)
         {
-            
+            $this->_config = $config;
         }
         
         public function update_stats()
@@ -44,10 +45,13 @@
             
             // Dumping / data sourcing
             $dump_to_disk = false;
-            $source_from_file = true;
-            
-            // Delete previous database
-            unlink(DB_PATH);
+            $source_from_file = false;
+         
+            if ($this->_config->clear_db)
+            {
+                // Delete previous database
+                unlink(DB_PATH);
+            }
             
             // Open database and create schema if required
             $db = new \SQLite3(DB_PATH);
@@ -65,19 +69,19 @@
             $match_cache = array();
             $player_cache = array();
             
+            $input_mapper = new FileDataMapper("test/data/Basic");
+            
             // Get match list
             echo "Fetching match list..." . PHP_EOL;
             $matches_from_date = "01/01/2018";
-            if ($source_from_file)
-                $matches_url = FILE_MATCHES;
-            else
-                $matches_url = URL_PREFIX . "matches.json?" . URL_SITE_ID . "&" . URL_SEASON . "&" . URL_API_TOKEN . "&from_entry_date=$matches_from_date";
-            $matches_str = file_get_contents($matches_url);
+            $matches_path = $input_mapper->getMatchesPath("2018", $matches_from_date);
+            $matches_str = file_get_contents($matches_path);
             
-            echo $matches_url . PHP_EOL;
-            
+            // $matches_url = URL_PREFIX . "matches.json?" . URL_SITE_ID . "&" . URL_SEASON . "&" . URL_API_TOKEN . "&from_entry_date=$matches_from_date";
+            // echo $matches_url . PHP_EOL;
+        
             if ($dump_to_disk)
-                file_put_contents(FILE_MATCHES, $matches_str);
+                file_put_contents($matches_path, $matches_str);
             
             $matches = json_decode($matches_str, true)["matches"];
             $num_matches = count($matches);
@@ -93,18 +97,13 @@
                 echo "  Processing match $match_idx (Play-Cricket id $pc_match_id)..." . PHP_EOL;
                 
                 // Get match detail
-                $match_detail_local_path = "test/data/Basic/match_$pc_match_id.json";
+                $match_detail_path = $input_mapper->getMatchDetailPath($pc_match_id);
+                $match_detail_str = file_get_contents($match_detail_path);
                 
-                if ($source_from_file)
-                    $match_detail_url = $match_detail_local_path;
-                else
-                    $match_detail_url = URL_PREFIX . "match_detail.json?match_id=$pc_match_id&" . URL_API_TOKEN;
-                $match_detail_str = file_get_contents($match_detail_url);
-                
-                echo $match_detail_url . PHP_EOL;
+                //$match_detail_url = URL_PREFIX . "match_detail.json?match_id=$pc_match_id&" . URL_API_TOKEN;
                 
                 if ($dump_to_disk)
-                    file_put_contents($match_detail_local_path, $match_detail_str);
+                    file_put_contents($match_detail_path, $match_detail_str);
                 
                 $match_detail = json_decode($match_detail_str, true)["match_details"][0];
                 

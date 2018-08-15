@@ -1,8 +1,13 @@
 <?php
     namespace plough\stats;
     
-    // class 
-    // {
-        // public 
-    // }
+    class Config
+    {
+        public $clear_db = true;
+        
+        public function __construct()
+        {
+            
+        }
+    }
 ?>
