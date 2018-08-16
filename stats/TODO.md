@@ -1,22 +1,6 @@
 __TODO__
 * XML-based configuration as input
-  * Or JSON?
   * Pass as command line argument
-  * Parameters:
-    * Input data source
-	* Cache data sink
-	* Output data sink
-	* Use existing DB or create fresh
-  * Configs:
-    * Default - from web, no caching, output to folder
-	* Test - Basic - from file, no caching, output to result
-  * Simpler:
-    * Only input is pluggable
-       * Two implementations of input datasource - file (with root path config), web
-       * Explicit functions for getting matches, match details
-    * Cache path - use if provided
-    * Output path
-    * Use existing DB or create fresh
 * Output tidying
   * Add stats subfolder and update auto-import links
 * Logging

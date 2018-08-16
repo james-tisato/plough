@@ -7,14 +7,6 @@
     require_once("utils.php");
 
     // Constants
-    const OUTPUT_DIR = WP_PLUGIN_DIR . "/plough/output";
-    const DB_PATH = OUTPUT_DIR . "/stats_db.sqlite";
-    
-    const URL_PREFIX = "http://play-cricket.com/api/v2/";
-    const URL_SITE_ID = "site_id=8087";
-    const URL_SEASON = "season=2018";
-    const URL_API_TOKEN = "api_token=cd3d9f47cef70496b9b3bfbab5231214";
-    
     const CLUB_NAME = "Ploughmans CC";
     const DELETED = "Deleted";
     
@@ -38,23 +30,31 @@
         
         public function update_stats()
         {
-            if (!file_exists(OUTPUT_DIR))
+            // Config
+            $output_dir = $this->_config->getOutputDir();
+            if (!file_exists($output_dir))
+                mkdir($output_dir);
+            
+            if ($this->_config->dumpInputs())
             {
-                mkdir(OUTPUT_DIR);
+                $dump_dir = $this->_config->getInputDumpDir();
+                $dump_data_mapper = $this->_config->getInputDumpDataMapper();
+                
+                if (!file_exists($dump_dir))
+                    mkdir($dump_dir);
             }
             
-            // Dumping / data sourcing
-            $dump_to_disk = false;
-            $source_from_file = false;
+            $input_mapper = $this->_config->getInputDataMapper();
          
-            if ($this->_config->clear_db)
+            $db_path = $output_dir . "/stats_db.sqlite";
+            if ($this->_config->clearDb())
             {
                 // Delete previous database
-                unlink(DB_PATH);
+                unlink($db_path);
             }
             
             // Open database and create schema if required
-            $db = new \SQLite3(DB_PATH);
+            $db = new \SQLite3($db_path);
             db_create_schema($db); 
             
             // Prepare statements
@@ -69,19 +69,15 @@
             $match_cache = array();
             $player_cache = array();
             
-            $input_mapper = new FileDataMapper("test/data/Basic");
-            
             // Get match list
             echo "Fetching match list..." . PHP_EOL;
+            $season = "2018";
             $matches_from_date = "01/01/2018";
-            $matches_path = $input_mapper->getMatchesPath("2018", $matches_from_date);
+            $matches_path = $input_mapper->getMatchesPath($season, $matches_from_date);
             $matches_str = file_get_contents($matches_path);
-            
-            // $matches_url = URL_PREFIX . "matches.json?" . URL_SITE_ID . "&" . URL_SEASON . "&" . URL_API_TOKEN . "&from_entry_date=$matches_from_date";
-            // echo $matches_url . PHP_EOL;
         
-            if ($dump_to_disk)
-                file_put_contents($matches_path, $matches_str);
+            if ($this->_config->dumpInputs())
+                file_put_contents($dump_data_mapper->getMatchesPath($season, $matches_from_date), $matches_str);
             
             $matches = json_decode($matches_str, true)["matches"];
             $num_matches = count($matches);
@@ -100,10 +96,8 @@
                 $match_detail_path = $input_mapper->getMatchDetailPath($pc_match_id);
                 $match_detail_str = file_get_contents($match_detail_path);
                 
-                //$match_detail_url = URL_PREFIX . "match_detail.json?match_id=$pc_match_id&" . URL_API_TOKEN;
-                
-                if ($dump_to_disk)
-                    file_put_contents($match_detail_path, $match_detail_str);
+                if ($this->_config->dumpInputs())
+                    file_put_contents($dump_data_mapper->getMatchDetailPath($pc_match_id), $match_detail_str);
                 
                 $match_detail = json_decode($match_detail_str, true)["match_details"][0];
                 
@@ -314,13 +308,12 @@
             $this->generate_fielding_summary_csv($db);
             echo "  Keeping" . PHP_EOL;
             $this->generate_keeping_summary_csv($db);
-            
-            echo PHP_EOL;
         }
         
         // Private helpers
-        private function generate_csv_output($output_dir, $output_name, $header, $statement)
+        private function generate_csv_output($output_name, $header, $statement)
         {
+            $output_dir = $this->_config->getOutputDir();
             $out = fopen("$output_dir/$output_name.csv", "w");
             fputcsv($out, $header);
             
@@ -445,7 +438,7 @@
                 '
                 );
             
-            $this->generate_csv_output(OUTPUT_DIR, "batting_ind_summary", $header, $statement);
+            $this->generate_csv_output("batting_ind_summary", $header, $statement);
         }
             
         private function generate_bowling_summary($players, $db)
@@ -577,7 +570,7 @@
                 '
                 );
             
-            $this->generate_csv_output(OUTPUT_DIR, "bowling_ind_summary", $header, $statement);
+            $this->generate_csv_output("bowling_ind_summary", $header, $statement);
         }
         
         private function generate_fielding_summary($players, $db)
@@ -643,7 +636,7 @@
                 '
                 );
             
-            $this->generate_csv_output(OUTPUT_DIR, "fielding_ind_summary", $header, $statement);
+            $this->generate_csv_output("fielding_ind_summary", $header, $statement);
         }
         
         private function generate_keeping_summary_csv($db)
@@ -666,7 +659,7 @@
                 '
                 );
             
-            $this->generate_csv_output(OUTPUT_DIR, "keeping_ind_summary", $header, $statement);
+            $this->generate_csv_output("keeping_ind_summary", $header, $statement);
         }
     }
 ?>

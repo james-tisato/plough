@@ -4,7 +4,6 @@
     require_once("local-wp-mock.php");
 	require_once("updater.php");
 	
-    $config = new Config();
-	$updater = new Updater($config);
+	$updater = new Updater(Config::fromXmlFile("config/local-test.xml"));
     $updater->update_stats();
 ?>
