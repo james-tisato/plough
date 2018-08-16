@@ -1,6 +1,4 @@
 __TODO__
-* XML-based configuration as input
-  * Pass as command line argument
 * Output tidying
   * Add stats subfolder and update auto-import links
 * Logging

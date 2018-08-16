@@ -315,7 +315,7 @@
         {
             $output_dir = $this->_config->getOutputDir();
             $out = fopen("$output_dir/$output_name.csv", "w");
-            fputcsv($out, $header);
+            fputcsv_eol($out, $header);
             
             $result = $statement->execute();
             while ($row = $result->fetchArray(SQLITE3_ASSOC))
@@ -331,7 +331,7 @@
                     array_push($formatted_row, $formatted_value);
                 }
                 
-                fputcsv($out, $formatted_row);
+                fputcsv_eol($out, $formatted_row);
             }
             fclose($out);
         }
