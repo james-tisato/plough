@@ -14,7 +14,7 @@
         return (boolean) json_decode($str);
     }
     
-    function get_wp_stats_root()
+    function get_stats_root()
     {
         return WP_PLUGIN_DIR . "/plough/stats";
     }

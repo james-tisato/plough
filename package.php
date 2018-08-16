@@ -6,11 +6,14 @@
 	
 	function add_file($zip, $file_path)
 	{
+        echo "Adding [$file_path]" . PHP_EOL;
 		$zip->addFile($file_path, "plough/" . $file_path);
 	}
 	
 	function create_zip()
 	{
+        echo PHP_EOL;
+        
 		if (!file_exists(DIST_DIR))
 			mkdir(DIST_DIR);
 
@@ -21,14 +24,19 @@
 		if ($zip->open(ZIP_PATH, \ZipArchive::CREATE) === TRUE)
 		{
 			add_file($zip, "plough.php");
-		    add_file($zip, "stats/init.php");
-			add_file($zip, "stats/db.php");
-			add_file($zip, "stats/update.php");
+		    add_file($zip, "stats/config.php");
+            add_file($zip, "stats/data-mapper.php");
+            add_file($zip, "stats/db.php");
+            add_file($zip, "stats/init.php");
+			add_file($zip, "stats/updater.php");
+            add_file($zip, "stats/utils.php");
+            
+            add_file($zip, "stats/config/default.xml");
 
 		    $zip->close();
 		}
 
-		echo "Generated plugin zip at " . ZIP_PATH . PHP_EOL;
+		echo "\nGenerated plugin zip at " . ZIP_PATH . PHP_EOL;
 	}
 	
 	create_zip();

@@ -83,7 +83,7 @@
             $result = $this->_params[$key];
             
             // Do replacements
-            $result = str_replace("{" . REPLACE_STATS_ROOT . "}", get_wp_stats_root(), $result);
+            $result = str_replace("{" . REPLACE_STATS_ROOT . "}", get_stats_root(), $result);
             
             return $result;
         }
