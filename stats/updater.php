@@ -1,10 +1,14 @@
 <?php
 	namespace plough\stats;
     
+    use plough\log;
+
+    require_once("../logger.php");
+    require_once("../utils.php");
+    
     require_once("config.php");
 	require_once("data-mapper.php");
     require_once("db.php");
-    require_once("utils.php");
 
     // Constants
     const CLUB_NAME = "Ploughmans CC";
@@ -70,7 +74,7 @@
             $player_cache = array();
             
             // Get match list
-            echo "Fetching match list..." . PHP_EOL;
+            log\info("Fetching match list...");
             $season = "2018";
             $matches_from_date = "01/01/2018";
             $matches_path = $input_mapper->getMatchesPath($season, $matches_from_date);
@@ -81,16 +85,16 @@
             
             $matches = json_decode($matches_str, true)["matches"];
             $num_matches = count($matches);
-            echo "  $num_matches matches found" . PHP_EOL . PHP_EOL;
+            log\info("  $num_matches matches found" . PHP_EOL);
             
-            echo "Fetching match details..." . PHP_EOL;
+            log\info("Fetching match details...");
             foreach ($matches as $match_idx => $match)
             {
                 // Player performance cache for this match
                 $player_perf_cache = array();
                 $pc_match_id = $match["id"];
                 
-                echo "  Processing match $match_idx (Play-Cricket id $pc_match_id)..." . PHP_EOL;
+                log\info("  Processing match $match_idx (Play-Cricket id $pc_match_id)...");
                 
                 // Get match detail
                 $match_detail_path = $input_mapper->getMatchDetailPath($pc_match_id);
@@ -103,11 +107,11 @@
                 
                 if ($match_detail["status"] == DELETED)
                 {
-                    echo "    Skipping match because it was deleted..." . PHP_EOL;
+                    log\info("    Skipping match because it was deleted...");
                 }
                 else if (empty($match_detail["result"]))
                 {
-                    echo "    Skipping match because it is a future fixture..." . PHP_EOL;
+                    log\info("    Skipping match because it is a future fixture...");
                 }
                 else
                 {
@@ -167,8 +171,8 @@
                         $player_id = $player_cache[$pc_player_id];
                         $insert_player_perf->bindValue(":match_id", $match_id);
                         $insert_player_perf->bindValue(":player_id", $player_id);
-                        $insert_player_perf->bindValue(":captain", int_from_bool($player["captain"]));
-                        $insert_player_perf->bindValue(":wicketkeeper", int_from_bool($player["wicket_keeper"]));
+                        $insert_player_perf->bindValue(":captain", \plough\int_from_bool($player["captain"]));
+                        $insert_player_perf->bindValue(":wicketkeeper", \plough\int_from_bool($player["wicket_keeper"]));
                         $player_perf_id = db_insert_and_return_id($db, $insert_player_perf);
                         $player_perf_cache[$pc_player_id] = $player_perf_id;
                     }
@@ -284,29 +288,31 @@
             }
             
             // Build summaries
-            echo PHP_EOL . "Building summary tables..." . PHP_EOL;
+            log\info("");
+            log\info("Building summary tables...");
             $players = array();
             $statement = $db->prepare('SELECT PlayerId FROM "Player" ORDER BY PlayerId');
             $result = $statement->execute();
             while ($row = $result->fetchArray(SQLITE3_ASSOC))
                 array_push($players, $row["PlayerId"]);
             
-            echo "  Batting" . PHP_EOL;
+            log\info("  Batting");
             $this->generate_batting_summary($players, $db);
-            echo "  Bowling" . PHP_EOL;
+            log\info("  Bowling");
             $this->generate_bowling_summary($players, $db);
-            echo "  Fielding" . PHP_EOL;
+            log\info("  Fielding");
             $this->generate_fielding_summary($players, $db);
             
             // Generate outputs
-            echo PHP_EOL . "Generating CSV output..." . PHP_EOL;
-            echo "  Batting" . PHP_EOL;
+            log\info("");
+            log\info("Generating CSV output...");
+            log\info("  Batting");
             $this->generate_batting_summary_csv($db);
-            echo "  Bowling" . PHP_EOL;
+            log\info("  Bowling");
             $this->generate_bowling_summary_csv($db);
-            echo "  Fielding" . PHP_EOL;
+            log\info("  Fielding");
             $this->generate_fielding_summary_csv($db);
-            echo "  Keeping" . PHP_EOL;
+            log\info("  Keeping");
             $this->generate_keeping_summary_csv($db);
         }
         
@@ -315,7 +321,7 @@
         {
             $output_dir = $this->_config->getOutputDir();
             $out = fopen("$output_dir/$output_name.csv", "w");
-            fputcsv_eol($out, $header);
+            \plough\fputcsv_eol($out, $header);
             
             $result = $statement->execute();
             while ($row = $result->fetchArray(SQLITE3_ASSOC))
@@ -331,7 +337,7 @@
                     array_push($formatted_row, $formatted_value);
                 }
                 
-                fputcsv_eol($out, $formatted_row);
+                \plough\fputcsv_eol($out, $formatted_row);
             }
             fclose($out);
         }

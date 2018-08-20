@@ -3,7 +3,7 @@
 	
     require_once("config.php");
 	require_once("updater.php");
-    require_once("utils.php");
+    require_once("../utils.php");
 	
 	const UPDATE_HOOK_NAME = "plough_update_stats";
 	const UPDATE_FUNCTION = "update_stats";

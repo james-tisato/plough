@@ -23,13 +23,19 @@
 		$zip = new \ZipArchive;
 		if ($zip->open(ZIP_PATH, \ZipArchive::CREATE) === TRUE)
 		{
-			add_file($zip, "plough.php");
+            add_file($zip, "plough.php");
+            add_file($zip, "utils.php");
+            
+			add_file($zip, "logger.php");
+            add_file($zip, "Psr/Log/AbstractLogger.php")
+            add_file($zip, "Psr/Log/LoggerInterface.php")
+            add_file($zip, "Psr/Log/LoggerLevel.php")
+            
 		    add_file($zip, "stats/config.php");
             add_file($zip, "stats/data-mapper.php");
             add_file($zip, "stats/db.php");
             add_file($zip, "stats/init.php");
 			add_file($zip, "stats/updater.php");
-            add_file($zip, "stats/utils.php");
             
             add_file($zip, "stats/config/default.xml");
 

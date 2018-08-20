@@ -6,21 +6,29 @@ Version:		0.0.2
 Author:			James Tisato
 */
 
+use plough\log;
+
+require_once("logger.php");
 require_once("stats/init.php");
 
 function init()
 {
+    log\init();
+    log\info("Initialising Plough plugin");
+    
     plough\stats\init();
 }
 
 function plough_activate()
 {
+    log\info("Activating Plough plugin");
 	plough\stats\activate();
 }
 
 
 function plough_deactivate()
 {
+    log\info("Deactivating Plough plugin");
 	plough\stats\deactivate();
 }
 

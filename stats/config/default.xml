@@ -2,4 +2,5 @@
     <Pair Key="ClearDb" Value="true" />
     <Pair Key="InputMapperName" Value="web" />
     <Pair Key="OutputDir" Value="{stats_root}/output" />
+    <Pair Key="LogDir" Value="{plugin_root}/logs" />
 </StatsConfig>

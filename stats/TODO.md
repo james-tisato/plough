@@ -25,3 +25,4 @@ __TODO__
     * Live career stats
 * Refactoring
   * Move initial stats building into separate functions
+  * Switch to class autoloading

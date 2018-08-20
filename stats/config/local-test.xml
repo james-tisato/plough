@@ -4,4 +4,5 @@
     <Pair Key="InputMapperDir" Value="{stats_root}/test/data/basic" />
     <!--<Pair Key="InputDumpDir" Value="{stats_root}/dump" />-->
     <Pair Key="OutputDir" Value="{stats_root}/output" />
+    <Pair Key="LogDir" Value="{plugin_root}/logs" />
 </StatsConfig>

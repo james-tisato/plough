@@ -2,7 +2,7 @@
     namespace plough\stats;
     
     require_once("data-mapper.php");
-    require_once("utils.php");
+    require_once("../utils.php");
     
     const KEY_INPUT_MAPPER_NAME = "InputMapperName";
     const KEY_INPUT_MAPPER_DIR = "InputMapperDir";
@@ -10,6 +10,7 @@
     const KEY_OUTPUT_DIR = "OutputDir";
     const KEY_CLEAR_DB = "ClearDb";
     
+    const REPLACE_PLUGIN_ROOT = "plugin_root";
     const REPLACE_STATS_ROOT = "stats_root";
     
     class Config
@@ -38,14 +39,14 @@
         
         public function getInputDataMapper()
         {
-            $mapper_name = $this->get_param(KEY_INPUT_MAPPER_NAME);
+            $mapper_name = $this->getParam(KEY_INPUT_MAPPER_NAME);
             if ($mapper_name == "web")
             {
                 return new WebDataMapper();
             }
             else if ($mapper_name == "file")
             {
-                return new FileDataMapper($this->get_param(KEY_INPUT_MAPPER_DIR));
+                return new FileDataMapper($this->getParam(KEY_INPUT_MAPPER_DIR));
             }
             else
             {
@@ -60,7 +61,7 @@
         
         public function getInputDumpDir()
         {
-            return $this->get_param(KEY_INPUT_DUMP_DIR);
+            return $this->getParam(KEY_INPUT_DUMP_DIR);
         }
         
         public function getInputDumpDataMapper()
@@ -70,20 +71,21 @@
         
         public function getOutputDir()
         {
-            return $this->get_param(KEY_OUTPUT_DIR);
+            return $this->getParam(KEY_OUTPUT_DIR);
         }
         
         public function clearDb()
         {
-            return bool_from_str($this->get_param(KEY_CLEAR_DB));
+            return \plough\bool_from_str($this->getParam(KEY_CLEAR_DB));
         }
         
-        private function get_param($key)
+        private function getParam($key)
         {
             $result = $this->_params[$key];
             
             // Do replacements
-            $result = str_replace("{" . REPLACE_STATS_ROOT . "}", get_stats_root(), $result);
+            $result = str_replace("{" . REPLACE_PLUGIN_ROOT . "}", \plough\get_plugin_root(), $result);
+            $result = str_replace("{" . REPLACE_STATS_ROOT . "}", \plough\get_stats_root(), $result);
             
             return $result;
         }
