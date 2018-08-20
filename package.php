@@ -27,9 +27,9 @@
             add_file($zip, "utils.php");
             
 			add_file($zip, "logger.php");
-            add_file($zip, "Psr/Log/AbstractLogger.php")
-            add_file($zip, "Psr/Log/LoggerInterface.php")
-            add_file($zip, "Psr/Log/LoggerLevel.php")
+            add_file($zip, "Psr/Log/AbstractLogger.php");
+            add_file($zip, "Psr/Log/LoggerInterface.php");
+            add_file($zip, "Psr/Log/LoggerLevel.php");
             
 		    add_file($zip, "stats/config.php");
             add_file($zip, "stats/data-mapper.php");
