@@ -1,6 +1,8 @@
 <?php
     namespace plough;
 
+    const SEPARATOR_LINE = "---------------------------------------------------------------------------------------------------------";
+    
     function int_from_bool($bool)
     {
         if ($bool)

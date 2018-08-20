@@ -84,7 +84,8 @@
             
             $matches = json_decode($matches_str, true)["matches"];
             $num_matches = count($matches);
-            log\info("  $num_matches matches found" . PHP_EOL);
+            log\info("  $num_matches matches found");
+            log\info("");
             
             log\info("Fetching match details...");
             foreach ($matches as $match_idx => $match)

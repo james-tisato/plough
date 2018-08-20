@@ -5,9 +5,6 @@
     require_once("Psr/Log/LogLevel.php");
     require_once("Psr/Log/AbstractLogger.php");
     require_once("utils.php");
-
-    // Constants
-    const SEPARATOR_LINE = "---------------------------------------------------------------------------------------------------------";
     
     // Global logger instance
     $logger;
@@ -34,7 +31,7 @@
             $this->_date_str = $date_str;
             $this->_log_path = $this->_log_dir . "/plough-" . $this->_date_str . ".log";
             $this->_log_file = fopen($this->_log_path, "a");
-            fwrite($this->_log_file, PHP_EOL . SEPARATOR_LINE . PHP_EOL);
+            fwrite($this->_log_file, PHP_EOL . \plough\SEPARATOR_LINE . PHP_EOL);
             fwrite($this->_log_file, "Initialised Plough plugin log at " . $this->_log_path . PHP_EOL . PHP_EOL);
         }
         

@@ -1,8 +1,5 @@
 __TODO__
-* Output tidying
-  * Add stats subfolder and update auto-import links
 * Logging
-  * Use stdout logging only when running locally
   * Start using levels properly
   * Add custom exception handler?
     * Can we do the same for warnings?
