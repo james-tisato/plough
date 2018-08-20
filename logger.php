@@ -15,13 +15,15 @@
     class Logger extends \Psr\Log\AbstractLogger
     {
         private $_date_str;
+        private $_log_to_stdout;
         private $_log_dir;
         private $_log_path;
         private $_log_file;
         
-        public function __construct()
+        public function __construct($log_to_stdout)
         {
             $this->_log_dir = \plough\get_plugin_root() . "/logs";
+            $this->_log_to_stdout = $log_to_stdout;
         }
         
         private function init($date_str)
@@ -55,15 +57,18 @@
                 $this->init($current_date_str);
             
             $line_no_date = strtoupper($level) . " " . $message . PHP_EOL;
-            echo $line_no_date;
+            
+            if ($this->_log_to_stdout)
+                echo $line_no_date;
+            
             fwrite($this->_log_file, $current_datetime_str . " " . $line_no_date);
         }
     }
     
-    function init()
+    function init($log_to_stdout = false)
     {
         global $logger;
-        $logger = new Logger();
+        $logger = new Logger($log_to_stdout);
     }
     
     function emergency($message, array $context = array())

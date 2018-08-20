@@ -14,8 +14,6 @@ require_once("stats/init.php");
 function init()
 {
     log\init();
-    log\info("Initialising Plough plugin");
-    
     plough\stats\init();
 }
 

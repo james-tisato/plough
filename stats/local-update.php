@@ -10,7 +10,7 @@
     
     $config = Config::fromXmlFile("config/local-test.xml");
     
-    log\init();
+    log\init(true);
     log\info("Initialising local update test run");
 	
 	$updater = new Updater($config);
