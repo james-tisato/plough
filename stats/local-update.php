@@ -6,7 +6,7 @@
     require_once("config.php");
     require_once("local-wp-mock.php");
 	require_once("updater.php");
-    require_once("../logger.php");
+    require_once(__DIR__ . "/../logger.php");
     
     $config = Config::fromXmlFile("config/local-test.xml");
     

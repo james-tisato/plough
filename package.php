@@ -7,6 +7,9 @@
 	function add_file($zip, $file_path)
 	{
         echo "Adding [$file_path]" . PHP_EOL;
+        if (!file_exists($file_path))
+            throw new \Exception("File not found: " . $file_path);
+        
 		$zip->addFile($file_path, "plough/" . $file_path);
 	}
 	
@@ -29,7 +32,7 @@
 			add_file($zip, "logger.php");
             add_file($zip, "Psr/Log/AbstractLogger.php");
             add_file($zip, "Psr/Log/LoggerInterface.php");
-            add_file($zip, "Psr/Log/LoggerLevel.php");
+            add_file($zip, "Psr/Log/LogLevel.php");
             
 		    add_file($zip, "stats/config.php");
             add_file($zip, "stats/data-mapper.php");

@@ -2,10 +2,8 @@ __TODO__
 * Output tidying
   * Add stats subfolder and update auto-import links
 * Logging
-  * PHP install modules via cPanel?
-    * Monolog and Wonolog
-  * Or write out own based on PSR
-  * Add logging throughout
+  * Use stdout logging only when running locally
+  * Start using levels properly
   * Add custom exception handler?
     * Can we do the same for warnings?
 * Test harness
@@ -26,3 +24,5 @@ __TODO__
 * Refactoring
   * Move initial stats building into separate functions
   * Switch to class autoloading
+* WP support
+  * Some kind of mock plugin runner that will kick the tires of the plugin init code?

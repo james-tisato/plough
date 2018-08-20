@@ -3,8 +3,8 @@
     
     use plough\log;
 
-    require_once("../logger.php");
-    require_once("../utils.php");
+    require_once(__DIR__ . "/../logger.php");
+    require_once(__DIR__ . "/../utils.php");
     
     require_once("config.php");
 	require_once("data-mapper.php");

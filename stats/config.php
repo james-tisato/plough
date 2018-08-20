@@ -2,7 +2,7 @@
     namespace plough\stats;
     
     require_once("data-mapper.php");
-    require_once("../utils.php");
+    require_once(__DIR__ . "/../utils.php");
     
     const KEY_INPUT_MAPPER_NAME = "InputMapperName";
     const KEY_INPUT_MAPPER_DIR = "InputMapperDir";
