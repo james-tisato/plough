@@ -16,8 +16,7 @@
     
     // Modes of dismissal
     const DID_NOT_BAT = "did not bat";
-	const NOT_OUT = "no";
-    const CAUGHT = "ct";
+	const CAUGHT = "ct";
     const RUN_OUT = "ro";
     const STUMPED = "st";
     
@@ -367,9 +366,12 @@
                          p.PlayerId as player_id
                         ,COUNT(pp.PlayerPerformanceId) AS matches
                         ,COUNT(bp.BattingPerformanceId) AS innings
-                        ,SUM(CASE bp.HowOut WHEN "no" THEN 1 ELSE 0 END) AS not_outs
+                        ,SUM(CASE bp.HowOut 
+                            WHEN "no" THEN 1 
+                            WHEN "rh" THEN 1
+                            ELSE 0 END) AS not_outs
                         ,SUM(bp.Runs) AS runs
-                        ,(CAST(SUM(bp.Runs) AS FLOAT) / (COUNT(bp.BattingPerformanceId) - SUM(CASE bp.HowOut WHEN "no" THEN 1 ELSE 0 END))) AS average
+                        ,(CAST(SUM(bp.Runs) AS FLOAT) / (COUNT(bp.BattingPerformanceId) - SUM(CASE bp.HowOut WHEN "no" THEN 1 WHEN "rh" THEN 1 ELSE 0 END))) AS average
                         ,((CAST(SUM(bp.Runs) AS FLOAT) / SUM(bp.Balls)) * 100.0) AS strike_rate
                         ,SUM(CASE WHEN bp.Runs >= 50 AND bp.Runs < 100 THEN 1 ELSE 0 END) AS fifties
                         ,SUM(CASE WHEN bp.Runs >= 100 THEN 1 ELSE 0 END) AS hundreds
@@ -398,7 +400,10 @@
                     SELECT
                          p.PlayerId as player_id
                         ,bp.Runs as high_score
-                        ,(CASE bp.HowOut WHEN "no" THEN 1 ELSE 0 END) as high_score_not_out
+                        ,(CASE bp.HowOut 
+                            WHEN "no" THEN 1 
+                            WHEN "rh" THEN 1
+                            ELSE 0 END) as high_score_not_out
                     FROM "Player" p
                     LEFT JOIN "BattingPerformance" bp on bp.PlayerId = p.PlayerId
                     WHERE
