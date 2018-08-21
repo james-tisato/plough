@@ -55,7 +55,7 @@
             $input_mapper = $this->_config->getInputDataMapper();
          
             log\info("");
-            $db_path = $this->_config->getDbDir() . "/stats_db.sqlite";
+            $db_path = \plough\get_stats_db_path($this->_config);
             if (file_exists($db_path))
             {
                 if ($this->_config->clearDb())

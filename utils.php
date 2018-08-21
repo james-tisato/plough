@@ -26,6 +26,11 @@
         return get_plugin_root() . "/stats";
     }
     
+    function get_stats_db_path($config)
+    {
+        return $config->getDbDir() . "/stats_db.sqlite";
+    }
+    
     function fputcsv_eol($handle, $array, $delimiter = ',', $enclosure = '"', $eol = PHP_EOL)
     {
         $return = fputcsv($handle, $array, $delimiter, $enclosure);

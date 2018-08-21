@@ -29,6 +29,12 @@
         log\info("");
         
         $config = Config::fromXmlFile($test_file);
+        
+        // Backup DB
+        $db_path = \plough\get_stats_db_path($config);
+        $db_path_backup = $db_path . ".backup";
+        if (file_exists($db_path))
+            copy($db_path, $db_path_backup);
 	
         $updater = new Updater($config);
         $updater->update_stats();
@@ -59,9 +65,20 @@
         }
         
         if ($test_passed)
+        {
             $tests_passed += 1;
+            
+            // Restore DB as test has passed
+            if (file_exists($db_path_backup))
+            {
+                copy($db_path_backup, $db_path);
+                unlink($db_path_backup);
+            }
+        }
         else
+        {
             $tests_failed += 1;
+        }
     }
     
     log\info("");
