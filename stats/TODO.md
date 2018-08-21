@@ -1,7 +1,4 @@
 __TODO__
-* Incremental update
-  * Consider how league tables will work - not just Plough
-  * For each match found, if already in DB - delete all related entries and process again
 * New features
     * League table
     * Page per player
