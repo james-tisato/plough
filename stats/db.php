@@ -200,6 +200,13 @@
             );
     }
     
+    function db_create_update_player($db)
+    {
+        return $db->prepare(
+            'UPDATE "Player" SET "Name" = :name WHERE "PCPlayerId" = :pc_player_id'
+            );
+    }
+    
     function db_create_insert_player_performance($db)
     {
         return $db->prepare(

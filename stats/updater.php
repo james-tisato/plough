@@ -91,6 +91,7 @@
             $insert_match = db_create_insert_match($db);
             $delete_match = db_create_delete_match($db);
             $insert_player = db_create_insert_player($db);
+            $update_player = db_create_update_player($db);
             $insert_player_perf = db_create_insert_player_performance($db);
             $insert_batting_perf = db_create_insert_batting_performance($db);
             $insert_bowling_perf = db_create_insert_bowling_performance($db);
@@ -224,14 +225,22 @@
                         foreach ($players as $player)
                         {
                             $pc_player_id = $player["player_id"];
+                            $player_name = $player["player_name"];
                             
-                            // Insert player
                             if (!array_key_exists($pc_player_id, $player_cache))
                             {
+                                // Player doesn't exist - insert
                                 $insert_player->bindValue(":pc_player_id", $pc_player_id);
                                 $insert_player->bindValue(":name", $player["player_name"]);
                                 $player_id = db_insert_and_return_id($db, $insert_player);
                                 $player_cache[$pc_player_id] = $player_id;
+                            }
+                            else
+                            {
+                                // Player exists - update player name in case it has changed
+                                $update_player->bindValue(":pc_player_id", $pc_player_id);
+                                $update_player->bindValue(":name", $player_name);
+                                $update_player->execute();
                             }
                             
                             // Insert player performance
