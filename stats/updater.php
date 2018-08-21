@@ -13,6 +13,7 @@
     // Constants
     const CLUB_NAME = "Ploughmans CC";
     const DELETED = "Deleted";
+    const SEASON = "2018";
     
     // Modes of dismissal
     const DID_NOT_BAT = "did not bat";
@@ -49,260 +50,333 @@
             
             $input_mapper = $this->_config->getInputDataMapper();
          
+            log\info("");
             $db_path = $output_dir . "/stats_db.sqlite";
-            if ($this->_config->clearDb())
+            if (file_exists($db_path))
             {
-                // Delete previous database
-                unlink($db_path);
+                if ($this->_config->clearDb())
+                {
+                    log\info("Deleting old database");
+                    unlink($db_path);
+                    $create_db_schema = true;
+                }
+                else
+                {
+                    log\info("Using existing database");
+                    $create_db_schema = false;
+                }
+            }
+            else
+            {
+                log\info("Database does not exist - creating");
+                $create_db_schema = true;
             }
             
             // Open database and create schema if required
             $db = new \SQLite3($db_path);
-            db_create_schema($db); 
+            db_enable_foreign_keys($db);
+            
+            if ($create_db_schema)
+            {
+                log\info("Creating database schema");
+                db_create_schema($db);
+            }
             
             // Prepare statements
+            $insert_update = db_create_insert_update($db);
             $insert_match = db_create_insert_match($db);
+            $delete_match = db_create_delete_match($db);
             $insert_player = db_create_insert_player($db);
             $insert_player_perf = db_create_insert_player_performance($db);
             $insert_batting_perf = db_create_insert_batting_performance($db);
             $insert_bowling_perf = db_create_insert_bowling_performance($db);
             $insert_fielding_perf = db_create_insert_fielding_performance($db);
             
-            // Set up match and player cache
-            $match_cache = array();
+            // Set up player cache, seeding it from the database
             $player_cache = array();
+            $statement = $db->prepare('
+                SELECT
+                     "PCPlayerId",
+                     "PlayerId"
+                FROM "Player"
+                ORDER BY "PlayerId"
+                ');
+            $result = $statement->execute();
+            while ($row = $result->fetchArray(SQLITE3_ASSOC))
+                $player_cache[$row["PCPlayerId"]] = $row["PlayerId"];
             
             // Get match list
+            log\info("");
             log\info("Fetching match list...");
-            $season = "2018";
-            $matches_from_date = "01/01/2018";
-            $matches_path = $input_mapper->getMatchesPath($season, $matches_from_date);
+            
+            if ($create_db_schema)
+            {
+                $matches_from_date = "01/01/" . SEASON;
+                log\info("  Since the database was created from scratch, fetching matches updated since [$matches_from_date]");
+            }
+            else
+            {
+                $statement = $db->prepare('
+                    SELECT
+                         UpdateTime
+                    FROM "DbUpdate"
+                    ORDER BY UpdateTime DESC
+                    LIMIT 1
+                    ');
+                $matches_from_date = $statement->execute()->fetchArray(SQLITE3_ASSOC)["UpdateTime"];
+                log\info("  Fetching matches since last update time [$matches_from_date]");
+            }
+            
+            $current_date = gmdate("Y-m-d");
+            $matches_path = $input_mapper->getMatchesPath(SEASON, $matches_from_date);
             $matches_str = file_get_contents($matches_path);
         
             if ($this->_config->dumpInputs())
-                file_put_contents($dump_data_mapper->getMatchesPath($season, $matches_from_date), $matches_str);
+                file_put_contents($dump_data_mapper->getMatchesPath(SEASON, $matches_from_date), $matches_str);
             
             $matches = json_decode($matches_str, true)["matches"];
             $num_matches = count($matches);
             log\info("  $num_matches matches found");
             log\info("");
             
-            log\info("Fetching match details...");
-            foreach ($matches as $match_idx => $match)
+            if ($num_matches > 0)
             {
-                // Player performance cache for this match
-                $player_perf_cache = array();
-                $pc_match_id = $match["id"];
-                
-                log\info("  Processing match $match_idx (Play-Cricket id $pc_match_id)...");
-                
-                // Get match detail
-                $match_detail_path = $input_mapper->getMatchDetailPath($pc_match_id);
-                $match_detail_str = file_get_contents($match_detail_path);
-                
-                if ($this->_config->dumpInputs())
-                    file_put_contents($dump_data_mapper->getMatchDetailPath($pc_match_id), $match_detail_str);
-                
-                $match_detail = json_decode($match_detail_str, true)["match_details"][0];
-                
-                if ($match_detail["status"] == DELETED)
+                log\info("Fetching match details...");
+                foreach ($matches as $match_idx => $match)
                 {
-                    log\info("    Skipping match because it was deleted...");
-                }
-                else if (empty($match_detail["result"]))
-                {
-                    log\info("    Skipping match because it is a future fixture...");
-                }
-                else
-                {
-                    // Start transaction for whole of match
-                    $db->exec('BEGIN');
+                    // Player performance cache for this match
+                    $player_perf_cache = array();
+                    $pc_match_id = $match["id"];
                     
-                    // Determine home team and get team info
-                    if ($match_detail["home_club_name"] == CLUB_NAME)
+                    log\info("  Processing match $match_idx (Play-Cricket id $pc_match_id)...");
+                    
+                    // Get match detail
+                    $match_detail_path = $input_mapper->getMatchDetailPath($pc_match_id);
+                    $match_detail_str = file_get_contents($match_detail_path);
+                    
+                    if ($this->_config->dumpInputs())
+                        file_put_contents($dump_data_mapper->getMatchDetailPath($pc_match_id), $match_detail_str);
+                    
+                    $match_detail = json_decode($match_detail_str, true)["match_details"][0];
+                    
+                    if ($match_detail["status"] == DELETED)
                     {
-                        $home_match = 1;
-                        $plough_team = $match_detail["home_team_name"];
-                        $plough_team_id = $match_detail["home_team_id"];
-                        $oppo_club = $match_detail["away_club_name"];
-                        $oppo_team = $match_detail["away_team_name"];
-                        $oppo_team_id = $match_detail["away_team_id"];
-                        $players = $match_detail["players"][0]["home_team"];
+                        log\info("    Skipping match because it was deleted...");
+                    }
+                    else if (empty($match_detail["result"]))
+                    {
+                        log\info("    Skipping match because it is a future fixture...");
                     }
                     else
-                    {
-                        $home_match = 0;
-                        $plough_team = $match_detail["away_team_name"];
-                        $plough_team_id = $match_detail["away_team_id"];
-                        $oppo_club = $match_detail["home_club_name"];
-                        $oppo_team = $match_detail["home_team_name"];
-                        $oppo_team_id = $match_detail["home_team_id"];
-                        $players = $match_detail["players"][1]["away_team"];
-                    }
-                    
-                    // Insert match
-                    $insert_match->bindValue(":pc_match_id", $pc_match_id);
-                    $insert_match->bindValue(":status", $match_detail["status"]);
-                    $insert_match->bindValue(":match_date", $match_detail["match_date"]);
-                    $insert_match->bindValue(":plough_team", $plough_team);
-                    $insert_match->bindValue(":plough_team_id", $plough_team_id);
-                    $insert_match->bindValue(":oppo_club", $oppo_club);
-                    $insert_match->bindValue(":oppo_team", $oppo_team);
-                    $insert_match->bindValue(":oppo_team_id", $oppo_team_id);
-                    $insert_match->bindValue(":home", $home_match);
-                    $insert_match->bindValue(":result", $match_detail["result"]);
-                    $match_id = db_insert_and_return_id($db, $insert_match);
-                    $match_cache[$pc_match_id] = $match_id;
-                    
-                    foreach ($players as $player)
-                    {
-                        $pc_player_id = $player["player_id"];
+                    {   
+                        // Start transaction for deleting whole of match
+                        $db->exec('BEGIN');
                         
-                        // Insert player
-                        if (!array_key_exists($pc_player_id, $player_cache))
-                        {
-                            $insert_player->bindValue(":pc_player_id", $pc_player_id);
-                            $insert_player->bindValue(":name", $player["player_name"]);
-                            $player_id = db_insert_and_return_id($db, $insert_player);
-                            $player_cache[$pc_player_id] = $player_id;
-                        }
+                        // Delete match (and associated performances) if it has been added to the database before    
+                        $delete_match->bindValue(":pc_match_id", $pc_match_id);
+                        $delete_match->execute();
                         
-                        // Insert player performance
-                        $player_id = $player_cache[$pc_player_id];
-                        $insert_player_perf->bindValue(":match_id", $match_id);
-                        $insert_player_perf->bindValue(":player_id", $player_id);
-                        $insert_player_perf->bindValue(":captain", \plough\int_from_bool($player["captain"]));
-                        $insert_player_perf->bindValue(":wicketkeeper", \plough\int_from_bool($player["wicket_keeper"]));
-                        $player_perf_id = db_insert_and_return_id($db, $insert_player_perf);
-                        $player_perf_cache[$pc_player_id] = $player_perf_id;
-                    }
-                    
-                    $innings = $match_detail["innings"];
-                    foreach ($innings as $inning_idx => $inning)
-                    {
-                        if ($inning["team_batting_id"] == $plough_team_id)
+                        // End transaction for deleting whole of match
+                        $db->exec('COMMIT');
+                        
+                        // Start transaction for adding whole of match
+                        $db->exec('BEGIN');  
+                        
+                        // Determine home team and get team info
+                        if ($match_detail["home_club_name"] == CLUB_NAME)
                         {
-                            // Plough batting
-                            $batting_perfs = $inning["bat"];
-                            foreach ($batting_perfs as $batting_perf_idx => $batting_perf)
-                            {
-                                $pc_player_id = $batting_perf["batsman_id"];
-                                
-                                if (!empty($pc_player_id))
-                                {
-                                    $player_id = $player_cache[$pc_player_id];
-                                    $player_perf_id = $player_perf_cache[$pc_player_id];
-                                    
-                                    $how_out = $batting_perf["how_out"];
-                                    if ($how_out != DID_NOT_BAT)
-                                    {
-                                        $insert_batting_perf->bindValue(":player_perf_id", $player_perf_id);
-                                        $insert_batting_perf->bindValue(":player_id", $player_id);
-                                        $insert_batting_perf->bindValue(":position", $batting_perf["position"]);
-                                        $insert_batting_perf->bindValue(":how_out", $how_out);
-                                        $insert_batting_perf->bindValue(":runs", $batting_perf["runs"]);
-                                        $insert_batting_perf->bindValue(":balls", $batting_perf["balls"]);
-                                        $insert_batting_perf->bindValue(":fours", $batting_perf["fours"]);
-                                        $insert_batting_perf->bindValue(":sixes", $batting_perf["sixes"]);
-                                        $insert_batting_perf->execute();
-                                    }
-                                }
-                            }
+                            $home_match = 1;
+                            $plough_team = $match_detail["home_team_name"];
+                            $plough_team_id = $match_detail["home_team_id"];
+                            $oppo_club = $match_detail["away_club_name"];
+                            $oppo_team = $match_detail["away_team_name"];
+                            $oppo_team_id = $match_detail["away_team_id"];
+                            $players = $match_detail["players"][0]["home_team"];
                         }
                         else
                         {
-                            // Plough bowling
-                            $bowling_perfs = $inning["bowl"];
-                            foreach ($bowling_perfs as $bowling_perf_idx => $bowling_perf)
+                            $home_match = 0;
+                            $plough_team = $match_detail["away_team_name"];
+                            $plough_team_id = $match_detail["away_team_id"];
+                            $oppo_club = $match_detail["home_club_name"];
+                            $oppo_team = $match_detail["home_team_name"];
+                            $oppo_team_id = $match_detail["home_team_id"];
+                            $players = $match_detail["players"][1]["away_team"];
+                        }
+                        
+                        // Insert match
+                        $insert_match->bindValue(":pc_match_id", $pc_match_id);
+                        $insert_match->bindValue(":status", $match_detail["status"]);
+                        $insert_match->bindValue(":match_date", $match_detail["match_date"]);
+                        $insert_match->bindValue(":plough_team", $plough_team);
+                        $insert_match->bindValue(":plough_team_id", $plough_team_id);
+                        $insert_match->bindValue(":oppo_club", $oppo_club);
+                        $insert_match->bindValue(":oppo_team", $oppo_team);
+                        $insert_match->bindValue(":oppo_team_id", $oppo_team_id);
+                        $insert_match->bindValue(":home", $home_match);
+                        $insert_match->bindValue(":result", $match_detail["result"]);
+                        $match_id = db_insert_and_return_id($db, $insert_match);
+                        
+                        foreach ($players as $player)
+                        {
+                            $pc_player_id = $player["player_id"];
+                            
+                            // Insert player
+                            if (!array_key_exists($pc_player_id, $player_cache))
                             {
-                                $pc_player_id = $bowling_perf["bowler_id"];
-                                $player_id = $player_cache[$pc_player_id];
-                                $player_perf_id = $player_perf_cache[$pc_player_id];
-                                
-                                // Handle full and partial overs
-                                $over_parts = explode(".", $bowling_perf["overs"]);
-                                $completed_overs = $over_parts[0];
-                                if (count($over_parts) > 1)
-                                    $partial_balls = $over_parts[1];
-                                else
-                                    $partial_balls = 0;
-                                
-                                $insert_bowling_perf->bindValue(":player_perf_id", $player_perf_id);
-                                $insert_bowling_perf->bindValue(":player_id", $player_id);
-                                $insert_bowling_perf->bindValue(":position", $bowling_perf_idx + 1);
-                                $insert_bowling_perf->bindValue(":completed_overs", $completed_overs);
-                                $insert_bowling_perf->bindValue(":partial_balls", $partial_balls);
-                                $insert_bowling_perf->bindValue(":maidens", $bowling_perf["maidens"]);
-                                $insert_bowling_perf->bindValue(":runs", $bowling_perf["runs"]);
-                                $insert_bowling_perf->bindValue(":wickets", $bowling_perf["wickets"]);
-                                $insert_bowling_perf->bindValue(":wides", $bowling_perf["wides"]);
-                                $insert_bowling_perf->bindValue(":no_balls", $bowling_perf["no_balls"]);
-                                $insert_bowling_perf->execute();
+                                $insert_player->bindValue(":pc_player_id", $pc_player_id);
+                                $insert_player->bindValue(":name", $player["player_name"]);
+                                $player_id = db_insert_and_return_id($db, $insert_player);
+                                $player_cache[$pc_player_id] = $player_id;
                             }
                             
-                            // Plough fielding
-                            $player_to_fielding = array();
-                            
-                            $batting_perfs = $inning["bat"];
-                            foreach ($batting_perfs as $batting_perf_idx => $batting_perf)
+                            // Insert player performance
+                            $player_id = $player_cache[$pc_player_id];
+                            $insert_player_perf->bindValue(":match_id", $match_id);
+                            $insert_player_perf->bindValue(":player_id", $player_id);
+                            $insert_player_perf->bindValue(":captain", \plough\int_from_bool($player["captain"]));
+                            $insert_player_perf->bindValue(":wicketkeeper", \plough\int_from_bool($player["wicket_keeper"]));
+                            $player_perf_id = db_insert_and_return_id($db, $insert_player_perf);
+                            $player_perf_cache[$pc_player_id] = $player_perf_id;
+                        }
+                        
+                        $innings = $match_detail["innings"];
+                        foreach ($innings as $inning_idx => $inning)
+                        {
+                            if ($inning["team_batting_id"] == $plough_team_id)
                             {
-                                $pc_player_id = $batting_perf["fielder_id"];
-                                if (!empty($pc_player_id))
+                                // Plough batting
+                                $batting_perfs = $inning["bat"];
+                                foreach ($batting_perfs as $batting_perf_idx => $batting_perf)
                                 {
-                                    if (!array_key_exists($pc_player_id, $player_to_fielding))
-                                    {
-                                        $player_to_fielding[$pc_player_id] = array(
-                                            "catches" => 0,
-                                            "run_outs" => 0,
-                                            "stumpings" => 0
-                                            );
-                                    }
+                                    $pc_player_id = $batting_perf["batsman_id"];
                                     
-                                    $how_out = $batting_perf["how_out"];
-                                    if ($how_out == CAUGHT)
-                                        $player_to_fielding[$pc_player_id]["catches"]++;
-                                    else if ($how_out == RUN_OUT)
-                                        $player_to_fielding[$pc_player_id]["run_outs"]++;
-                                    else if ($how_out == STUMPED)
-                                        $player_to_fielding[$pc_player_id]["stumpings"]++;
+                                    if (!empty($pc_player_id))
+                                    {
+                                        $player_id = $player_cache[$pc_player_id];
+                                        $player_perf_id = $player_perf_cache[$pc_player_id];
+                                        
+                                        $how_out = $batting_perf["how_out"];
+                                        if ($how_out != DID_NOT_BAT)
+                                        {
+                                            $insert_batting_perf->bindValue(":player_perf_id", $player_perf_id);
+                                            $insert_batting_perf->bindValue(":player_id", $player_id);
+                                            $insert_batting_perf->bindValue(":position", $batting_perf["position"]);
+                                            $insert_batting_perf->bindValue(":how_out", $how_out);
+                                            $insert_batting_perf->bindValue(":runs", $batting_perf["runs"]);
+                                            $insert_batting_perf->bindValue(":balls", $batting_perf["balls"]);
+                                            $insert_batting_perf->bindValue(":fours", $batting_perf["fours"]);
+                                            $insert_batting_perf->bindValue(":sixes", $batting_perf["sixes"]);
+                                            $insert_batting_perf->execute();
+                                        }
+                                    }
                                 }
                             }
-                            
-                            foreach($player_to_fielding as $pc_player_id => $fielding)
+                            else
                             {
-                                $player_id = $player_cache[$pc_player_id];
-                                $player_perf_id = $player_perf_cache[$pc_player_id];
-                                $insert_fielding_perf->bindValue(":player_perf_id", $player_perf_id);
-                                $insert_fielding_perf->bindValue(":player_id", $player_id);
-                                $insert_fielding_perf->bindValue(":catches", $fielding["catches"]);
-                                $insert_fielding_perf->bindValue(":run_outs", $fielding["run_outs"]);
-                                $insert_fielding_perf->bindValue(":stumpings", $fielding["stumpings"]);
-                                $insert_fielding_perf->execute();
+                                // Plough bowling
+                                $bowling_perfs = $inning["bowl"];
+                                foreach ($bowling_perfs as $bowling_perf_idx => $bowling_perf)
+                                {
+                                    $pc_player_id = $bowling_perf["bowler_id"];
+                                    $player_id = $player_cache[$pc_player_id];
+                                    $player_perf_id = $player_perf_cache[$pc_player_id];
+                                    
+                                    // Handle full and partial overs
+                                    $over_parts = explode(".", $bowling_perf["overs"]);
+                                    $completed_overs = $over_parts[0];
+                                    if (count($over_parts) > 1)
+                                        $partial_balls = $over_parts[1];
+                                    else
+                                        $partial_balls = 0;
+                                    
+                                    $insert_bowling_perf->bindValue(":player_perf_id", $player_perf_id);
+                                    $insert_bowling_perf->bindValue(":player_id", $player_id);
+                                    $insert_bowling_perf->bindValue(":position", $bowling_perf_idx + 1);
+                                    $insert_bowling_perf->bindValue(":completed_overs", $completed_overs);
+                                    $insert_bowling_perf->bindValue(":partial_balls", $partial_balls);
+                                    $insert_bowling_perf->bindValue(":maidens", $bowling_perf["maidens"]);
+                                    $insert_bowling_perf->bindValue(":runs", $bowling_perf["runs"]);
+                                    $insert_bowling_perf->bindValue(":wickets", $bowling_perf["wickets"]);
+                                    $insert_bowling_perf->bindValue(":wides", $bowling_perf["wides"]);
+                                    $insert_bowling_perf->bindValue(":no_balls", $bowling_perf["no_balls"]);
+                                    $insert_bowling_perf->execute();
+                                }
+                                
+                                // Plough fielding
+                                $player_to_fielding = array();
+                                
+                                $batting_perfs = $inning["bat"];
+                                foreach ($batting_perfs as $batting_perf_idx => $batting_perf)
+                                {
+                                    $pc_player_id = $batting_perf["fielder_id"];
+                                    if (!empty($pc_player_id))
+                                    {
+                                        if (!array_key_exists($pc_player_id, $player_to_fielding))
+                                        {
+                                            $player_to_fielding[$pc_player_id] = array(
+                                                "catches" => 0,
+                                                "run_outs" => 0,
+                                                "stumpings" => 0
+                                                );
+                                        }
+                                        
+                                        $how_out = $batting_perf["how_out"];
+                                        if ($how_out == CAUGHT)
+                                            $player_to_fielding[$pc_player_id]["catches"]++;
+                                        else if ($how_out == RUN_OUT)
+                                            $player_to_fielding[$pc_player_id]["run_outs"]++;
+                                        else if ($how_out == STUMPED)
+                                            $player_to_fielding[$pc_player_id]["stumpings"]++;
+                                    }
+                                }
+                                
+                                foreach($player_to_fielding as $pc_player_id => $fielding)
+                                {
+                                    $player_id = $player_cache[$pc_player_id];
+                                    $player_perf_id = $player_perf_cache[$pc_player_id];
+                                    $insert_fielding_perf->bindValue(":player_perf_id", $player_perf_id);
+                                    $insert_fielding_perf->bindValue(":player_id", $player_id);
+                                    $insert_fielding_perf->bindValue(":catches", $fielding["catches"]);
+                                    $insert_fielding_perf->bindValue(":run_outs", $fielding["run_outs"]);
+                                    $insert_fielding_perf->bindValue(":stumpings", $fielding["stumpings"]);
+                                    $insert_fielding_perf->execute();
+                                }
                             }
                         }
+                        
+                        // End transaction for adding whole of match
+                        $db->exec('COMMIT');
                     }
-                    
-                    // End transaction for whole of match
-                    $db->exec('COMMIT');
                 }
+            
+                // Build summaries
+                log\info("");
+                log\info("Building summary tables...");
+                $players = array();
+                $statement = $db->prepare('SELECT PlayerId FROM "Player" ORDER BY PlayerId');
+                $result = $statement->execute();
+                while ($row = $result->fetchArray(SQLITE3_ASSOC))
+                    array_push($players, $row["PlayerId"]);
+                
+                log\info("  Batting");
+                $this->generate_batting_summary($players, $db);
+                log\info("  Bowling");
+                $this->generate_bowling_summary($players, $db);
+                log\info("  Fielding");
+                $this->generate_fielding_summary($players, $db);
+                
+                // Mark DB update
+                log\info("");
+                log\info("Setting update time in database");
+                $insert_update->bindValue(":update_time", $current_date);
+                $insert_update->execute();
             }
-            
-            // Build summaries
-            log\info("");
-            log\info("Building summary tables...");
-            $players = array();
-            $statement = $db->prepare('SELECT PlayerId FROM "Player" ORDER BY PlayerId');
-            $result = $statement->execute();
-            while ($row = $result->fetchArray(SQLITE3_ASSOC))
-                array_push($players, $row["PlayerId"]);
-            
-            log\info("  Batting");
-            $this->generate_batting_summary($players, $db);
-            log\info("  Bowling");
-            $this->generate_bowling_summary($players, $db);
-            log\info("  Fielding");
-            $this->generate_fielding_summary($players, $db);
-            
+            else
+            {
+                log\info("  No update required");
+            }
+                
             // Generate outputs
             log\info("");
             log\info("Generating CSV output...");
@@ -344,6 +418,7 @@
         
         private function generate_batting_summary($players, $db)
         {
+            db_truncate_table($db, "BattingSummary");
             $insert_batting_summary = db_create_insert_batting_summary($db);
             
             foreach ($players as $player_id)
@@ -455,6 +530,7 @@
             
         private function generate_bowling_summary($players, $db)
         {
+            db_truncate_table($db, "BowlingSummary");
             $insert_bowling_summary = db_create_insert_bowling_summary($db);
             
             foreach ($players as $player_id)
@@ -587,6 +663,7 @@
         
         private function generate_fielding_summary($players, $db)
         {
+            db_truncate_table($db, "FieldingSummary");
             $insert_fielding_summary = db_create_insert_fielding_summary($db);
             
             foreach ($players as $player_id)

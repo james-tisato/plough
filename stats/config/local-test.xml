@@ -1,5 +1,5 @@
 <StatsConfig>
-    <Pair Key="ClearDb" Value="true" />
+    <Pair Key="ClearDb" Value="false" />
     <Pair Key="InputMapperName" Value="web" />
     <Pair Key="InputMapperDir" Value="{stats_root}/test/data/basic" />
     <Pair Key="InputDumpDir" Value="{stats_root}/dump" />

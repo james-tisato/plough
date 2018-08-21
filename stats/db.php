@@ -12,9 +12,23 @@
 			$insert_statement->bindValue(":$key", $value);
 	}
     
+    function db_truncate_table($db, $table_name)
+    {
+        $statement = $db->prepare('DELETE FROM "' . $table_name . '"');
+        $statement->execute();
+    }
+    
+    function db_enable_foreign_keys($db)
+    {
+        $db->exec('PRAGMA foreign_keys = ON;');
+    }
+    
     function db_create_schema($db)
     {   
-        $db->exec('PRAGMA foreign_keys = ON;');
+        $db->query('CREATE TABLE "DbUpdate" (
+            "UpdateId" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            "UpdateTime" DATETIME
+            )');
     
         $db->query('CREATE TABLE "Match" (
             "MatchId" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -42,8 +56,8 @@
             "PlayerId" INTEGER,
             "Captain" INTEGER,
             "Wicketkeeper" INTEGER,
-            FOREIGN KEY("MatchId") REFERENCES "Match"("MatchId"),
-            FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
+            FOREIGN KEY("MatchId") REFERENCES "Match"("MatchId") ON DELETE CASCADE,
+            FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId") ON DELETE CASCADE
             )');
             
 		// Raw performances
@@ -57,8 +71,8 @@
             "Balls" INTEGER,
             "Fours" INTEGER,
             "Sixes" INTEGER,
-            FOREIGN KEY("PlayerPerformanceId") REFERENCES "PlayerPerformance"("PlayerPerformanceId")
-            FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
+            FOREIGN KEY("PlayerPerformanceId") REFERENCES "PlayerPerformance"("PlayerPerformanceId") ON DELETE CASCADE,
+            FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId") ON DELETE CASCADE
             )');
             
         $db->query('CREATE TABLE "BowlingPerformance" (
@@ -73,8 +87,8 @@
             "Wickets" INTEGER,
             "Wides" INTEGER,
             "NoBalls" INTEGER,
-            FOREIGN KEY("PlayerPerformanceId") REFERENCES "PlayerPerformance"("PlayerPerformanceId")
-            FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
+            FOREIGN KEY("PlayerPerformanceId") REFERENCES "PlayerPerformance"("PlayerPerformanceId") ON DELETE CASCADE,
+            FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId") ON DELETE CASCADE
             )');
             
         $db->query('CREATE TABLE "FieldingPerformance" (
@@ -84,8 +98,8 @@
             "Catches" INTEGER,
             "RunOuts" INTEGER,
             "Stumpings" INTEGER,
-            FOREIGN KEY("PlayerPerformanceId") REFERENCES "PlayerPerformance"("PlayerPerformanceId")
-            FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
+            FOREIGN KEY("PlayerPerformanceId") REFERENCES "PlayerPerformance"("PlayerPerformanceId") ON DELETE CASCADE,
+            FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId") ON DELETE CASCADE
             )');
 			
 		// Performance summaries
@@ -143,6 +157,18 @@
 			)');
     }
     
+    function db_create_insert_update($db)
+    {
+        return $db->prepare(
+            'INSERT INTO "DbUpdate" (
+				"UpdateTime"
+				)
+             VALUES (
+				 :update_time
+			 	)'
+            );
+    }
+    
     function db_create_insert_match($db)
     {
         return $db->prepare(
@@ -152,6 +178,13 @@
              VALUES (
 				 :pc_match_id, :status, :match_date, :plough_team, :plough_team_id, :oppo_club, :oppo_team, :oppo_team_id, :home, :result
 			 	)'
+            );
+    }
+    
+    function db_create_delete_match($db)
+    {
+        return $db->prepare(
+            'DELETE FROM "Match" WHERE "PcMatchId" = :pc_match_id'
             );
     }
     
