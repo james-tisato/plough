@@ -12,7 +12,7 @@
 			$insert_statement->bindValue(":$key", $value);
 	}
     
-    function db_truncate_table($db, $table_name)
+    function db_truncate_table($db, $table_name)foobar
     {
         $statement = $db->prepare('DELETE FROM "' . $table_name . '"');
         $statement->execute();

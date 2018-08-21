@@ -9,6 +9,7 @@
     const KEY_INPUT_DUMP_DIR = "InputDumpDir";
     const KEY_OUTPUT_DIR = "OutputDir";
     const KEY_CLEAR_DB = "ClearDb";
+    const KEY_DB_DIR = "DbDir";
     
     const REPLACE_PLUGIN_ROOT = "plugin_root";
     const REPLACE_STATS_ROOT = "stats_root";
@@ -77,6 +78,11 @@
         public function clearDb()
         {
             return \plough\bool_from_str($this->getParam(KEY_CLEAR_DB));
+        }
+        
+        public function getDbDir()
+        {
+            return $this->getParam(KEY_DB_DIR);
         }
         
         private function getParam($key)

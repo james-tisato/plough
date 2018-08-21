@@ -35,6 +35,10 @@
         public function update_stats()
         {
             // Config
+            $db_dir = $this->_config->getDbDir();
+            if (!file_exists($db_dir))
+                mkdir($db_dir);
+            
             $output_dir = $this->_config->getOutputDir();
             if (!file_exists($output_dir))
                 mkdir($output_dir);
@@ -51,7 +55,7 @@
             $input_mapper = $this->_config->getInputDataMapper();
          
             log\info("");
-            $db_path = $output_dir . "/stats_db.sqlite";
+            $db_path = $this->_config->getDbDir() . "/stats_db.sqlite";
             if (file_exists($db_path))
             {
                 if ($this->_config->clearDb())
