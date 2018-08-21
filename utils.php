@@ -36,4 +36,9 @@
         
         return $return;
     }
+    
+    function mkdirs($dir)
+    {
+        mkdir($dir, 0777, true);
+    }
 ?>

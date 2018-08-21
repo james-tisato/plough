@@ -37,11 +37,11 @@
             // Config
             $db_dir = $this->_config->getDbDir();
             if (!file_exists($db_dir))
-                mkdir($db_dir);
+                \plough\mkdirs($db_dir);
             
             $output_dir = $this->_config->getOutputDir();
             if (!file_exists($output_dir))
-                mkdir($output_dir);
+                \plough\mkdirs($output_dir);
             
             if ($this->_config->dumpInputs())
             {
@@ -49,7 +49,7 @@
                 $dump_data_mapper = $this->_config->getInputDumpDataMapper();
                 
                 if (!file_exists($dump_dir))
-                    mkdir($dump_dir);
+                    \plough\mkdirs($dump_dir);
             }
             
             $input_mapper = $this->_config->getInputDataMapper();

@@ -1,7 +1,9 @@
 .DS_Store
-db
-output
+stats/db
+stats/dump
+stats/output
+stats/test/database
+!stats/test/database/Update
+stats/test/result
 dist
 logs
-dump
-result
