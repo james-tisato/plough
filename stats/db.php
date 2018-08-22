@@ -35,13 +35,20 @@
             "PCMatchId" INTEGER,
             "Status" TEXT,
             "MatchDate" DATETIME,
-            "PloughTeam" TEXT,
-            "PloughTeamId" INTEGER,
-            "OppoClub" TEXT,
-            "OppoTeam" TEXT,
-            "OppoTeamId" INTEGER,
-            "Home" INTEGER,
-            "Result" TEXT
+            "HomeClubId" INTEGER,
+            "HomeClubName" TEXT,
+            "HomeTeamId" INTEGER,
+            "HomeTeamName" TEXT,
+            "AwayClubId" INTEGER,
+            "AwayClubName" TEXT,
+            "AwayTeamId" INTEGER,
+            "AwayTeamName" TEXT,
+            "IsPloughMatch" INTEGER,
+            "IsPloughHome" INTEGER,
+            "Result" TEXT,
+            "ResultAppliedToTeamId" INTEGER,
+            "TossWonByTeamId" INTEGER,
+            "BattedFirstTeamId" INTEGER
             )');
             
         $db->query('CREATE TABLE "Player" (
@@ -173,10 +180,14 @@
     {
         return $db->prepare(
             'INSERT INTO "Match" (
-				"PCMatchId", "Status", "MatchDate", "PloughTeam", "PloughTeamId", "OppoClub", "OppoTeam", "OppoTeamId", "Home", "Result"
+				"PCMatchId", "Status", "MatchDate", "HomeClubId", "HomeClubName", "HomeTeamId", "HomeTeamName", 
+                "AwayClubId", "AwayClubName", "AwayTeamId", "AwayTeamName", "IsPloughMatch", "IsPloughHome", 
+                "Result", "ResultAppliedToTeamId", "TossWonByTeamId", "BattedFirstTeamId"
 				)
              VALUES (
-				 :pc_match_id, :status, :match_date, :plough_team, :plough_team_id, :oppo_club, :oppo_team, :oppo_team_id, :home, :result
+				 :pc_match_id, :status, :match_date, :home_club_id, :home_club_name, :home_team_id, :home_team_name, 
+                 :away_club_id, :away_club_name, :away_team_id, :away_team_name, :is_plough_match, :is_plough_home,
+                 :result, :result_applied_to, :toss_won_by, :batted_first
 			 	)'
             );
     }
