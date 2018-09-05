@@ -13,7 +13,7 @@
     // Constants
     const CLUB_NAME = "Ploughmans CC";
     const DELETED = "Deleted";
-    const SEASON = "2018";
+    const SEASON = 2018;
     const NO_PC_PLAYER_ID = -1;
     
     // Modes of dismissal
@@ -21,7 +21,29 @@
 	const CAUGHT = "ct";
     const RUN_OUT = "ro";
     const STUMPED = "st";
+	
+	// Stats period types
+	const PERIOD_CAREER = 1;
+	const PERIOD_SEASON = 2;
     
+	// Helpers
+	function get_average($innings, $not_outs, $runs)
+	{
+		$num_outs = $innings - $not_outs;
+		if ($num_outs > 0)
+			return ($runs / $num_outs);
+		else
+			return null;
+	}
+	
+	function get_batting_strike_rate($runs, $balls)
+	{
+		if ($balls)
+			return ($runs / $balls) * 100.0;
+		else
+			return null;
+	}
+	
     class Updater
     {
         // Properties
@@ -411,9 +433,9 @@
             log\info("Generating CSV output...");
             log\info("  Batting");
             log\info("    Season " . SEASON);
-            $this->generate_batting_summary_csv($db, "BattingSummary", "batting_ind_summary");
+            $this->generate_batting_summary_csv($db, PERIOD_SEASON);
             log\info("    Career");
-            $this->generate_batting_summary_csv($db, "CareerBattingSummary", "batting_ind_career_summary");
+            $this->generate_batting_summary_csv($db, PERIOD_CAREER);
             log\info("  Bowling");
             $this->generate_bowling_summary_csv($db);
             log\info("  Fielding");
@@ -448,7 +470,9 @@
                 {
                     $formatted_value = $value;
                     
-                    if (is_float($value))
+					if (is_null($value))
+						$formatted_value = "-";
+                    else if (is_float($value))
                         $formatted_value = sprintf("%.2f", $value);
                     
                     array_push($formatted_row, $formatted_value);
@@ -458,7 +482,7 @@
             }
             fclose($out);
         }
-        
+		
         private function load_batting_career_summary_base($db)
         {
             $players = $this->get_players_by_name($db);
@@ -467,7 +491,7 @@
             $insert_career_batting_summary_base = db_create_insert_career_batting_summary_base($db);
             $insert_player = db_create_insert_player($db);
             
-            $career_base_path = $this->_config->getCareerBaseDir() . "/career-stats-batting-end-2017.csv";
+            $career_base_path = $this->_config->getCareerBaseDir() . "/career-stats-batting-end-" . (SEASON - 1) . ".csv";
             if (file_exists($career_base_path))
             {   
                 $base = fopen($career_base_path, "r");
@@ -495,19 +519,27 @@
                         $high_score_not_out = (strpos($high_score, "*") !== false);
                         $high_score = str_replace("*", "", $high_score);
                         
+						$innings = $row[$idx["Inns"]];
+						$not_outs = $row[$idx["NO"]];
+						$runs = $row[$idx["Runs"]];
+						$average = get_average($innings, $not_outs, $runs);
+						$balls_str = $row[$idx["Balls"]];
+						$balls = (empty($balls_str) ? null : $balls_str);
+						$strike_rate = get_batting_strike_rate($runs, $balls);
+						
                         $insert_career_batting_summary_base->bindValue(":PlayerId", $player_id);
                         $insert_career_batting_summary_base->bindValue(":Matches", $row[$idx["Mat"]]);
-                        $insert_career_batting_summary_base->bindValue(":Innings", $row[$idx["Inns"]]);
-                        $insert_career_batting_summary_base->bindValue(":NotOuts", $row[$idx["NO"]]);
-                        $insert_career_batting_summary_base->bindValue(":Runs", $row[$idx["Runs"]]);
-                        $insert_career_batting_summary_base->bindValue(":Average", $row[$idx["Ave"]]);
-                        $insert_career_batting_summary_base->bindValue(":StrikeRate", $row[$idx["SR"]]);
+                        $insert_career_batting_summary_base->bindValue(":Innings", $innings);
+                        $insert_career_batting_summary_base->bindValue(":NotOuts", $not_outs);
+                        $insert_career_batting_summary_base->bindValue(":Runs", $runs);
+                        $insert_career_batting_summary_base->bindValue(":Average", $average);
+                        $insert_career_batting_summary_base->bindValue(":StrikeRate", $strike_rate);
                         $insert_career_batting_summary_base->bindValue(":HighScore", $high_score);
                         $insert_career_batting_summary_base->bindValue(":HighScoreNotOut", $high_score_not_out);
                         $insert_career_batting_summary_base->bindValue(":Fifties", $row[$idx["50s"]]);
                         $insert_career_batting_summary_base->bindValue(":Hundreds", $row[$idx["100s"]]);
                         $insert_career_batting_summary_base->bindValue(":Ducks", $row[$idx["0s"]]);
-                        $insert_career_batting_summary_base->bindValue(":Balls", $row[$idx["Balls"]]);
+                        $insert_career_batting_summary_base->bindValue(":Balls", $balls);
                         $insert_career_batting_summary_base->bindValue(":Fours", $row[$idx["4s"]]);
                         $insert_career_batting_summary_base->bindValue(":Sixes", $row[$idx["6s"]]);
                         $insert_career_batting_summary_base->execute();
@@ -635,14 +667,14 @@
                         $career_summary["NotOuts"] = $career_base["NotOuts"] + $season["NotOuts"];
                         $career_summary["Runs"] = $career_base["Runs"] + $season["Runs"];
                         
-                        $num_outs = $career_summary["Innings"] - $career_summary["NotOuts"];
-                        if ($num_outs > 0)
-                            $career_summary["Average"] = $career_summary["Runs"] / $num_outs;
+                        $career_summary["Average"] = get_average(
+							$career_summary["Innings"], $career_summary["NotOuts"], $career_summary["Runs"]
+							);
                             
-                        if (!empty($career_base["Balls"]))
+                        if ($career_base["Balls"])
                         {
                             $career_summary["Balls"] = $career_base["Balls"] + $season["Balls"];
-                            $career_summary["StrikeRate"] = ($career_summary["Runs"] / $career_summary["Balls"]) * 100.0;
+                            $career_summary["StrikeRate"] = get_batting_strike_rate($career_summary["Runs"], $career_summary["Balls"]);
                         }
                         else
                         {
@@ -689,8 +721,19 @@
             }
         }
             
-        private function generate_batting_summary_csv($db, $table_name, $output_name)
+        private function generate_batting_summary_csv($db, $period_type)
         {
+			if ($period_type == PERIOD_CAREER)
+			{
+				$table_name = "CareerBattingSummary";
+				$output_name = "batting_career_ind_summary";
+			}
+			else if ($period_type == PERIOD_SEASON)
+			{
+				$table_name = "BattingSummary";
+				$output_name = "batting_ind_summary";
+			}
+			
             $header = array(
                 "Player", "Mat", "Inns", "NO", "Runs", "Ave", "SR", 
                 "HS", "50s", "100s", "0s", "4s", "6s"

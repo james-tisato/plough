@@ -1,6 +1,7 @@
 <StatsConfig>
     <Pair Key="ClearDb" Value="false" />
     <Pair Key="DbDir" Value="{stats_root}/test/database/Update" />
+	<Pair Key="CareerBaseDir" Value="{stats_root}/test/static/Update" />
     <Pair Key="InputMapperName" Value="file" />
     <Pair Key="InputMapperDir" Value="{stats_root}/test/input/Update" />
     <Pair Key="OutputDir" Value="{stats_root}/test/result/Update" />

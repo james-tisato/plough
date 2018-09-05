@@ -50,7 +50,7 @@
             
             if (!file_exists($baseline_path))
             {
-                log\warning("Test [" . $test_name . "] - baseline file not found for [" . $output_filname . "]");
+                log\warning("Test [" . $test_name . "] - baseline file not found for [" . $output_filename . "]");
                 $test_passed = false;
             }
                 
