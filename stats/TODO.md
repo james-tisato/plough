@@ -10,7 +10,8 @@ __TODO__
       * 
     * Team summary stats
     * Live career stats
-      * Extra row below header
+      * Updated baseline from Nick, including my own fix
+      
 * Bugs
   * Average sort doesn't work when people have no average
 * WP support

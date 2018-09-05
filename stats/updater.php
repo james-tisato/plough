@@ -748,7 +748,7 @@
                      ,bs.Runs
                      ,bs.Average
                      ,bs.StrikeRate
-                     ,(CAST(bs.HighScore AS TEXT) || CASE bs.HighScoreNotOut WHEN 1 THEN \'*\' ELSE \'\' END)
+                     ,(CAST(bs.HighScore AS TEXT) || CASE bs.HighScoreNotOut WHEN 1 THEN \'*\' ELSE \'\' END) as HighScore
                      ,bs.Fifties
                      ,bs.Hundreds
                      ,bs.Ducks
@@ -757,7 +757,7 @@
                 FROM "Player" p
                 INNER JOIN "' . $table_name . '" bs on bs.PlayerId = p.PlayerId
                 WHERE bs.Innings > 0
-                ORDER by bs.Runs DESC, bs.Average DESC
+                ORDER by bs.Runs DESC, bs.Average DESC, bs.Innings DESC, bs.NotOuts DESC, bs.Matches DESC, p.Name
                 '
                 );
             
@@ -894,7 +894,7 @@
                 FROM "Player" p
                 INNER JOIN "BowlingSummary" bs on bs.PlayerId = p.PlayerId
                 WHERE (bs.CompletedOvers > 0 OR bs.PartialBalls > 0)
-                ORDER by bs.Wickets DESC, bs.Average
+                ORDER by bs.Wickets DESC, bs.Average, bs.EconomyRate
                 '
                 );
             
@@ -965,7 +965,7 @@
                 FROM "Player" p
                 INNER JOIN "FieldingSummary" fs on fs.PlayerId = p.PlayerId
                 WHERE fs.TotalFieldingWickets > 0
-                ORDER by fs.TotalFieldingWickets DESC, fs.CatchesFielding DESC
+                ORDER by fs.TotalFieldingWickets DESC, fs.CatchesFielding DESC, fs.Matches DESC, p.Name
                 '
                 );
             
@@ -988,7 +988,7 @@
                 FROM "Player" p
                 INNER JOIN "FieldingSummary" fs on fs.PlayerId = p.PlayerId
                 WHERE fs.TotalKeepingWickets > 0
-                ORDER by fs.TotalKeepingWickets DESC, fs.CatchesKeeping DESC
+                ORDER by fs.TotalKeepingWickets DESC, fs.CatchesKeeping DESC, fs.Matches DESC, p.Name
                 '
                 );
             
