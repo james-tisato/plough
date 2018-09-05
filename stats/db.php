@@ -72,8 +72,8 @@
             "EconomyRate", "StrikeRate", "BestBowlingWickets", "BestBowlingRuns", "FiveFors", "Wides", "NoBalls"
             )
          VALUES (
-             :player_id, :matches, :completed_overs, :partial_balls, :maidens, :runs, :wickets, :average,  
-             :economy_rate, :strike_rate, :best_bowling_wickets, :best_bowling_runs, :five_fors, :wides, :no_balls
+             :PlayerId, :Matches, :CompletedOvers, :PartialBalls, :Maidens, :Runs, :Wickets, :Average,  
+             :EconomyRate, :StrikeRate, :BestBowlingWickets, :BestBowlingRuns, :FiveFors, :Wides, :NoBalls
              )';
     
     
@@ -349,7 +349,7 @@
     
     function db_create_insert_career_bowling_summary($db)
     {
-        return $db->prepare('INSERT INTO "CareerBattingSummary" ' . BOWLING_SUMMARY_INSERT);
+        return $db->prepare('INSERT INTO "CareerBowlingSummary" ' . BOWLING_SUMMARY_INSERT);
     }
 	
     function db_create_insert_fielding_summary($db)

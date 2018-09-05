@@ -11,7 +11,8 @@ __TODO__
     * Team summary stats
     * Live career stats
       * Updated baseline from Nick, including my own fix
-      
+      * Create test baselines manually
+      * Refactor load career base into shared function
 * Bugs
   * Average sort doesn't work when people have no average
 * WP support
