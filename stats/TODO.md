@@ -7,12 +7,16 @@ __TODO__
       * https://wordpress.stackexchange.com/questions/51145/get-php-variable-from-functions-php-and-echo-it-in-theme-template-files
     * League table
     * Page per player
-      * 
     * Team summary stats
     * Live career stats
+      * Sort out fielding table structure - split career into fielding and keeping?
+      * Sort out fielding + keeping table header names
+      * Fix styling on site to allow tables to be different widths
       * Updated baseline from Nick, including my own fix
       * Create test baselines manually
       * Refactor load career base into shared function
+      * Publish latest plugin to site
+      * Update career stats page to include live tables and text indicating this
 * Bugs
   * Average sort doesn't work when people have no average
 * WP support
