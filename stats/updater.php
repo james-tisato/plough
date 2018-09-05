@@ -14,6 +14,7 @@
     const CLUB_NAME = "Ploughmans CC";
     const DELETED = "Deleted";
     const SEASON = "2018";
+    const NO_PC_PLAYER_ID = -1;
     
     // Modes of dismissal
     const DID_NOT_BAT = "did not bat";
@@ -245,7 +246,7 @@
                                 }
                                 else
                                 {
-                                    // Player exists - update player name in case it has changed
+                                    // Player exists - update player name and/or PC player id in case it has changed
                                     $update_player->bindValue(":pc_player_id", $pc_player_id);
                                     $update_player->bindValue(":name", $player_name);
                                     $update_player->execute();
@@ -372,38 +373,47 @@
                     }
                 }
             
-                // Build summaries
-                log\info("");
-                log\info("Building summary tables...");
-                $players = array();
-                $statement = $db->prepare('SELECT PlayerId FROM "Player" ORDER BY PlayerId');
-                $result = $statement->execute();
-                while ($row = $result->fetchArray(SQLITE3_ASSOC))
-                    array_push($players, $row["PlayerId"]);
                 
-                log\info("  Batting");
-                $this->generate_batting_summary($players, $db);
-                log\info("  Bowling");
-                $this->generate_bowling_summary($players, $db);
-                log\info("  Fielding");
-                $this->generate_fielding_summary($players, $db);
-                
-                // Mark DB update
-                log\info("");
-                log\info("Setting update time in database");
-                $insert_update->bindValue(":update_time", $current_date);
-                $insert_update->execute();
             }
             else
             {
                 log\info("  No update required");
             }
+            
+            
+            // Build summaries
+            log\info("");
+            log\info("Loading career base tables...");
+            log\info("  Batting");
+            $this->load_batting_career_summary_base($db);
+            
+            log\info("");
+            log\info("Building summary tables for " . SEASON . "...");
+            log\info("  Batting");
+            log\info("    Season " . SEASON);
+            $this->generate_batting_summary($db);
+            log\info("    Career");
+            $this->generate_career_batting_summary($db);
+            log\info("  Bowling");
+            $this->generate_bowling_summary($db);
+            log\info("  Fielding");
+            $this->generate_fielding_summary($db);
+            
+            // Mark DB update
+            log\info("");
+            log\info("Setting update time in database");
+            $insert_update->bindValue(":update_time", $current_date);
+            $insert_update->execute();
+            
                 
             // Generate outputs
             log\info("");
             log\info("Generating CSV output...");
             log\info("  Batting");
-            $this->generate_batting_summary_csv($db);
+            log\info("    Season " . SEASON);
+            $this->generate_batting_summary_csv($db, "BattingSummary", "batting_ind_summary");
+            log\info("    Career");
+            $this->generate_batting_summary_csv($db, "CareerBattingSummary", "batting_ind_career_summary");
             log\info("  Bowling");
             $this->generate_bowling_summary_csv($db);
             log\info("  Fielding");
@@ -413,6 +423,17 @@
         }
         
         // Private helpers
+        private function get_players_by_name($db)
+        {
+            $players = array();
+            $statement = $db->prepare('SELECT * FROM "Player" ORDER BY Name');
+            $result = $statement->execute();
+            while ($row = $result->fetchArray(SQLITE3_ASSOC))
+                $players[$row["Name"]] = $row;
+            
+            return $players;
+        }
+        
         private function generate_csv_output($output_name, $header, $statement)
         {
             $output_dir = $this->_config->getOutputDir();
@@ -438,13 +459,76 @@
             fclose($out);
         }
         
-        private function generate_batting_summary($players, $db)
+        private function load_batting_career_summary_base($db)
         {
+            $players = $this->get_players_by_name($db);
+            
+            db_truncate_table($db, "CareerBattingSummaryBase");
+            $insert_career_batting_summary_base = db_create_insert_career_batting_summary_base($db);
+            $insert_player = db_create_insert_player($db);
+            
+            $career_base_path = $this->_config->getCareerBaseDir() . "/career-stats-batting-end-2017.csv";
+            if (file_exists($career_base_path))
+            {   
+                $base = fopen($career_base_path, "r");
+                while ($row = fgetcsv($base))
+                {
+                    if ($row[0] == "Player")
+                    {
+                        $idx = array_flip($row);
+                    }
+                    else
+                    {
+                        $name = $row[$idx["Player"]];
+                        if (!array_key_exists($name, $players))
+                        {
+                            $insert_player->bindValue(":pc_player_id", NO_PC_PLAYER_ID);
+                            $insert_player->bindValue(":name", $name);
+                            $player_id = db_insert_and_return_id($db, $insert_player);
+                        }
+                        else
+                        {
+                            $player_id = $players[$name]["PlayerId"];
+                        }
+                        
+                        $high_score = $row[$idx["HS"]];
+                        $high_score_not_out = (strpos($high_score, "*") !== false);
+                        $high_score = str_replace("*", "", $high_score);
+                        
+                        $insert_career_batting_summary_base->bindValue(":PlayerId", $player_id);
+                        $insert_career_batting_summary_base->bindValue(":Matches", $row[$idx["Mat"]]);
+                        $insert_career_batting_summary_base->bindValue(":Innings", $row[$idx["Inns"]]);
+                        $insert_career_batting_summary_base->bindValue(":NotOuts", $row[$idx["NO"]]);
+                        $insert_career_batting_summary_base->bindValue(":Runs", $row[$idx["Runs"]]);
+                        $insert_career_batting_summary_base->bindValue(":Average", $row[$idx["Ave"]]);
+                        $insert_career_batting_summary_base->bindValue(":StrikeRate", $row[$idx["SR"]]);
+                        $insert_career_batting_summary_base->bindValue(":HighScore", $high_score);
+                        $insert_career_batting_summary_base->bindValue(":HighScoreNotOut", $high_score_not_out);
+                        $insert_career_batting_summary_base->bindValue(":Fifties", $row[$idx["50s"]]);
+                        $insert_career_batting_summary_base->bindValue(":Hundreds", $row[$idx["100s"]]);
+                        $insert_career_batting_summary_base->bindValue(":Ducks", $row[$idx["0s"]]);
+                        $insert_career_batting_summary_base->bindValue(":Balls", $row[$idx["Balls"]]);
+                        $insert_career_batting_summary_base->bindValue(":Fours", $row[$idx["4s"]]);
+                        $insert_career_batting_summary_base->bindValue(":Sixes", $row[$idx["6s"]]);
+                        $insert_career_batting_summary_base->execute();
+                    }
+                }
+                
+                fclose($base);
+            }
+        }
+        
+        private function generate_batting_summary($db)
+        {
+            $players = $this->get_players_by_name($db);
+            
             db_truncate_table($db, "BattingSummary");
             $insert_batting_summary = db_create_insert_batting_summary($db);
             
-            foreach ($players as $player_id)
+            foreach ($players as $player_name => $player)
             {	
+                $player_id = $player["PlayerId"];
+            
                 // Filter
                 $db->query('DROP TABLE IF EXISTS "IncludedPerformance"');
                 $db->query('CREATE TEMPORARY TABLE "IncludedPerformance" (
@@ -461,32 +545,32 @@
                 // Basic fields
                 $statement = $db->prepare('               
                     SELECT
-                         p.PlayerId as player_id
-                        ,COUNT(pp.PlayerPerformanceId) AS matches
-                        ,COUNT(bp.BattingPerformanceId) AS innings
+                         p.PlayerId
+                        ,COUNT(pp.PlayerPerformanceId) AS Matches
+                        ,COUNT(bp.BattingPerformanceId) AS Innings
                         ,SUM(CASE bp.HowOut 
                             WHEN "no" THEN 1 
                             WHEN "rh" THEN 1
-                            ELSE 0 END) AS not_outs
-                        ,SUM(bp.Runs) AS runs
-                        ,(CAST(SUM(bp.Runs) AS FLOAT) / (COUNT(bp.BattingPerformanceId) - SUM(CASE bp.HowOut WHEN "no" THEN 1 WHEN "rh" THEN 1 ELSE 0 END))) AS average
-                        ,((CAST(SUM(bp.Runs) AS FLOAT) / SUM(bp.Balls)) * 100.0) AS strike_rate
-                        ,SUM(CASE WHEN bp.Runs >= 50 AND bp.Runs < 100 THEN 1 ELSE 0 END) AS fifties
-                        ,SUM(CASE WHEN bp.Runs >= 100 THEN 1 ELSE 0 END) AS hundreds
-                        ,SUM(CASE WHEN bp.Runs = 0 and bp.HowOut <> "no" THEN 1 ELSE 0 END) AS ducks
-                        ,SUM(bp.Balls) as balls
-                        ,SUM(bp.Fours) as fours
-                        ,SUM(bp.Sixes) as sixes
+                            ELSE 0 END) AS NotOuts
+                        ,SUM(bp.Runs) AS Runs
+                        ,(CAST(SUM(bp.Runs) AS FLOAT) / (COUNT(bp.BattingPerformanceId) - SUM(CASE bp.HowOut WHEN "no" THEN 1 WHEN "rh" THEN 1 ELSE 0 END))) AS Average
+                        ,((CAST(SUM(bp.Runs) AS FLOAT) / SUM(bp.Balls)) * 100.0) AS StrikeRate
+                        ,SUM(CASE WHEN bp.Runs >= 50 AND bp.Runs < 100 THEN 1 ELSE 0 END) AS Fifties
+                        ,SUM(CASE WHEN bp.Runs >= 100 THEN 1 ELSE 0 END) AS Hundreds
+                        ,SUM(CASE WHEN bp.Runs = 0 and bp.HowOut <> "no" THEN 1 ELSE 0 END) AS Ducks
+                        ,SUM(bp.Balls) as Balls
+                        ,SUM(bp.Fours) as Fours
+                        ,SUM(bp.Sixes) as Sixes
                     FROM "Player" p
                     INNER JOIN "PlayerPerformance" pp on pp.PlayerId = p.PlayerId
                     --INNER JOIN "IncludedPerformance" ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
                     LEFT JOIN "BattingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
-                            p.PlayerId = :player_id
+                            p.PlayerId = :PlayerId
                     GROUP BY p.PlayerId, p.Name
                     '
                     );
-                $statement->bindValue(":player_id", $player_id);
+                $statement->bindValue(":PlayerId", $player_id);
                 $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
                 if (empty($result))
                     continue;
@@ -496,20 +580,20 @@
                 // High score
                 $statement = $db->prepare('
                     SELECT
-                         p.PlayerId as player_id
-                        ,bp.Runs as high_score
+                         p.PlayerId as PlayerId
+                        ,bp.Runs as HighScore
                         ,(CASE bp.HowOut 
                             WHEN "no" THEN 1 
                             WHEN "rh" THEN 1
-                            ELSE 0 END) as high_score_not_out
+                            ELSE 0 END) as HighScoreNotOut
                     FROM "Player" p
                     LEFT JOIN "BattingPerformance" bp on bp.PlayerId = p.PlayerId
                     WHERE
-                            p.PlayerId = :player_id
-                    ORDER BY high_score DESC, high_score_not_out DESC
+                            p.PlayerId = :PlayerId
+                    ORDER BY HighScore DESC, HighScoreNotOut DESC
                     LIMIT 1
                     ');
-                $statement->bindValue(":player_id", $player_id);
+                $statement->bindValue(":PlayerId", $player_id);
                 $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
                 db_bind_values_from_row($insert_batting_summary, $result);
             
@@ -517,12 +601,99 @@
                 $insert_batting_summary->execute();
             }
         }
+        
+        private function generate_career_batting_summary($db)
+        {
+            $players = $this->get_players_by_name($db);
             
-        private function generate_batting_summary_csv($db)
+            db_truncate_table($db, "CareerBattingSummary");
+            $insert_career_batting_summary = db_create_insert_career_batting_summary($db);
+            
+            foreach ($players as $player_name => $player)
+            {	
+                $player_id = $player["PlayerId"];
+                
+                // Career base
+                $statement = $db->prepare('SELECT * FROM "CareerBattingSummaryBase" WHERE PlayerId = :PlayerId');
+                $statement->bindValue(":PlayerId", $player_id);
+                $career_base = $statement->execute()->fetchArray(SQLITE3_ASSOC);
+                
+                // Season
+                $statement = $db->prepare('SELECT * FROM "BattingSummary" WHERE PlayerId = :PlayerId');
+                $statement->bindValue(":PlayerId", $player_id);
+                $season = $statement->execute()->fetchArray(SQLITE3_ASSOC);
+                
+                if (!empty($career_base))
+                {
+                    if (!empty($season))
+                    {
+                        // Sum career base and season
+                        $career_summary = array();
+                        $career_summary["PlayerId"] = $player_id;
+                        $career_summary["Matches"] = $career_base["Matches"] + $season["Matches"];
+                        $career_summary["Innings"] = $career_base["Innings"] + $season["Innings"];
+                        $career_summary["NotOuts"] = $career_base["NotOuts"] + $season["NotOuts"];
+                        $career_summary["Runs"] = $career_base["Runs"] + $season["Runs"];
+                        
+                        $num_outs = $career_summary["Innings"] - $career_summary["NotOuts"];
+                        if ($num_outs > 0)
+                            $career_summary["Average"] = $career_summary["Runs"] / $num_outs;
+                            
+                        if (!empty($career_base["Balls"]))
+                        {
+                            $career_summary["Balls"] = $career_base["Balls"] + $season["Balls"];
+                            $career_summary["StrikeRate"] = ($career_summary["Runs"] / $career_summary["Balls"]) * 100.0;
+                        }
+                        else
+                        {
+                            $career_summary["Balls"] = null;
+                            $career_summary["StrikeRate"] = null;
+                        }
+                            
+                        if ($career_base["HighScore"] > $season["HighScore"])
+                        {
+                            $career_summary["HighScore"] = $career_base["HighScore"];
+                            $career_summary["HighScoreNotOut"] = $career_base["HighScoreNotOut"];
+                        }
+                        else if ($season["HighScore"] > $career_base["HighScore"])
+                        {
+                            $career_summary["HighScore"] = $season["HighScore"];
+                            $career_summary["HighScoreNotOut"] = $season["HighScoreNotOut"];
+                        }
+                        else
+                        {
+                            $career_summary["HighScore"] = $season["HighScore"];
+                            $career_summary["HighScoreNotOut"] = max($career_base["HighScoreNotOut"], $season["HighScoreNotOut"]);
+                        }
+                        
+                        $career_summary["Fifties"] = $career_base["Fifties"] + $season["Fifties"];
+                        $career_summary["Hundreds"] = $career_base["Hundreds"] + $season["Hundreds"];
+                        $career_summary["Ducks"] = $career_base["Ducks"] + $season["Ducks"];
+                        $career_summary["Fours"] = $career_base["Fours"] + $season["Fours"];
+                        $career_summary["Sixes"] = $career_base["Sixes"] + $season["Sixes"];
+                    }
+                    else
+                    {
+                        // No season - use career base
+                        $career_summary = $career_base;
+                    }
+                }
+                else if (!empty($season))
+                {
+                    // No career base - use season
+                    $career_summary = $season;
+                }
+                
+                db_bind_values_from_row($insert_career_batting_summary, $career_summary);
+                $insert_career_batting_summary->execute();
+            }
+        }
+            
+        private function generate_batting_summary_csv($db, $table_name, $output_name)
         {
             $header = array(
-                "Player", "Matches", "Innings", "Not Outs", "Runs", "Average", "Strike Rate", 
-                "High Score", "50s", "100s", "Ducks", "Fours", "Sixes"
+                "Player", "Mat", "Inns", "NO", "Runs", "Ave", "SR", 
+                "HS", "50s", "100s", "0s", "4s", "6s"
                 );
             
             $statement = $db->prepare('
@@ -541,22 +712,26 @@
                      ,bs.Fours
                      ,bs.Sixes
                 FROM "Player" p
-                INNER JOIN "BattingSummary" bs on bs.PlayerId = p.PlayerId
+                INNER JOIN "' . $table_name . '" bs on bs.PlayerId = p.PlayerId
                 WHERE bs.Innings > 0
                 ORDER by bs.Runs DESC, bs.Average DESC
                 '
                 );
             
-            $this->generate_csv_output("batting_ind_summary", $header, $statement);
+            $this->generate_csv_output($output_name, $header, $statement);
         }
             
-        private function generate_bowling_summary($players, $db)
+        private function generate_bowling_summary($db)
         {
+            $players = $this->get_players_by_name($db);
+            
             db_truncate_table($db, "BowlingSummary");
             $insert_bowling_summary = db_create_insert_bowling_summary($db);
             
-            foreach ($players as $player_id)
-            {
+            foreach ($players as $player_name => $player)
+            {   
+                $player_id = $player["PlayerId"];
+                
                 // Filter
                 $db->query('DROP TABLE IF EXISTS "IncludedPerformance"');
                 $db->query('CREATE TEMPORARY TABLE "IncludedPerformance" (
@@ -654,8 +829,8 @@
         private function generate_bowling_summary_csv($db)
         {
             $header = array(
-                "Player", "Matches", "Overs", "Maidens", "Runs", "Wickets", "Average", 
-                "Economy Rate", "Strike Rate", "Best Bowling", "5wi", "Wides", "No Balls"
+                "Player", "Mat", "Overs", "Mdns", "Runs", "Wkts", "Ave", 
+                "Econ", "SR", "Best", "5wi", "Wides", "NBs"
                 );
             
             $statement = $db->prepare('
@@ -683,13 +858,17 @@
             $this->generate_csv_output("bowling_ind_summary", $header, $statement);
         }
         
-        private function generate_fielding_summary($players, $db)
+        private function generate_fielding_summary($db)
         {
+            $players = $this->get_players_by_name($db);
+            
             db_truncate_table($db, "FieldingSummary");
             $insert_fielding_summary = db_create_insert_fielding_summary($db);
             
-            foreach ($players as $player_id)
+            foreach ($players as $player)
             {	
+                $player_id = $player["PlayerId"];
+            
                 // Filter
                 
 

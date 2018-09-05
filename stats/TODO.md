@@ -7,14 +7,19 @@ __TODO__
       * https://wordpress.stackexchange.com/questions/51145/get-php-variable-from-functions-php-and-echo-it-in-theme-template-files
     * League table
     * Page per player
+      * 
     * Team summary stats
     * Live career stats
+
+* Bugs
+  * Average sort doesn't work when people have no average
 * WP support
   * Some kind of mock plugin runner that will kick the tires of the plugin init code?
 * Logging
   * Start using levels properly
   * Add custom exception handler?
     * Can we do the same for warnings?
+* Excel export
 * Test harness
   * Integrate to packaging script
 * Refactoring

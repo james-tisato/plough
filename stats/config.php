@@ -10,6 +10,7 @@
     const KEY_OUTPUT_DIR = "OutputDir";
     const KEY_CLEAR_DB = "ClearDb";
     const KEY_DB_DIR = "DbDir";
+    const KEY_CAREER_BASE_DIR = "CareerBaseDir";
     
     const REPLACE_PLUGIN_ROOT = "plugin_root";
     const REPLACE_STATS_ROOT = "stats_root";
@@ -83,6 +84,11 @@
         public function getDbDir()
         {
             return $this->getParam(KEY_DB_DIR);
+        }
+        
+        public function getCareerBaseDir()
+        {
+            return $this->getParam(KEY_CAREER_BASE_DIR);
         }
         
         private function getParam($key)
