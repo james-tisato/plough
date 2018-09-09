@@ -12,7 +12,6 @@ __TODO__
       * Sort out fielding table structure - split career into fielding and keeping?
       * Sort out fielding + keeping table header names
       * Fix styling on site to allow tables to be different widths
-      * Updated baseline from Nick, including my own fix
       * Create test baselines manually
       * Refactor load career base into shared function
       * Publish latest plugin to site
