@@ -41,6 +41,9 @@
 			add_file($zip, "stats/updater.php");
             
             add_file($zip, "stats/config/default.xml");
+            
+            add_file($zip, "stats/static/career-stats-batting-end-2017.csv");
+            add_file($zip, "stats/static/career-stats-bowling-end-2017.csv");
 
 		    $zip->close();
 		}

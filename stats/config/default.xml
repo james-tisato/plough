@@ -1,6 +1,7 @@
 <StatsConfig>
     <Pair Key="ClearDb" Value="false" />
     <Pair Key="DbDir" Value="{stats_root}/db" />
+    <Pair Key="StaticDir" Value="{stats_root}/static" />
     <Pair Key="InputMapperName" Value="web" />
     <Pair Key="OutputDir" Value="{stats_root}/output" />
 </StatsConfig>

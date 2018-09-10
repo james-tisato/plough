@@ -591,7 +591,7 @@
             $insert_career_batting_summary_base = db_create_insert_career_batting_summary_base($db);
             $insert_player = db_create_insert_player($db);
             
-            $career_base_path = $this->_config->getCareerBaseDir() . "/career-stats-batting-end-" . (SEASON - 1) . ".csv";
+            $career_base_path = $this->_config->getStaticDir() . "/career-stats-batting-end-" . (SEASON - 1) . ".csv";
             if (file_exists($career_base_path))
             {   
                 $base = fopen($career_base_path, "r");
@@ -807,7 +807,7 @@
 			
             $header = array(
                 "Player", "Mat", "Inns", "NO", "Runs", "Ave", "SR", 
-                "HS", "50s", "100s", "0s", "4s", "6s"
+                "HS", "50s", "100s", "0s", "4s", "6s", "Balls"
                 );
             
             $statement = $db->prepare('
@@ -825,6 +825,7 @@
                      ,bs.Ducks
                      ,bs.Fours
                      ,bs.Sixes
+                     ,bs.Balls
                 FROM "Player" p
                 INNER JOIN "' . $table_name . '" bs on bs.PlayerId = p.PlayerId
                 WHERE bs.Innings > 0
@@ -843,7 +844,7 @@
             $insert_career_bowling_summary_base = db_create_insert_career_bowling_summary_base($db);
             $insert_player = db_create_insert_player($db);
             
-            $career_base_path = $this->_config->getCareerBaseDir() . "/career-stats-bowling-end-" . (SEASON - 1) . ".csv";
+            $career_base_path = $this->_config->getStaticDir() . "/career-stats-bowling-end-" . (SEASON - 1) . ".csv";
             if (file_exists($career_base_path))
             {   
                 $base = fopen($career_base_path, "r");

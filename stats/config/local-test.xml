@@ -1,7 +1,7 @@
 <StatsConfig>
     <Pair Key="ClearDb" Value="false" />
     <Pair Key="DbDir" Value="{stats_root}/db" />
-    <Pair Key="CareerBaseDir" Value="{stats_root}/static" />
+    <Pair Key="StaticDir" Value="{stats_root}/static" />
     <Pair Key="InputMapperName" Value="web" />
     <Pair Key="InputMapperDir" Value="{stats_root}/test/input/basic2" />
     <!--<Pair Key="InputDumpDir" Value="{stats_root}/dump" />-->

@@ -7,3 +7,4 @@ stats/test/database
 stats/test/result
 dist
 logs
+~*.xlsx
