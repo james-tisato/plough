@@ -583,15 +583,19 @@
             }
         }
 		
-        private function load_batting_career_summary_base($db)
+        private function load_career_summary_base(
+            $db,
+            $summary_type,
+            $insert_career_summary_base,
+            $bind_row_to_insert
+            )
         {
             $players = $this->get_players_by_name($db);
             
-            db_truncate_table($db, "CareerBattingSummaryBase");
-            $insert_career_batting_summary_base = db_create_insert_career_batting_summary_base($db);
+            db_truncate_table($db, "Career" . $summary_type . "SummaryBase");
             $insert_player = db_create_insert_player($db);
             
-            $career_base_path = $this->_config->getStaticDir() . "/career-stats-batting-end-" . (SEASON - 1) . ".csv";
+            $career_base_path = $this->_config->getStaticDir() . "/career-stats-" . $summary_type . "-end-" . (SEASON - 1) . ".csv";
             if (file_exists($career_base_path))
             {   
                 $base = fopen($career_base_path, "r");
@@ -615,39 +619,51 @@
                             $player_id = $players[$name]["PlayerId"];
                         }
                         
-                        $high_score = $row[$idx["HS"]];
-                        $high_score_not_out = (strpos($high_score, "*") !== false);
-                        $high_score = str_replace("*", "", $high_score);
-                        
-						$innings = $row[$idx["Inns"]];
-						$not_outs = $row[$idx["NO"]];
-						$runs = $row[$idx["Runs"]];
-						$average = get_batting_average($runs, $innings, $not_outs);
-						$balls_str = $row[$idx["Balls"]];
-						$balls = (empty($balls_str) ? null : $balls_str);
-						$strike_rate = get_batting_strike_rate($runs, $balls);
-						
-                        $insert_career_batting_summary_base->bindValue(":PlayerId", $player_id);
-                        $insert_career_batting_summary_base->bindValue(":Matches", $row[$idx["Mat"]]);
-                        $insert_career_batting_summary_base->bindValue(":Innings", $innings);
-                        $insert_career_batting_summary_base->bindValue(":NotOuts", $not_outs);
-                        $insert_career_batting_summary_base->bindValue(":Runs", $runs);
-                        $insert_career_batting_summary_base->bindValue(":Average", $average);
-                        $insert_career_batting_summary_base->bindValue(":StrikeRate", $strike_rate);
-                        $insert_career_batting_summary_base->bindValue(":HighScore", $high_score);
-                        $insert_career_batting_summary_base->bindValue(":HighScoreNotOut", $high_score_not_out);
-                        $insert_career_batting_summary_base->bindValue(":Fifties", $row[$idx["50s"]]);
-                        $insert_career_batting_summary_base->bindValue(":Hundreds", $row[$idx["100s"]]);
-                        $insert_career_batting_summary_base->bindValue(":Ducks", $row[$idx["0s"]]);
-                        $insert_career_batting_summary_base->bindValue(":Balls", $balls);
-                        $insert_career_batting_summary_base->bindValue(":Fours", $row[$idx["4s"]]);
-                        $insert_career_batting_summary_base->bindValue(":Sixes", $row[$idx["6s"]]);
-                        $insert_career_batting_summary_base->execute();
+                        $bind_row_to_insert($row, $idx, $player_id, $insert_career_summary_base);
+                        $insert_career_summary_base->execute();
                     }
                 }
                 
                 fclose($base);
             }
+        }
+        
+        private function load_batting_career_summary_base($db)
+        {
+            $bind_row_to_insert = function ($row, $idx, $player_id, $insert_career_batting_summary_base)
+            {
+                $high_score = $row[$idx["HS"]];
+                $high_score_not_out = (strpos($high_score, "*") !== false);
+                $high_score = str_replace("*", "", $high_score);
+                
+                $innings = $row[$idx["Inns"]];
+                $not_outs = $row[$idx["NO"]];
+                $runs = $row[$idx["Runs"]];
+                $average = get_batting_average($runs, $innings, $not_outs);
+                $balls_str = $row[$idx["Balls"]];
+                $balls = (empty($balls_str) ? null : $balls_str);
+                $strike_rate = get_batting_strike_rate($runs, $balls);
+                
+                $insert_career_batting_summary_base->bindValue(":PlayerId", $player_id);
+                $insert_career_batting_summary_base->bindValue(":Matches", $row[$idx["Mat"]]);
+                $insert_career_batting_summary_base->bindValue(":Innings", $innings);
+                $insert_career_batting_summary_base->bindValue(":NotOuts", $not_outs);
+                $insert_career_batting_summary_base->bindValue(":Runs", $runs);
+                $insert_career_batting_summary_base->bindValue(":Average", $average);
+                $insert_career_batting_summary_base->bindValue(":StrikeRate", $strike_rate);
+                $insert_career_batting_summary_base->bindValue(":HighScore", $high_score);
+                $insert_career_batting_summary_base->bindValue(":HighScoreNotOut", $high_score_not_out);
+                $insert_career_batting_summary_base->bindValue(":Fifties", $row[$idx["50s"]]);
+                $insert_career_batting_summary_base->bindValue(":Hundreds", $row[$idx["100s"]]);
+                $insert_career_batting_summary_base->bindValue(":Ducks", $row[$idx["0s"]]);
+                $insert_career_batting_summary_base->bindValue(":Balls", $balls);
+                $insert_career_batting_summary_base->bindValue(":Fours", $row[$idx["4s"]]);
+                $insert_career_batting_summary_base->bindValue(":Sixes", $row[$idx["6s"]]);
+                $insert_career_batting_summary_base->execute();
+            };
+            
+            $insert_career_batting_summary_base = db_create_insert_career_batting_summary_base($db);
+            $this->load_career_summary_base($db, "Batting", $insert_career_batting_summary_base, $bind_row_to_insert);
         }
         
         private function generate_batting_summary($db)
@@ -838,74 +854,40 @@
         
         private function load_bowling_career_summary_base($db)
         {
-            $players = $this->get_players_by_name($db);
-            
-            db_truncate_table($db, "CareerBowlingSummaryBase");
-            $insert_career_bowling_summary_base = db_create_insert_career_bowling_summary_base($db);
-            $insert_player = db_create_insert_player($db);
-            
-            $career_base_path = $this->_config->getStaticDir() . "/career-stats-bowling-end-" . (SEASON - 1) . ".csv";
-            if (file_exists($career_base_path))
-            {   
-                $base = fopen($career_base_path, "r");
-                while ($row = fgetcsv($base))
-                {
-                    if ($row[0] == "Player")
-                    {
-                        $idx = array_flip($row);
-                    }
-                    else
-                    {
-                        $name = $row[$idx["Player"]];
-                        if (!array_key_exists($name, $players))
-                        {
-                            $insert_player->bindValue(":pc_player_id", NO_PC_PLAYER_ID);
-                            $insert_player->bindValue(":name", $name);
-                            $player_id = db_insert_and_return_id($db, $insert_player);
-                        }
-                        else
-                        {
-                            $player_id = $players[$name]["PlayerId"];
-                        }
-                        
-                        $total_overs = explode(".", $row[$idx["Overs"]]);
-                        if (count($total_overs) == 2)
-                            $partial_balls = $total_overs[1];
-                        else
-                            $partial_balls = 0;
-                        $completed_overs = $total_overs[0];
-                        
-                        $runs = $row[$idx["Runs"]];
-                        $wickets = $row[$idx["Wkts"]];
-						$average = get_bowling_average($runs, $wickets);
-						$economy_rate = get_bowling_economy_rate($runs, $completed_overs, $partial_balls);
-                        $strike_rate = get_bowling_strike_rate($completed_overs, $partial_balls, $wickets);
-						
-                        $insert_career_bowling_summary_base->bindValue(":PlayerId", $player_id);
-                        $insert_career_bowling_summary_base->bindValue(":Matches", $row[$idx["Mat"]]);
-                        $insert_career_bowling_summary_base->bindValue(":CompletedOvers", $completed_overs);
-                        $insert_career_bowling_summary_base->bindValue(":PartialBalls", $partial_balls);
-                        $insert_career_bowling_summary_base->bindValue(":Maidens", $row[$idx["Mdns"]]);
-                        $insert_career_bowling_summary_base->bindValue(":Runs", $runs);
-                        $insert_career_bowling_summary_base->bindValue(":Wickets", $wickets);
-                        $insert_career_bowling_summary_base->bindValue(":Average", $average);
-                        $insert_career_bowling_summary_base->bindValue(":EconomyRate", $economy_rate);
-                        $insert_career_bowling_summary_base->bindValue(":StrikeRate", $strike_rate);
-                        $insert_career_bowling_summary_base->bindValue(":BestBowlingWickets", $row[$idx["Best wkts"]]);
-                        $insert_career_bowling_summary_base->bindValue(":BestBowlingRuns", $row[$idx["Best runs"]]);
-                        $insert_career_bowling_summary_base->bindValue(":FiveFors", $row[$idx["5wi"]]);
-                        $insert_career_bowling_summary_base->bindValue(":Wides", $row[$idx["Wides"]]);
-                        $insert_career_bowling_summary_base->bindValue(":NoBalls", $row[$idx["NBs"]]);
-                        $insert_career_bowling_summary_base->execute();
-                    }
-                }
-                
-                fclose($base);
-            }
-            else
+            $bind_row_to_insert = function ($row, $idx, $player_id, $insert_career_bowling_summary_base)
             {
-                log\error("Career bowling stats file not found");
-            }
+                $total_overs = explode(".", $row[$idx["Overs"]]);
+                if (count($total_overs) == 2)
+                    $partial_balls = $total_overs[1];
+                else
+                    $partial_balls = 0;
+                $completed_overs = $total_overs[0];
+                
+                $runs = $row[$idx["Runs"]];
+                $wickets = $row[$idx["Wkts"]];
+                $average = get_bowling_average($runs, $wickets);
+                $economy_rate = get_bowling_economy_rate($runs, $completed_overs, $partial_balls);
+                $strike_rate = get_bowling_strike_rate($completed_overs, $partial_balls, $wickets);
+                
+                $insert_career_bowling_summary_base->bindValue(":PlayerId", $player_id);
+                $insert_career_bowling_summary_base->bindValue(":Matches", $row[$idx["Mat"]]);
+                $insert_career_bowling_summary_base->bindValue(":CompletedOvers", $completed_overs);
+                $insert_career_bowling_summary_base->bindValue(":PartialBalls", $partial_balls);
+                $insert_career_bowling_summary_base->bindValue(":Maidens", $row[$idx["Mdns"]]);
+                $insert_career_bowling_summary_base->bindValue(":Runs", $runs);
+                $insert_career_bowling_summary_base->bindValue(":Wickets", $wickets);
+                $insert_career_bowling_summary_base->bindValue(":Average", $average);
+                $insert_career_bowling_summary_base->bindValue(":EconomyRate", $economy_rate);
+                $insert_career_bowling_summary_base->bindValue(":StrikeRate", $strike_rate);
+                $insert_career_bowling_summary_base->bindValue(":BestBowlingWickets", $row[$idx["Best wkts"]]);
+                $insert_career_bowling_summary_base->bindValue(":BestBowlingRuns", $row[$idx["Best runs"]]);
+                $insert_career_bowling_summary_base->bindValue(":FiveFors", $row[$idx["5wi"]]);
+                $insert_career_bowling_summary_base->bindValue(":Wides", $row[$idx["Wides"]]);
+                $insert_career_bowling_summary_base->bindValue(":NoBalls", $row[$idx["NBs"]]);
+            };
+            
+            $insert_career_bowling_summary_base = db_create_insert_career_bowling_summary_base($db);
+            $this->load_career_summary_base($db, "Bowling", $insert_career_bowling_summary_base, $bind_row_to_insert);
         }
             
         private function generate_bowling_summary($db)
