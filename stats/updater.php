@@ -434,48 +434,44 @@
                     }
                 }
             
+                // Build summaries
+                log\info("");
+                log\info("Loading career base tables...");
+                log\info("  Batting");
+                $this->load_batting_career_summary_base($db);
+                log\info("  Bowling");
+                $this->load_bowling_career_summary_base($db);
+                log\info("  Fielding");
+                $this->load_fielding_career_summary_base($db);
                 
+                log\info("");
+                log\info("Building summary tables...");
+                log\info("  Batting");
+                log\info("    Season " . SEASON);
+                $this->generate_batting_summary($db);
+                log\info("    Career");
+                $this->generate_career_batting_summary($db);
+                log\info("  Bowling");
+                log\info("    Season " . SEASON);
+                $this->generate_bowling_summary($db);
+                log\info("    Career");
+                $this->generate_career_bowling_summary($db);
+                log\info("  Fielding");
+                log\info("    Season " . SEASON);
+                $this->generate_fielding_summary($db);
+                log\info("    Career");
+                $this->generate_career_fielding_summary($db);
+                
+                // Mark DB update
+                log\info("");
+                log\info("Setting update time in database");
+                $insert_update->bindValue(":update_time", $current_date);
+                $insert_update->execute();
             }
             else
             {
                 log\info("  No update required");
             }
-            
-            
-            // Build summaries
-            log\info("");
-            log\info("Loading career base tables...");
-            log\info("  Batting");
-            $this->load_batting_career_summary_base($db);
-            log\info("  Bowling");
-            $this->load_bowling_career_summary_base($db);
-            log\info("  Fielding");
-            $this->load_fielding_career_summary_base($db);
-            
-            log\info("");
-            log\info("Building summary tables...");
-            log\info("  Batting");
-            log\info("    Season " . SEASON);
-            $this->generate_batting_summary($db);
-            log\info("    Career");
-            $this->generate_career_batting_summary($db);
-            log\info("  Bowling");
-            log\info("    Season " . SEASON);
-            $this->generate_bowling_summary($db);
-            log\info("    Career");
-            $this->generate_career_bowling_summary($db);
-            log\info("  Fielding");
-            log\info("    Season " . SEASON);
-            $this->generate_fielding_summary($db);
-            log\info("    Career");
-            $this->generate_career_fielding_summary($db);
-            
-            // Mark DB update
-            log\info("");
-            log\info("Setting update time in database");
-            $insert_update->bindValue(":update_time", $current_date);
-            $insert_update->execute();
-            
                 
             // Generate outputs
             log\info("");
