@@ -1205,7 +1205,7 @@
 			}
             
             $header = array(
-                "Player", "Matches", "Fielding Catches", "Run Outs", "Fielding Dismissals"
+                "Player", "Mat", "Ct", "RO", "Total"
                 );
             
             $statement = $db->prepare('
@@ -1239,7 +1239,7 @@
 			}
             
             $header = array(
-                "Player", "Matches", "Keeping Catches", "Stumpings", "Keeping Dismissals"
+                "Player", "Mat", "Wk Ct", "St", "Wk Total"
                 );
             
             $statement = $db->prepare('

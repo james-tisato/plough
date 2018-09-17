@@ -10,9 +10,9 @@ __TODO__
     * Page per player
     * Team summary stats
     * Live career stats
-      * Sort out fielding table structure - split career into fielding and keeping?
-      * Sort out fielding + keeping table header names
       * Fix styling on site to allow tables to be different widths
+        * margin auto, width auto, max width = fixed value
+      * Sort out fielding + keeping table header names
       * Create test baselines manually
       * Publish latest plugin to site 
       * Update career stats page to include live tables and text indicating this
@@ -30,17 +30,10 @@ __TODO__
 * Refactoring
   * Move initial stats building into separate functions
   * Switch to class autoloading
-
-* Performance
-  * Enable GZip compression on NGINX - contact SG
-  * Does Cloudflare need to be enabled on cPanel? - contact SG
   
 * Migration
   * Fixes
     * Match report quote fixes
-    * Somehow we are still referencing something from the temp URL on homepage - fix
-  * Auto-backup configuration - contact SG
-  * Publicise that website has migrated
   * Email setup
   * PHP 7.2 installation on desktop and laptop, test plugin
   
