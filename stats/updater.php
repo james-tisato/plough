@@ -602,7 +602,8 @@
             db_truncate_table($db, "Career" . $summary_type . "SummaryBase");
             $insert_player = db_create_insert_player($db);
             
-            $career_base_path = $this->_config->getStaticDir() . "/career-stats-" . $summary_type . "-end-" . (SEASON - 1) . ".csv";
+            $career_base_path = $this->_config->getStaticDir() . "/career-stats-" . strtolower($summary_type) . "-end-" . (SEASON - 1) . ".csv";
+            log\debug("    $career_base_path");
             if (file_exists($career_base_path))
             {   
                 $base = fopen($career_base_path, "r");
@@ -632,6 +633,10 @@
                 }
                 
                 fclose($base);
+            }
+            else
+            {
+                log\warning("      File not found");
             }
         }
         

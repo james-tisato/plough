@@ -44,6 +44,7 @@
             
             add_file($zip, "stats/static/career-stats-batting-end-2017.csv");
             add_file($zip, "stats/static/career-stats-bowling-end-2017.csv");
+            add_file($zip, "stats/static/career-stats-fielding-end-2017.csv");
 
 		    $zip->close();
 		}

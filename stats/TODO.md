@@ -11,9 +11,7 @@ __TODO__
     * Team summary stats
     * Live career stats
       * Fix styling on site to allow tables to be different widths
-        * margin auto, width auto, max width = fixed value
-      * Sort out fielding + keeping table header names
-      * Create test baselines manually
+        * margin auto, width auto, max width = fixed value?
       * Publish latest plugin to site 
       * Update career stats page to include live tables and text indicating this
 * Bugs
