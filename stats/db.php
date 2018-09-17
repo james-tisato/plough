@@ -42,7 +42,7 @@
         ';
         
     CONST BATTING_SUMMARY_INSERT = '(
-        "PlayerId", "Matches", "Innings", "NotOuts", "Runs", "Average", "StrikeRate", 
+            "PlayerId", "Matches", "Innings", "NotOuts", "Runs", "Average", "StrikeRate", 
             "HighScore", "HighScoreNotOut", "Fifties", "Hundreds", "Ducks", "Balls", "Fours", "Sixes"
             )
          VALUES (
@@ -67,8 +67,8 @@
         "NoBalls" INTEGER,
         ';
         
-    CONST BOWLING_SUMMARY_INSERT = '(
-        "PlayerId", "Matches", "CompletedOvers", "PartialBalls", "Maidens", "Runs", "Wickets", "Average",  
+    const BOWLING_SUMMARY_INSERT = '(
+            "PlayerId", "Matches", "CompletedOvers", "PartialBalls", "Maidens", "Runs", "Wickets", "Average",  
             "EconomyRate", "StrikeRate", "BestBowlingWickets", "BestBowlingRuns", "FiveFors", "Wides", "NoBalls"
             )
          VALUES (
@@ -76,6 +76,24 @@
              :EconomyRate, :StrikeRate, :BestBowlingWickets, :BestBowlingRuns, :FiveFors, :Wides, :NoBalls
              )';
     
+    const FIELDING_SUMMARY_COLS = '
+        "Matches" INTEGER,
+        "CatchesFielding" INTEGER,
+        "RunOuts" INTEGER,
+        "TotalFieldingWickets" INTEGER,
+        "CatchesKeeping" INTEGER,
+        "Stumpings" INTEGER,
+        "TotalKeepingWickets" INTEGER,
+        ';
+    
+    const FIELDING_SUMMARY_INSERT = '(
+            "PlayerId", "Matches", "CatchesFielding", "RunOuts", "TotalFieldingWickets",
+            "CatchesKeeping", "Stumpings", "TotalKeepingWickets"
+			)
+        VALUES (
+            :PlayerId, :Matches, :CatchesFielding, :RunOuts, :TotalFieldingWickets,
+			:CatchesKeeping, :Stumpings, :TotalKeepingWickets
+			 	)';
     
     function db_create_schema($db)
     {   
@@ -208,15 +226,23 @@
 			
 		$db->query('CREATE TABLE "FieldingSummary" (
 			"FieldingSummaryId" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			"PlayerId" INTEGER,
-			"Matches" INTEGER,
-			"CatchesFielding" INTEGER,
-			"RunOuts" INTEGER,
-			"TotalFieldingWickets" INTEGER,
-			"CatchesKeeping" INTEGER,
-			"Stumpings" INTEGER,
-			"TotalKeepingWickets" INTEGER,
-			FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
+			"PlayerId" INTEGER,'
+			. FIELDING_SUMMARY_COLS .
+			'FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
+			)');
+            
+        $db->query('CREATE TABLE "CareerFieldingSummaryBase" (
+			"CareerFieldingSummaryBaseId" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			"PlayerId" INTEGER,'
+			. FIELDING_SUMMARY_COLS .
+			'FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
+			)');
+            
+        $db->query('CREATE TABLE "CareerFieldingSummary" (
+			"CareerFieldingSummaryId" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			"PlayerId" INTEGER,'
+			. FIELDING_SUMMARY_COLS .
+			'FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
 			)');
     }
     
@@ -354,15 +380,16 @@
 	
     function db_create_insert_fielding_summary($db)
     {
-        return $db->prepare(
-            'INSERT INTO "FieldingSummary" (
-				"PlayerId", "Matches", "CatchesFielding", "RunOuts", "TotalFieldingWickets",
-				"CatchesKeeping", "Stumpings", "TotalKeepingWickets"
-				)
-             VALUES (
-				 :player_id, :matches, :catches_fielding, :run_outs, :total_fielding_wickets,
-				 :catches_keeping, :stumpings, :total_keeping_wickets
-			 	)'
-            );
+        return $db->prepare('INSERT INTO "FieldingSummary" ' . FIELDING_SUMMARY_INSERT);
+    }
+    
+    function db_create_insert_career_fielding_summary_base($db)
+    {
+        return $db->prepare('INSERT INTO "CareerFieldingSummaryBase" ' . FIELDING_SUMMARY_INSERT);
+    }
+    
+    function db_create_insert_career_fielding_summary($db)
+    {
+        return $db->prepare('INSERT INTO "CareerFieldingSummary" ' . FIELDING_SUMMARY_INSERT);
     }
 ?>

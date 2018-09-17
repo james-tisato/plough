@@ -449,9 +449,11 @@
             $this->load_batting_career_summary_base($db);
             log\info("  Bowling");
             $this->load_bowling_career_summary_base($db);
+            log\info("  Fielding");
+            $this->load_fielding_career_summary_base($db);
             
             log\info("");
-            log\info("Building summary tables for " . SEASON . "...");
+            log\info("Building summary tables...");
             log\info("  Batting");
             log\info("    Season " . SEASON);
             $this->generate_batting_summary($db);
@@ -463,7 +465,10 @@
             log\info("    Career");
             $this->generate_career_bowling_summary($db);
             log\info("  Fielding");
+            log\info("    Season " . SEASON);
             $this->generate_fielding_summary($db);
+            log\info("    Career");
+            $this->generate_career_fielding_summary($db);
             
             // Mark DB update
             log\info("");
@@ -486,9 +491,15 @@
             log\info("    Career");
             $this->generate_bowling_summary_csv($db, PERIOD_CAREER);
             log\info("  Fielding");
-            $this->generate_fielding_summary_csv($db);
+            log\info("    Season " . SEASON);
+            $this->generate_fielding_summary_csv($db, PERIOD_SEASON);
+            log\info("    Career");
+            $this->generate_fielding_summary_csv($db, PERIOD_CAREER);
             log\info("  Keeping");
-            $this->generate_keeping_summary_csv($db);
+            log\info("    Season " . SEASON);
+            $this->generate_keeping_summary_csv($db, PERIOD_SEASON);
+            log\info("    Career");
+            $this->generate_keeping_summary_csv($db, PERIOD_CAREER);
         }
         
         // Private helpers
@@ -1087,6 +1098,31 @@
             $this->generate_csv_output($output_name, $header, $statement);
         }
         
+        private function load_fielding_career_summary_base($db)
+        {
+            $bind_row_to_insert = function ($row, $idx, $player_id, $insert_career_fielding_summary_base)
+            {               
+                $catches_fielding = $row[$idx["Ct"]];
+                $run_outs = $row[$idx["RO"]];
+                $total_fielding = $catches_fielding + $run_outs;
+                $catches_keeping = $row[$idx["Wk Ct"]];
+                $stumpings = $row[$idx["St"]];
+                $total_keeping = $catches_keeping + $stumpings;
+            
+                $insert_career_fielding_summary_base->bindValue(":PlayerId", $player_id);
+                $insert_career_fielding_summary_base->bindValue(":Matches", $row[$idx["Mat"]]);
+                $insert_career_fielding_summary_base->bindValue(":CatchesFielding", $catches_fielding);
+                $insert_career_fielding_summary_base->bindValue(":RunOuts", $run_outs);
+                $insert_career_fielding_summary_base->bindValue(":TotalFieldingWickets", $total_fielding);
+                $insert_career_fielding_summary_base->bindValue(":CatchesKeeping", $catches_keeping);
+                $insert_career_fielding_summary_base->bindValue(":Stumpings", $stumpings);
+                $insert_career_fielding_summary_base->bindValue(":TotalKeepingWickets", $total_keeping);
+            };
+            
+            $insert_career_fielding_summary_base = db_create_insert_career_fielding_summary_base($db);
+            $this->load_career_summary_base($db, "Fielding", $insert_career_fielding_summary_base, $bind_row_to_insert);
+        }
+        
         private function generate_fielding_summary($db)
         {
             $players = $this->get_players_by_name($db);
@@ -1104,39 +1140,74 @@
                 // Basic fields
                 $statement = $db->prepare('               
                     SELECT
-                         p.PlayerId as player_id
-                        ,COUNT(pp.PlayerPerformanceId) AS matches
-                        ,SUM(CASE WHEN pp.Wicketkeeper = 0 THEN fp.Catches ELSE 0 END) as catches_fielding
-                        ,SUM(fp.RunOuts) as run_outs
-                        ,SUM(CASE WHEN pp.Wicketkeeper = 1 THEN fp.Catches ELSE 0 END) as catches_keeping
-                        ,SUM(fp.Stumpings) as stumpings
+                         p.PlayerId as PlayerId
+                        ,COUNT(pp.PlayerPerformanceId) AS Matches
+                        ,SUM(CASE WHEN pp.Wicketkeeper = 0 THEN fp.Catches ELSE 0 END) as CatchesFielding
+                        ,SUM(fp.RunOuts) as RunOuts
+                        ,SUM(CASE WHEN pp.Wicketkeeper = 1 THEN fp.Catches ELSE 0 END) as CatchesKeeping
+                        ,SUM(fp.Stumpings) as Stumpings
                     FROM "Player" p
                     INNER JOIN "PlayerPerformance" pp on pp.PlayerId = p.PlayerId
                     LEFT JOIN "FieldingPerformance" fp on fp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
-                            p.PlayerId = :player_id
+                            p.PlayerId = :PlayerId
                     GROUP BY p.PlayerId, p.Name
                     '
                     );
-                $statement->bindValue(":player_id", $player_id);
+                $statement->bindValue(":PlayerId", $player_id);
                 $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
                 if (empty($result))
                     continue;
                 db_bind_values_from_row($insert_fielding_summary, $result);
                 
                 // Totals
-                $total_fielding = $result["catches_fielding"] + $result["run_outs"];
-                $insert_fielding_summary->bindValue("total_fielding_wickets", $total_fielding);
-                $total_keeping = $result["catches_keeping"] + $result["stumpings"];
-                $insert_fielding_summary->bindValue("total_keeping_wickets", $total_keeping);
+                $total_fielding = $result["CatchesFielding"] + $result["RunOuts"];
+                $insert_fielding_summary->bindValue("TotalFieldingWickets", $total_fielding);
+                $total_keeping = $result["CatchesKeeping"] + $result["Stumpings"];
+                $insert_fielding_summary->bindValue("TotalKeepingWickets", $total_keeping);
             
                 // Insert
                 $insert_fielding_summary->execute();
             }
         }
         
-        private function generate_fielding_summary_csv($db)
+        private function generate_career_fielding_summary($db)
         {
+            $combine = function($career_base, $season)
+            {
+                $career_summary = array();
+                $career_summary["Matches"] = $career_base["Matches"] + $season["Matches"];
+                $career_summary["CatchesFielding"] = $career_base["CatchesFielding"] + $season["CatchesFielding"];
+                $career_summary["RunOuts"] = $career_base["RunOuts"] + $season["RunOuts"];
+                $career_summary["TotalFieldingWickets"] = $career_base["TotalFieldingWickets"] + $season["TotalFieldingWickets"];
+                $career_summary["CatchesKeeping"] = $career_base["CatchesKeeping"] + $season["CatchesKeeping"];
+                $career_summary["Stumpings"] = $career_base["Stumpings"] + $season["Stumpings"];
+                $career_summary["TotalKeepingWickets"] = $career_base["TotalKeepingWickets"] + $season["TotalKeepingWickets"];
+                
+                return $career_summary;
+            };
+            
+            $this->generate_career_summary(
+                $db,
+                "Fielding",
+                db_create_insert_career_fielding_summary($db),
+                $combine
+                );
+        }
+        
+        private function generate_fielding_summary_csv($db, $period_type)
+        {
+            if ($period_type == PERIOD_CAREER)
+			{
+				$table_name = "CareerFieldingSummary";
+				$output_name = "fielding_career_ind_summary";
+			}
+			else if ($period_type == PERIOD_SEASON)
+			{
+				$table_name = "FieldingSummary";
+				$output_name = "fielding_ind_summary";
+			}
+            
             $header = array(
                 "Player", "Matches", "Fielding Catches", "Run Outs", "Fielding Dismissals"
                 );
@@ -1149,17 +1220,28 @@
                      ,fs.RunOuts
                      ,fs.TotalFieldingWickets
                 FROM "Player" p
-                INNER JOIN "FieldingSummary" fs on fs.PlayerId = p.PlayerId
+                INNER JOIN "' . $table_name . '" fs on fs.PlayerId = p.PlayerId
                 WHERE fs.TotalFieldingWickets > 0
                 ORDER by fs.TotalFieldingWickets DESC, fs.CatchesFielding DESC, fs.Matches DESC, p.Name
                 '
                 );
             
-            $this->generate_csv_output("fielding_ind_summary", $header, $statement);
+            $this->generate_csv_output($output_name, $header, $statement);
         }
         
-        private function generate_keeping_summary_csv($db)
+        private function generate_keeping_summary_csv($db, $period_type)
         {
+            if ($period_type == PERIOD_CAREER)
+			{
+				$table_name = "CareerFieldingSummary";
+				$output_name = "keeping_career_ind_summary";
+			}
+			else if ($period_type == PERIOD_SEASON)
+			{
+				$table_name = "FieldingSummary";
+				$output_name = "keeping_ind_summary";
+			}
+            
             $header = array(
                 "Player", "Matches", "Keeping Catches", "Stumpings", "Keeping Dismissals"
                 );
@@ -1172,13 +1254,13 @@
                      ,fs.Stumpings
                      ,fs.TotalKeepingWickets
                 FROM "Player" p
-                INNER JOIN "FieldingSummary" fs on fs.PlayerId = p.PlayerId
+                INNER JOIN "' . $table_name . '" fs on fs.PlayerId = p.PlayerId
                 WHERE fs.TotalKeepingWickets > 0
                 ORDER by fs.TotalKeepingWickets DESC, fs.CatchesKeeping DESC, fs.Matches DESC, p.Name
                 '
                 );
             
-            $this->generate_csv_output("keeping_ind_summary", $header, $statement);
+            $this->generate_csv_output($output_name, $header, $statement);
         }
     }
 ?>

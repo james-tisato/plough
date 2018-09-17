@@ -1,4 +1,5 @@
 __TODO__
+* Update period - can we do regular after the weekend but then not much during the week?
 * New features
     * Last updated
       * Set global variables (or util functions to get globals) in plugin for last updated datetime and last included match
@@ -29,3 +30,17 @@ __TODO__
 * Refactoring
   * Move initial stats building into separate functions
   * Switch to class autoloading
+
+* Performance
+  * Enable GZip compression on NGINX - contact SG
+  * Does Cloudflare need to be enabled on cPanel? - contact SG
+  
+* Migration
+  * Fixes
+    * Match report quote fixes
+    * Somehow we are still referencing something from the temp URL on homepage - fix
+  * Auto-backup configuration - contact SG
+  * Publicise that website has migrated
+  * Email setup
+  * PHP 7.2 installation on desktop and laptop, test plugin
+  

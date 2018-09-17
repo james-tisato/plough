@@ -1,0 +1,29 @@
+> curl -v --trace-time -o c:\temp\file http://ploughmanscc.com/wp-includes/js/jquery/jquery.js?ver=1.12.4
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     013:03:10.406000 *   Trying 104.27.166.4...
+13:03:10.421000 * TCP_NODELAY set
+13:03:10.453000 * Connected to ploughmanscc.com (104.27.166.4) port 80 (#0)
+13:03:10.468000 > GET /wp-includes/js/jquery/jquery.js?ver=1.12.4 HTTP/1.1
+13:03:10.468000 > Host: ploughmanscc.com
+13:03:10.468000 > User-Agent: curl/7.55.1
+13:03:10.468000 > Accept: */*
+13:03:10.468000 >
+  0     0    0     0    0     0      0      0 --:--:--  0:00:15 --:--:--     013:03:25.812000 < HTTP/1.1 522 Origin Connection Time-out
+13:03:25.828000 < Date: Fri, 14 Sep 2018 12:03:24 GMT
+13:03:25.828000 < Content-Type: text/html; charset=UTF-8
+13:03:25.843000 < Transfer-Encoding: chunked
+13:03:25.843000 < Connection: keep-alive
+13:03:25.843000 < Set-Cookie: __cfduid=d3e39bf831953fa8c9e491f7c7625d5811536926588; expires=Sat, 14-Sep-19 12:03:08 GMT; path=/; domain=.ploughmanscc.com; HttpOnly
+13:03:25.859000 < CF-Cache-Status: MISS
+13:03:25.875000 < Set-Cookie: cf_ob_info=522:45a2b56cb3fd6b79:LHR; path=/; expires=Fri, 14-Sep-18 12:03:54 GMT
+13:03:25.875000 < Set-Cookie: cf_use_ob=80; path=/; expires=Fri, 14-Sep-18 12:03:54 GMT
+13:03:25.890000 < Expires: Thu, 01 Jan 1970 00:00:01 GMT
+13:03:25.890000 < Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+13:03:25.906000 < Pragma: no-cache
+13:03:25.906000 < Server: cloudflare
+13:03:25.906000 < CF-RAY: 45a2b56cb3fd6b79-LHR
+13:03:25.906000 <
+13:03:25.906000 { [4803 bytes data]
+100  4790    0  4790    0     0    319      0 --:--:--  0:00:15 --:--:--  1148
+13:03:25.921000 * Connection #0 to host ploughmanscc.com left intact
