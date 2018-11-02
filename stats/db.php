@@ -245,6 +245,14 @@
 			. FIELDING_SUMMARY_COLS .
 			'FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
 			)');
+
+        $db->query('CREATE TABLE "Milestone" (
+			"MilestoneId" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			"PlayerId" INTEGER,
+            "Type" TEXT,
+            "Description" TEXT,
+			FOREIGN KEY("PlayerId") REFERENCES "Player"("PlayerId")
+			)');
     }
 
     function db_create_insert_update($db)
@@ -392,5 +400,17 @@
     function db_create_insert_career_fielding_summary($db)
     {
         return $db->prepare('INSERT INTO "CareerFieldingSummary" ' . FIELDING_SUMMARY_INSERT);
+    }
+
+    function db_create_insert_milestone($db)
+    {
+        return $db->prepare(
+            'INSERT INTO "Milestone" (
+                "PlayerId", "Type", "Description"
+                )
+             VALUES (
+                 :PlayerId, :Type, :Description
+                )'
+            );
     }
 ?>

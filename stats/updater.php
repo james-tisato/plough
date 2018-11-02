@@ -17,7 +17,7 @@
     const NO_PC_PLAYER_ID = -1;
 
     // Modes of dismissal
-        const DID_NOT_BAT = "did not bat";
+    const DID_NOT_BAT = "did not bat";
     const CAUGHT = "ct";
     const RUN_OUT = "ro";
     const STUMPED = "st";
@@ -464,6 +464,10 @@
                 $this->generate_fielding_summary($db);
                 log\info("    Career");
                 $this->generate_career_fielding_summary($db);
+
+                log\info("");
+                log\info("Generating milestones...");
+                $this->generate_milestones($db);
 
                 // Mark DB update
                 log\info("");
@@ -1276,6 +1280,30 @@
                 );
 
             $this->generate_csv_output($output_name, $header, $statement);
+        }
+
+        private function generate_milestones($db)
+        {
+            $insert_milestone = db_create_insert_milestone($db);
+
+            $statement = $db->prepare('
+                SELECT
+                     p.PlayerId
+                    ,bas.matches
+                    ,bas.runs
+                    ,bas.Fifties
+                    ,bas.Hundreds
+                FROM "Player" p
+                INNER JOIN "CareerBattingSummary" bas ON bas.PlayerId = p.PlayerId
+                INNER JOIN "CareerBowlingSummary" bos ON bos.PlayerId = p.PlayerId
+                INNER JOIN "CareerFieldingSummary" fs ON fs.PlayerId = p.PlayerId
+                ORDER BY p.PlayerId
+                ');
+            $result = $statement->execute();
+            while ($row = $result->fetchArray(SQLITE3_ASSOC))
+            {
+
+            }
         }
     }
 ?>
