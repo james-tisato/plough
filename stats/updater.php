@@ -148,22 +148,6 @@
                 db_create_schema($db);
             }
 
-
-            $statement = $db->prepare('
-                SELECT
-                     p.name
-                    ,*
-                FROM "FieldingSummary" fs
-                INNER JOIN "Player" p ON p.PlayerId = fs.PlayerId
-                WHERE
-                    fs.TotalKeepingWickets > 0
-                ORDER BY "PlayerId"
-                ');
-            $result = $statement->execute();
-            while ($row = $result->fetchArray(SQLITE3_ASSOC))
-                print_r($row);
-
-
             // Prepare statements
             $insert_update = db_create_insert_update($db);
             $insert_match = db_create_insert_match($db);
@@ -637,9 +621,15 @@
                         $name = $row[$idx["Player"]];
                         if (!array_key_exists($name, $players))
                         {
+                            $active = $row[$idx["Active"]];
+                            if ($active == "Y")
+                                $active = 1;
+                            else
+                                $active = 0;
+
                             $insert_player->bindValue(":PcPlayerId", NO_PC_PLAYER_ID);
                             $insert_player->bindValue(":Name", $name);
-                            $insert_player->bindValue(":Active", 0);
+                            $insert_player->bindValue(":Active", $active);
                             $player_id = db_insert_and_return_id($db, $insert_player);
                         }
                         else
@@ -855,7 +845,7 @@
 
             $header = array(
                 "Player", "Mat", "Inns", "NO", "Runs", "Ave", "SR",
-                "HS", "50s", "100s", "0s", "4s", "6s", "Balls"
+                "HS", "50s", "100s", "0s", "4s", "6s", "Balls", "Active"
                 );
 
             $statement = $db->prepare('
@@ -874,6 +864,7 @@
                      ,bs.Fours
                      ,bs.Sixes
                      ,bs.Balls
+                     ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
                 FROM "Player" p
                 INNER JOIN "' . $table_name . '" bs on bs.PlayerId = p.PlayerId
                 WHERE bs.Innings > 0
@@ -1091,7 +1082,7 @@
 
             $header = array(
                 "Player", "Mat", "Overs", "Mdns", "Runs", "Wkts", "Ave",
-                "Econ", "SR", "Best", "5wi", "Wides", "NBs"
+                "Econ", "SR", "Best", "5wi", "Wides", "NBs", "Active"
                 );
 
             $statement = $db->prepare('
@@ -1109,6 +1100,7 @@
                      ,bs.FiveFors
                      ,bs.Wides
                      ,bs.NoBalls
+                     ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
                 FROM "Player" p
                 INNER JOIN "' . $table_name . '" bs on bs.PlayerId = p.PlayerId
                 WHERE (bs.CompletedOvers > 0 OR bs.PartialBalls > 0)
@@ -1230,7 +1222,7 @@
             }
 
             $header = array(
-                "Player", "Mat", "Ct", "RO", "Total"
+                "Player", "Mat", "Ct", "RO", "Total", "Active"
                 );
 
             $statement = $db->prepare('
@@ -1240,6 +1232,7 @@
                      ,fs.CatchesFielding
                      ,fs.RunOuts
                      ,fs.TotalFieldingWickets
+                     ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
                 FROM "Player" p
                 INNER JOIN "' . $table_name . '" fs on fs.PlayerId = p.PlayerId
                 WHERE fs.TotalFieldingWickets > 0
@@ -1264,7 +1257,7 @@
             }
 
             $header = array(
-                "Player", "Mat", "Wk Ct", "St", "Wk Total"
+                "Player", "Mat", "Wk Ct", "St", "Wk Total", "Active"
                 );
 
             $statement = $db->prepare('
@@ -1274,6 +1267,7 @@
                      ,fs.CatchesKeeping
                      ,fs.Stumpings
                      ,fs.TotalKeepingWickets
+                     ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
                 FROM "Player" p
                 INNER JOIN "' . $table_name . '" fs on fs.PlayerId = p.PlayerId
                 WHERE fs.TotalKeepingWickets > 0
