@@ -1,4 +1,8 @@
 __TODO__
+* Page backgrounds
+  * How is the parallax feature enabled / configured on pages that are built?
+  * Is the zooming mandatory?
+  * Can we disable the zooming or the parallax? 
 * Update period - can we do regular after the weekend but then not much during the week?
 * New features
     * Last updated
