@@ -107,6 +107,7 @@
             "PcMatchId" INTEGER,
             "Status" TEXT,
             "MatchDate" DATETIME,
+            "CompetitionType" TEXT,
             "HomeClubId" INTEGER,
             "HomeClubName" TEXT,
             "HomeTeamId" INTEGER,
@@ -271,12 +272,12 @@
     {
         return $db->prepare(
             'INSERT INTO "Match" (
-				"PcMatchId", "Status", "MatchDate", "HomeClubId", "HomeClubName", "HomeTeamId", "HomeTeamName",
+				"PcMatchId", "Status", "MatchDate", "CompetitionType", "HomeClubId", "HomeClubName", "HomeTeamId", "HomeTeamName",
                 "AwayClubId", "AwayClubName", "AwayTeamId", "AwayTeamName", "IsPloughMatch", "IsPloughHome",
                 "Result", "ResultAppliedToTeamId", "TossWonByTeamId", "BattedFirstTeamId"
 				)
              VALUES (
-				 :PcMatchId, :Status, :MatchDate, :HomeClubId, :HomeClubName, :HomeTeamId, :HomeTeamName,
+				 :PcMatchId, :Status, :MatchDate, :CompetitionType, :HomeClubId, :HomeClubName, :HomeTeamId, :HomeTeamName,
                  :AwayClubId, :AwayClubName, :AwayTeamId, :AwayTeamName, :IsPloughMatch, :IsPloughHome,
                  :Result, :ResultAppliedToTeamId, :TossWonByTeamId, :BattedFirstTeamId
 			 	)'

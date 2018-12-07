@@ -274,6 +274,7 @@
                         $insert_match->bindValue(":PcMatchId", $pc_match_id);
                         $insert_match->bindValue(":Status", $match_detail["status"]);
                         $insert_match->bindValue(":MatchDate", $match_detail["match_date"]);
+                        $insert_match->bindValue(":CompetitionType", $match_detail["competition_type"]);
                         $insert_match->bindValue(":HomeClubId", $match_detail["home_club_id"]);
                         $insert_match->bindValue(":HomeClubName", $match_detail["home_club_name"]);
                         $insert_match->bindValue(":HomeTeamId", $match_detail["home_team_id"]);
@@ -708,13 +709,17 @@
                 $db->query('CREATE TEMPORARY TABLE "IncludedPerformance" (
                     "PlayerPerformanceId" INTEGER PRIMARY KEY
                     )');
-                $db->query(
+                $statement = $db->prepare(
                     'INSERT INTO "IncludedPerformance"
                      SELECT pp.PlayerPerformanceId FROM "PlayerPerformance" pp
-                     INNER JOIN "BattingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
+                     INNER JOIN BattingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
+                     INNER JOIN Match m on m.MatchId = pp.MatchId
                      WHERE
-                            bp.Position in (8)
+                            pp.PlayerId = :PlayerId
+                        and m.CompetitionType != \'League\'
                     ');
+                $statement->bindValue(":PlayerId", $player_id);
+                $statement->execute();
 
                 // Basic fields
                 $statement = $db->prepare('
@@ -760,8 +765,10 @@
                             WHEN "no" THEN 1
                             WHEN "rh" THEN 1
                             ELSE 0 END) as HighScoreNotOut
-                    FROM "Player" p
-                    LEFT JOIN "BattingPerformance" bp on bp.PlayerId = p.PlayerId
+                    FROM Player p
+                    INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
+                    --INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
+                    LEFT JOIN BattingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
                     ORDER BY HighScore DESC, HighScoreNotOut DESC

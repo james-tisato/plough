@@ -1,8 +1,4 @@
 __TODO__
-* Page backgrounds
-  * How is the parallax feature enabled / configured on pages that are built?
-  * Is the zooming mandatory?
-  * Can we disable the zooming or the parallax? 
 * Update period - can we do regular after the weekend but then not much during the week?
 * New features
     * Last updated
@@ -14,12 +10,13 @@ __TODO__
     * Page per player
     * Team summary stats
     * Live career stats
-      * Fix styling on site to allow tables to be different widths
-        * margin auto, width auto, max width = fixed value?
       * Publish latest plugin to site 
       * Update career stats page to include live tables and text indicating this
 * Bugs
   * Average sort doesn't work when people have no average
+  * CareerBattingSummaryBase has two entries for each player
+  * Finish adding competition type elsewhere and update tests
+  * Remove double quotes from DB queries where they're not needed
 * WP support
   * Some kind of mock plugin runner that will kick the tires of the plugin init code?
 * Logging
@@ -36,6 +33,7 @@ __TODO__
 * Migration
   * Fixes
     * Match report quote fixes
-  * Email setup
-  * PHP 7.2 installation on desktop and laptop, test plugin
-  
+    
+* Upgrades
+  * PHP 7.3
+  * Wordpress 5.0
