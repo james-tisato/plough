@@ -1,4 +1,7 @@
 __TODO__
+* Immediate fixes
+  * Fix Update test - what changed recently?
+
 * Update period - can we do regular after the weekend but then not much during the week?
 * New features
     * Last updated
@@ -10,8 +13,20 @@ __TODO__
     * Page per player
     * Team summary stats
     * Live career stats
-      * Publish latest plugin to site 
+      * Publish latest plugin to site
       * Update career stats page to include live tables and text indicating this
+    * Milestones
+      * Args:
+        * Start value
+        * Current value
+        * Array of milestone values
+      * Returns: (how?)
+        * Achieved milestones
+        * Next milestone
+      * Implementation:
+        * Find starting point in milestones list, using start value
+        * Iterate through milestones until > current value
+        * Return difference
 * Bugs
   * Average sort doesn't work when people have no average
   * CareerBattingSummaryBase has two entries for each player
@@ -29,11 +44,10 @@ __TODO__
 * Refactoring
   * Move initial stats building into separate functions
   * Switch to class autoloading
-  
+
 * Migration
   * Fixes
     * Match report quote fixes
-    
+
 * Upgrades
   * PHP 7.3
-  * Wordpress 5.0

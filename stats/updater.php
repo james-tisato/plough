@@ -118,6 +118,7 @@
 
             log\info("");
             $db_path = \plough\get_stats_db_path($this->_config);
+            log\info("Using database path [$db_path]");
             if (file_exists($db_path))
             {
                 if ($this->_config->clearDb())
@@ -161,12 +162,12 @@
 
             // Set up player cache, seeding it from the database
             $player_cache = array();
-            $statement = $db->prepare('
-                SELECT
-                     "PcPlayerId",
-                     "PlayerId"
-                FROM "Player"
-                ORDER BY "PlayerId"
+            $statement = $db->prepare(
+               'SELECT
+                     PcPlayerId,
+                     PlayerId
+                FROM Player
+                ORDER BY PlayerId
                 ');
             $result = $statement->execute();
             while ($row = $result->fetchArray(SQLITE3_ASSOC))
@@ -183,10 +184,10 @@
             }
             else
             {
-                $statement = $db->prepare('
-                    SELECT
+                $statement = $db->prepare(
+                   'SELECT
                          UpdateTime
-                    FROM "DbUpdate"
+                    FROM DbUpdate
                     ORDER BY UpdateTime DESC
                     LIMIT 1
                     ');
@@ -472,7 +473,7 @@
 
                 // Mark DB update
                 log\info("");
-                log\info("Setting update time in database");
+                log\info("Setting update time in database to [$current_date]");
                 $insert_update->bindValue(":UpdateTime", $current_date);
                 $insert_update->execute();
             }
@@ -510,7 +511,9 @@
         private function get_players_by_name($db)
         {
             $players = array();
-            $statement = $db->prepare('SELECT * FROM "Player" ORDER BY Name');
+            $statement = $db->prepare(
+                'SELECT * FROM Player ORDER BY Name'
+                );
             $result = $statement->execute();
             while ($row = $result->fetchArray(SQLITE3_ASSOC))
                 $players[$row["Name"]] = $row;
@@ -560,12 +563,16 @@
                 $player_id = $player["PlayerId"];
 
                 // Career base
-                $statement = $db->prepare('SELECT * FROM "Career' . $summary_type . 'SummaryBase" WHERE PlayerId = :PlayerId');
+                $statement = $db->prepare(
+                    'SELECT * FROM Career' . $summary_type . 'SummaryBase WHERE PlayerId = :PlayerId'
+                    );
                 $statement->bindValue(":PlayerId", $player_id);
                 $career_base = $statement->execute()->fetchArray(SQLITE3_ASSOC);
 
                 // Season
-                $statement = $db->prepare('SELECT * FROM "' . $summary_type . 'Summary" WHERE PlayerId = :PlayerId');
+                $statement = $db->prepare(
+                    'SELECT * FROM ' . $summary_type . 'Summary WHERE PlayerId = :PlayerId'
+                    );
                 $statement->bindValue(":PlayerId", $player_id);
                 $season = $statement->execute()->fetchArray(SQLITE3_ASSOC);
 
@@ -705,25 +712,31 @@
                 $player_id = $player["PlayerId"];
 
                 // Filter
-                $db->query('DROP TABLE IF EXISTS "IncludedPerformance"');
-                $db->query('CREATE TEMPORARY TABLE "IncludedPerformance" (
-                    "PlayerPerformanceId" INTEGER PRIMARY KEY
-                    )');
+                $db->query('
+                    DROP TABLE IF EXISTS IncludedPerformance
+                    ');
+                $db->query(
+                    'CREATE TEMPORARY TABLE IncludedPerformance (
+                        PlayerPerformanceId INTEGER PRIMARY KEY
+                        )
+                    ');
                 $statement = $db->prepare(
-                    'INSERT INTO "IncludedPerformance"
-                     SELECT pp.PlayerPerformanceId FROM "PlayerPerformance" pp
-                     INNER JOIN BattingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
+                    'INSERT INTO IncludedPerformance
+                     SELECT
+                        pp.PlayerPerformanceId
+                     FROM PlayerPerformance pp
                      INNER JOIN Match m on m.MatchId = pp.MatchId
+                     LEFT JOIN BattingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                      WHERE
                             pp.PlayerId = :PlayerId
-                        and m.CompetitionType != \'League\'
+                        --and m.CompetitionType != \'League\'
                     ');
                 $statement->bindValue(":PlayerId", $player_id);
                 $statement->execute();
 
                 // Basic fields
-                $statement = $db->prepare('
-                    SELECT
+                $statement = $db->prepare(
+                    'SELECT
                          p.PlayerId
                         ,COUNT(pp.PlayerPerformanceId) AS Matches
                         ,COUNT(bp.BattingPerformanceId) AS Innings
@@ -740,15 +753,14 @@
                         ,SUM(bp.Balls) as Balls
                         ,SUM(bp.Fours) as Fours
                         ,SUM(bp.Sixes) as Sixes
-                    FROM "Player" p
-                    INNER JOIN "PlayerPerformance" pp on pp.PlayerId = p.PlayerId
-                    --INNER JOIN "IncludedPerformance" ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
-                    LEFT JOIN "BattingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
+                    FROM Player p
+                    INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
+                    --INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
+                    LEFT JOIN BattingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
                     GROUP BY p.PlayerId, p.Name
-                    '
-                    );
+                    ');
                 $statement->bindValue(":PlayerId", $player_id);
                 $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
                 if (empty($result))
@@ -757,8 +769,8 @@
                 db_bind_values_from_row($insert_batting_summary, $result);
 
                 // High score
-                $statement = $db->prepare('
-                    SELECT
+                $statement = $db->prepare(
+                   'SELECT
                          p.PlayerId as PlayerId
                         ,bp.Runs as HighScore
                         ,(CASE bp.HowOut
@@ -767,7 +779,7 @@
                             ELSE 0 END) as HighScoreNotOut
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
-                    --INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
+                    INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
                     LEFT JOIN BattingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
@@ -859,8 +871,8 @@
                 "HS", "50s", "100s", "0s", "4s", "6s", "Balls", "Active"
                 );
 
-            $statement = $db->prepare('
-                SELECT
+            $statement = $db->prepare(
+               'SELECT
                       p.Name
                      ,bs.Matches
                      ,bs.Innings
@@ -876,12 +888,11 @@
                      ,bs.Sixes
                      ,bs.Balls
                      ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
-                FROM "Player" p
-                INNER JOIN "' . $table_name . '" bs on bs.PlayerId = p.PlayerId
+                FROM Player p
+                INNER JOIN ' . $table_name . ' bs on bs.PlayerId = p.PlayerId
                 WHERE bs.Innings > 0
                 ORDER by bs.Runs DESC, bs.Average DESC, bs.Innings DESC, bs.NotOuts DESC, bs.Matches DESC, p.Name
-                '
-                );
+                ');
 
             $this->generate_csv_output($output_name, $header, $statement);
         }
@@ -936,21 +947,31 @@
                 $player_id = $player["PlayerId"];
 
                 // Filter
-                $db->query('DROP TABLE IF EXISTS "IncludedPerformance"');
-                $db->query('CREATE TEMPORARY TABLE "IncludedPerformance" (
-                    "PlayerPerformanceId" INTEGER PRIMARY KEY
-                    )');
-                $db->query(
-                    'INSERT INTO "IncludedPerformance"
-                     SELECT pp.PlayerPerformanceId FROM "PlayerPerformance" pp
-                     INNER JOIN "BowlingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
-                     WHERE
-                            bp.Position in (1, 2)
+                $db->query('
+                    DROP TABLE IF EXISTS IncludedPerformance
                     ');
+                $db->query(
+                    'CREATE TEMPORARY TABLE IncludedPerformance (
+                        PlayerPerformanceId INTEGER PRIMARY KEY
+                        )
+                    ');
+                $statement = $db->prepare(
+                   'INSERT INTO IncludedPerformance
+                    SELECT
+                        pp.PlayerPerformanceId
+                    FROM PlayerPerformance pp
+                    INNER JOIN Match m on m.MatchId = pp.MatchId
+                    LEFT JOIN BowlingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
+                    WHERE
+                            pp.PlayerId = :PlayerId
+                        --and bp.Position in (1, 2)
+                    ');
+                $statement->bindValue(":PlayerId", $player_id);
+                $statement->execute();
 
                 // Basic fields
-                $statement = $db->prepare('
-                    SELECT
+                $statement = $db->prepare(
+                   'SELECT
                          p.PlayerId
                         ,COUNT(pp.PlayerPerformanceId) AS Matches
                         ,SUM(bp.Maidens) as Maidens
@@ -960,15 +981,14 @@
                         ,SUM(CASE WHEN bp.Wickets >= 5 THEN 1 ELSE 0 END) AS FiveFors
                         ,SUM(bp.Wides) as Wides
                         ,SUM(bp.NoBalls) as NoBalls
-                    FROM "Player" p
-                    INNER JOIN "PlayerPerformance" pp on pp.PlayerId = p.PlayerId
-                    --INNER JOIN "IncludedPerformance" ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
-                    LEFT JOIN "BowlingPerformance" bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
+                    FROM Player p
+                    INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
+                    INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
+                    LEFT JOIN BowlingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
                     GROUP BY p.PlayerId, p.Name
-                    '
-                    );
+                    ');
                 $statement->bindValue(":PlayerId", $player_id);
                 $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
                 if (empty($result))
@@ -979,13 +999,15 @@
                 db_bind_values_from_row($insert_bowling_summary, $result);
 
                 // Overs, balls, economy rate, strike rate
-                $statement = $db->prepare('
-                    SELECT
+                $statement = $db->prepare(
+                   'SELECT
                          p.PlayerId
                         ,SUM(bp.CompletedOvers) as CompletedOvers
                         ,SUM(bp.PartialBalls) as PartialBalls
-                    FROM "Player" p
-                    JOIN "BowlingPerformance" bp on bp.PlayerId = p.PlayerId
+                    FROM Player p
+                    INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
+                    INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
+                    LEFT JOIN BowlingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                         p.PlayerId = :PlayerId
                     ');
@@ -1003,13 +1025,15 @@
                 $insert_bowling_summary->bindValue(":StrikeRate", $strike_rate);
 
                 // Best bowling
-                $statement = $db->prepare('
-                    SELECT
+                $statement = $db->prepare(
+                   'SELECT
                          p.PlayerId as player_id
                         ,bp.Wickets as BestBowlingWickets
                         ,bp.Runs as BestBowlingRuns
-                    FROM "Player" p
-                    LEFT JOIN "BowlingPerformance" bp on bp.PlayerId = p.PlayerId
+                    FROM Player p
+                    INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
+                    INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
+                    LEFT JOIN BowlingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
                     ORDER BY BestBowlingWickets DESC, BestBowlingRuns ASC
@@ -1096,8 +1120,8 @@
                 "Econ", "SR", "Best", "5wi", "Wides", "NBs", "Active"
                 );
 
-            $statement = $db->prepare('
-                SELECT
+            $statement = $db->prepare(
+                'SELECT
                       p.Name
                      ,bs.Matches
                      ,(CAST(bs.CompletedOvers AS TEXT) || \'.\' || CAST(bs.PartialBalls AS TEXT)) as Overs
@@ -1112,12 +1136,12 @@
                      ,bs.Wides
                      ,bs.NoBalls
                      ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
-                FROM "Player" p
-                INNER JOIN "' . $table_name . '" bs on bs.PlayerId = p.PlayerId
-                WHERE (bs.CompletedOvers > 0 OR bs.PartialBalls > 0)
+                FROM Player p
+                INNER JOIN ' . $table_name . ' bs on bs.PlayerId = p.PlayerId
+                WHERE
+                        (bs.CompletedOvers > 0 OR bs.PartialBalls > 0)
                 ORDER by bs.Wickets DESC, bs.Average, bs.EconomyRate
-                '
-                );
+                ');
 
             $this->generate_csv_output($output_name, $header, $statement);
         }
@@ -1158,26 +1182,24 @@
             {
                 $player_id = $player["PlayerId"];
 
-                // Filter
-
+                // filter
 
                 // Basic fields
-                $statement = $db->prepare('
-                    SELECT
+                $statement = $db->prepare(
+                   'SELECT
                          p.PlayerId as PlayerId
                         ,COUNT(pp.PlayerPerformanceId) AS Matches
                         ,SUM(CASE WHEN pp.Wicketkeeper = 0 THEN fp.Catches ELSE 0 END) as CatchesFielding
                         ,SUM(fp.RunOuts) as RunOuts
                         ,SUM(CASE WHEN pp.Wicketkeeper = 1 THEN fp.Catches ELSE 0 END) as CatchesKeeping
                         ,SUM(fp.Stumpings) as Stumpings
-                    FROM "Player" p
-                    INNER JOIN "PlayerPerformance" pp on pp.PlayerId = p.PlayerId
-                    LEFT JOIN "FieldingPerformance" fp on fp.PlayerPerformanceId = pp.PlayerPerformanceId
+                    FROM Player p
+                    INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
+                    LEFT JOIN FieldingPerformance fp on fp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
                     GROUP BY p.PlayerId, p.Name
-                    '
-                    );
+                    ');
                 $statement->bindValue(":PlayerId", $player_id);
                 $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
                 if (empty($result))
@@ -1236,20 +1258,20 @@
                 "Player", "Mat", "Ct", "RO", "Total", "Active"
                 );
 
-            $statement = $db->prepare('
-                SELECT
+            $statement = $db->prepare(
+               'SELECT
                       p.Name
                      ,fs.Matches
                      ,fs.CatchesFielding
                      ,fs.RunOuts
                      ,fs.TotalFieldingWickets
                      ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
-                FROM "Player" p
-                INNER JOIN "' . $table_name . '" fs on fs.PlayerId = p.PlayerId
-                WHERE fs.TotalFieldingWickets > 0
+                FROM Player p
+                INNER JOIN ' . $table_name . ' fs on fs.PlayerId = p.PlayerId
+                WHERE
+                        fs.TotalFieldingWickets > 0
                 ORDER by fs.TotalFieldingWickets DESC, fs.CatchesFielding DESC, fs.Matches DESC, p.Name
-                '
-                );
+                ');
 
             $this->generate_csv_output($output_name, $header, $statement);
         }
@@ -1271,20 +1293,20 @@
                 "Player", "Mat", "Wk Ct", "St", "Wk Total", "Active"
                 );
 
-            $statement = $db->prepare('
-                SELECT
+            $statement = $db->prepare(
+               'SELECT
                       p.Name
                      ,fs.Matches
                      ,fs.CatchesKeeping
                      ,fs.Stumpings
                      ,fs.TotalKeepingWickets
                      ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
-                FROM "Player" p
-                INNER JOIN "' . $table_name . '" fs on fs.PlayerId = p.PlayerId
-                WHERE fs.TotalKeepingWickets > 0
+                FROM Player p
+                INNER JOIN ' . $table_name . ' fs on fs.PlayerId = p.PlayerId
+                WHERE
+                        fs.TotalKeepingWickets > 0
                 ORDER by fs.TotalKeepingWickets DESC, fs.CatchesKeeping DESC, fs.Matches DESC, p.Name
-                '
-                );
+                ');
 
             $this->generate_csv_output($output_name, $header, $statement);
         }
@@ -1293,17 +1315,17 @@
         {
             $insert_milestone = db_create_insert_milestone($db);
 
-            $statement = $db->prepare('
-                SELECT
+            $statement = $db->prepare(
+               'SELECT
                      p.PlayerId
                     ,bas.matches
                     ,bas.runs
                     ,bas.Fifties
                     ,bas.Hundreds
-                FROM "Player" p
-                INNER JOIN "CareerBattingSummary" bas ON bas.PlayerId = p.PlayerId
-                INNER JOIN "CareerBowlingSummary" bos ON bos.PlayerId = p.PlayerId
-                INNER JOIN "CareerFieldingSummary" fs ON fs.PlayerId = p.PlayerId
+                FROM Player p
+                INNER JOIN CareerBattingSummary bas ON bas.PlayerId = p.PlayerId
+                INNER JOIN CareerBowlingSummary bos ON bos.PlayerId = p.PlayerId
+                INNER JOIN CareerFieldingSummary fs ON fs.PlayerId = p.PlayerId
                 ORDER BY p.PlayerId
                 ');
             $result = $statement->execute();

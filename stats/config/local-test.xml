@@ -3,7 +3,7 @@
     <Pair Key="DbDir" Value="{stats_root}/db" />
     <Pair Key="StaticDir" Value="{stats_root}/static" />
     <Pair Key="InputMapperName" Value="file" />
-    <Pair Key="InputMapperDir" Value="{stats_root}/test/input/basic2" />
+    <Pair Key="InputMapperDir" Value="{stats_root}/test/input/All-2018" />
     <!--<Pair Key="InputDumpDir" Value="{stats_root}/dump" />-->
     <Pair Key="OutputDir" Value="{stats_root}/output" />
 </StatsConfig>
