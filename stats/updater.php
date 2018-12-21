@@ -15,7 +15,10 @@
     const DELETED = "Deleted";
     const SEASON = 2018;
     const NO_PC_PLAYER_ID = -1;
+    const PC_DATE_FORMAT = "d/m/Y";
+    const DATE_FORMAT = "Y-m-d";
     const DATETIME_FORMAT = "Y-m-d h:m:s";
+    const DATETIME_FRIENDLY_FORMAT = "h:m A, D j M Y";
 
     // Modes of dismissal
     const DID_NOT_BAT = "did not bat";
@@ -28,6 +31,19 @@
     const PERIOD_SEASON = 2;
 
     // Helpers
+    function get_last_update_datetime($db)
+    {
+        $statement = $db->prepare(
+           'SELECT
+                 UpdateTime
+            FROM DbUpdate
+            ORDER BY UpdateTime DESC
+            LIMIT 1
+            ');
+        $last_update_str = $statement->execute()->fetchArray(SQLITE3_ASSOC)["UpdateTime"];
+        return date_create_from_format(DATETIME_FORMAT, $last_update_str);
+    }
+
     function get_batting_average($runs, $innings, $not_outs)
     {
         $num_outs = $innings - $not_outs;
@@ -185,16 +201,9 @@
             }
             else
             {
-                $statement = $db->prepare(
-                   'SELECT
-                         UpdateTime
-                    FROM DbUpdate
-                    ORDER BY UpdateTime DESC
-                    LIMIT 1
-                    ');
-                $last_update_str = $statement->execute()->fetchArray(SQLITE3_ASSOC)["UpdateTime"];
+                $last_update = get_last_update_datetime($db);
+                $last_update_str = $last_update->format(DATETIME_FORMAT);
                 log\info("  Datebase was last updated at [$last_update_str]");
-                $last_update = date_create_from_format(DATETIME_FORMAT, $last_update_str);
                 $matches_from_date = $last_update->format('Y-m-d');
                 log\info("  Fetching matches since last update date [$matches_from_date]");
             }
@@ -254,6 +263,12 @@
                         // Start transaction for adding whole of match
                         $db->exec('BEGIN');
 
+                        $match_date = date_create_from_format(
+                            PC_DATE_FORMAT,
+                            $match_detail["match_date"]
+                            );
+                        $match_date_str = $match_date->format(DATE_FORMAT);
+
                         // Get team info
                         if ($match_detail["home_club_name"] == CLUB_NAME)
                         {
@@ -278,7 +293,7 @@
                         // Insert match
                         $insert_match->bindValue(":PcMatchId", $pc_match_id);
                         $insert_match->bindValue(":Status", $match_detail["status"]);
-                        $insert_match->bindValue(":MatchDate", $match_detail["match_date"]);
+                        $insert_match->bindValue(":MatchDate", $match_date_str);
                         $insert_match->bindValue(":CompetitionType", $match_detail["competition_type"]);
                         $insert_match->bindValue(":HomeClubId", $match_detail["home_club_id"]);
                         $insert_match->bindValue(":HomeClubName", $match_detail["home_club_name"]);
@@ -489,6 +504,8 @@
             // Generate outputs
             log\info("");
             log\info("Generating CSV output...");
+            log\info("  Last updated");
+            $this->generate_last_updated_csv($db);
             log\info("  Batting");
             log\info("    Season " . SEASON);
             $this->generate_batting_summary_csv($db, PERIOD_SEASON);
@@ -509,6 +526,8 @@
             $this->generate_keeping_summary_csv($db, PERIOD_SEASON);
             log\info("    Career");
             $this->generate_keeping_summary_csv($db, PERIOD_CAREER);
+
+            log\info("");
         }
 
         // Private helpers
@@ -525,10 +544,15 @@
             return $players;
         }
 
-        private function generate_csv_output($output_name, $header, $statement)
+        private function get_csv_output_stream($output_name)
         {
             $output_dir = $this->_config->getOutputDir();
-            $out = fopen("$output_dir/$output_name.csv", "w");
+            return fopen("$output_dir/$output_name.csv", "w");
+        }
+
+        private function generate_csv_output($output_name, $header, $statement)
+        {
+            $out = $this->get_csv_output_stream($output_name);
             \plough\fputcsv_eol($out, $header);
 
             $result = $statement->execute();
@@ -550,6 +574,41 @@
                 \plough\fputcsv_eol($out, $formatted_row);
             }
             fclose($out);
+        }
+
+        private function generate_csv_output_from_array($output_name, $array)
+        {
+            $out = $this->get_csv_output_stream($output_name);
+
+            foreach ($array as $row)
+                \plough\fputcsv_eol($out, $row);
+
+            fclose($out);
+        }
+
+        private function generate_last_updated_csv($db)
+        {
+            $last_update = get_last_update_datetime($db)->format(DATETIME_FRIENDLY_FORMAT);
+
+            $statement = $db->prepare(
+               'SELECT
+                     m.HomeClubName
+                    ,m.AwayClubName
+                    ,m.CompetitionType
+                FROM Match m
+                ORDER BY MatchDate DESC
+                LIMIT 1
+                ');
+            $last_match = $statement->execute()->fetchArray(SQLITE3_ASSOC);
+            $last_match_str =
+                $last_match["HomeClubName"] . " vs " . $last_match["AwayClubName"] .
+                " (" . $last_match["CompetitionType"] . ")";
+
+            $table = array();
+            array_push($table, array("Last updated", $last_update));
+            array_push($table, array("Last match", $last_match_str));
+
+            $this->generate_csv_output_from_array("last_updated", $table);
         }
 
         private function generate_career_summary(
