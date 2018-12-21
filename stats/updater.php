@@ -208,7 +208,8 @@
                 log\info("  Fetching matches since last update date [$matches_from_date]");
             }
 
-            $current_datetime = gmdate(DATETIME_FORMAT);
+            date_default_timezone_set("Europe/London");
+            $current_datetime = date(DATETIME_FORMAT);
             $matches_path = $input_mapper->getMatchesPath(SEASON, $matches_from_date);
             $matches_str = file_get_contents($matches_path);
 
