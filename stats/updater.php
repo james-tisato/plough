@@ -693,7 +693,6 @@
                 $insert_career_batting_summary_base->bindValue(":Balls", $balls);
                 $insert_career_batting_summary_base->bindValue(":Fours", $row[$idx["4s"]]);
                 $insert_career_batting_summary_base->bindValue(":Sixes", $row[$idx["6s"]]);
-                $insert_career_batting_summary_base->execute();
             };
 
             $insert_career_batting_summary_base = db_create_insert_career_batting_summary_base($db);

@@ -1,7 +1,4 @@
 __TODO__
-* Immediate fixes
-  * Fix Update test - what changed recently?
-
 * Update period - can we do regular after the weekend but then not much during the week?
 * New features
     * Last updated
@@ -29,9 +26,7 @@ __TODO__
         * Return difference
 * Bugs
   * Average sort doesn't work when people have no average
-  * CareerBattingSummaryBase has two entries for each player
   * Finish adding competition type elsewhere and update tests
-  * Remove double quotes from DB queries where they're not needed
 * WP support
   * Some kind of mock plugin runner that will kick the tires of the plugin init code?
 * Logging
