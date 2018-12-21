@@ -15,6 +15,7 @@
     const DELETED = "Deleted";
     const SEASON = 2018;
     const NO_PC_PLAYER_ID = -1;
+    const DATETIME_FORMAT = "Y-m-d h:m:s";
 
     // Modes of dismissal
     const DID_NOT_BAT = "did not bat";
@@ -191,11 +192,14 @@
                     ORDER BY UpdateTime DESC
                     LIMIT 1
                     ');
-                $matches_from_date = $statement->execute()->fetchArray(SQLITE3_ASSOC)["UpdateTime"];
-                log\info("  Fetching matches since last update time [$matches_from_date]");
+                $last_update_str = $statement->execute()->fetchArray(SQLITE3_ASSOC)["UpdateTime"];
+                log\info("  Datebase was last updated at [$last_update_str]");
+                $last_update = date_create_from_format(DATETIME_FORMAT, $last_update_str);
+                $matches_from_date = $last_update->format('Y-m-d');
+                log\info("  Fetching matches since last update date [$matches_from_date]");
             }
 
-            $current_date = gmdate("Y-m-d");
+            $current_datetime = gmdate(DATETIME_FORMAT);
             $matches_path = $input_mapper->getMatchesPath(SEASON, $matches_from_date);
             $matches_str = file_get_contents($matches_path);
 
@@ -473,8 +477,8 @@
 
                 // Mark DB update
                 log\info("");
-                log\info("Setting update time in database to [$current_date]");
-                $insert_update->bindValue(":UpdateTime", $current_date);
+                log\info("Setting update time in database to [$current_datetime]");
+                $insert_update->bindValue(":UpdateTime", $current_datetime);
                 $insert_update->execute();
             }
             else
