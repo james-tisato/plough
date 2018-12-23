@@ -2,7 +2,7 @@
 /*
 Plugin Name:	Plough
 Description:	Provides Plough-specific features like stats generation
-Version:		0.0.5
+Version:		0.0.6
 Author:			James Tisato
 */
 
