@@ -13,6 +13,8 @@
     const BASELINE_ROOT_DIR = __DIR__ . "/test/baseline/";
     const RESULT_ROOT_DIR = __DIR__ . "/test/result/";
 
+    const IGNORE_PHRASES = array("Last updated");
+
     log\init(true);
     log\info("Initialising test harness");
 
@@ -54,13 +56,41 @@
                 $test_passed = false;
             }
 
-            $result_contents = file_get_contents($result_path);
-            $baseline_contents = file_get_contents($baseline_path);
+            $baseline_file = file($baseline_path);
+            $result_file = file($result_path);
 
-            if ($baseline_contents != $result_contents)
+            if (count($baseline_file) != count($result_file))
             {
-                log\error("Test [" . $test_name . "] failed - difference found in [" . $output_filename . "]");
+                log\error("Test [" . $test_name . "] failed - line count difference found in [" . $output_filename . "]");
                 $test_passed = false;
+            }
+            else
+            {
+                foreach ($baseline_file as $idx => $base_content)
+                {
+                    $result_content = $result_file[$idx];
+
+                    if ($base_content != $result_content)
+                    {
+                        // Check if difference should be ignored
+                        $ignore_difference = false;
+                        foreach (IGNORE_PHRASES as $ignore_phrase)
+                        {
+                            if (strpos($base_content, $ignore_phrase) !== false)
+                            {
+                                $ignore_difference = true;
+                                break;
+                            }
+                        }
+
+                        if (!$ignore_difference)
+                        {
+                            log\error("Test [" . $test_name . "] failed - difference found in [" . $output_filename . "]");
+                            $test_passed = false;
+                            break;
+                        }
+                    }
+                }
             }
         }
 
@@ -87,4 +117,5 @@
     log\info("Tests completed");
     log\info("  Tests passed: " . $tests_passed);
     log\info("  Tests failed: " . $tests_failed);
+    log\info("");
 ?>
