@@ -9,6 +9,8 @@
     require_once("config.php");
     require_once("data-mapper.php");
     require_once("db.php");
+    require_once("helpers.php");
+    require_once("milestone-generator.php");
 
     // Constants
     const CLUB_NAME = "Ploughmans CC";
@@ -29,76 +31,6 @@
     // Stats period types
     const PERIOD_CAREER = 1;
     const PERIOD_SEASON = 2;
-
-    // Helpers
-    function get_last_update_datetime($db)
-    {
-        $statement = $db->prepare(
-           'SELECT
-                 UpdateTime
-            FROM DbUpdate
-            ORDER BY UpdateTime DESC
-            LIMIT 1
-            ');
-        $last_update_str = $statement->execute()->fetchArray(SQLITE3_ASSOC)["UpdateTime"];
-        return date_create_from_format(DATETIME_FORMAT, $last_update_str);
-    }
-
-    function get_batting_average($runs, $innings, $not_outs)
-    {
-        $num_outs = $innings - $not_outs;
-        if ($num_outs > 0)
-            return ($runs / $num_outs);
-        else
-            return null;
-    }
-
-    function get_batting_strike_rate($runs, $balls)
-    {
-        if ($balls)
-            return ($runs / $balls) * 100.0;
-        else
-            return null;
-    }
-
-    function collapse_overs($completed_overs, $partial_balls)
-    {
-        $partial_overs = floor($partial_balls / 6);
-        $partial_balls = $partial_balls % 6;
-        $completed_overs += $partial_overs;
-        return array($completed_overs, $partial_balls);
-    }
-
-    function get_bowling_average($runs, $wickets)
-    {
-        if ($wickets > 0)
-            return ($runs / $wickets);
-        else
-            return null;
-    }
-
-    function get_total_balls($completed_overs, $partial_balls)
-    {
-        return $completed_overs * 6 + $partial_balls;
-    }
-
-    function get_bowling_economy_rate($runs, $completed_overs, $partial_balls)
-    {
-        $total_balls = get_total_balls($completed_overs, $partial_balls);
-        if ($total_balls > 0)
-            return ($runs / ($total_balls / 6.0));
-        else
-            return null;
-    }
-
-    function get_bowling_strike_rate($completed_overs, $partial_balls, $wickets)
-    {
-        $total_balls = get_total_balls($completed_overs, $partial_balls);
-        if ($wickets > 0)
-            return ($total_balls / $wickets);
-        else
-            return null;
-    }
 
     class Updater
     {
@@ -208,8 +140,10 @@
                 log\info("  Fetching matches since last update date [$matches_from_date]");
             }
 
-            date_default_timezone_set("Europe/London");
-            $current_datetime = date(DATETIME_FORMAT);
+            //date_default_timezone_set("Europe/London");
+            //$current_datetime = date(DATETIME_FORMAT);
+            //$current_datetime = (new \DateTime("now", new \DateTimeZone("Europe/London")))->format(DATETIME_FORMAT);
+            $current_datetime = gmdate(DATETIME_FORMAT);
             $matches_path = $input_mapper->getMatchesPath(SEASON, $matches_from_date);
             $matches_str = file_get_contents($matches_path);
 
@@ -489,7 +423,8 @@
 
                 log\info("");
                 log\info("Generating milestones...");
-                $this->generate_milestones($db);
+                $milestone_generator = new MilestoneGenerator($db);
+                $milestone_generator->generate_milestones();
 
                 // Mark DB update
                 log\info("");
@@ -1372,30 +1307,6 @@
                 ');
 
             $this->generate_csv_output($output_name, $header, $statement);
-        }
-
-        private function generate_milestones($db)
-        {
-            $insert_milestone = db_create_insert_milestone($db);
-
-            $statement = $db->prepare(
-               'SELECT
-                     p.PlayerId
-                    ,bas.matches
-                    ,bas.runs
-                    ,bas.Fifties
-                    ,bas.Hundreds
-                FROM Player p
-                INNER JOIN CareerBattingSummary bas ON bas.PlayerId = p.PlayerId
-                INNER JOIN CareerBowlingSummary bos ON bos.PlayerId = p.PlayerId
-                INNER JOIN CareerFieldingSummary fs ON fs.PlayerId = p.PlayerId
-                ORDER BY p.PlayerId
-                ');
-            $result = $statement->execute();
-            while ($row = $result->fetchArray(SQLITE3_ASSOC))
-            {
-
-            }
         }
     }
 ?>

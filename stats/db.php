@@ -250,6 +250,7 @@
         $db->query('CREATE TABLE Milestone (
 			MilestoneId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			PlayerId INTEGER,
+            State TEXT,
             Type TEXT,
             Description TEXT,
 			FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
@@ -407,10 +408,10 @@
     {
         return $db->prepare(
             'INSERT INTO Milestone (
-                PlayerId, Type, Description
+                PlayerId, State, Type, Description
                 )
              VALUES (
-                 :PlayerId, :Type, :Description
+                 :PlayerId, :State, :Type, :Description
                 )'
             );
     }
