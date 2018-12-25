@@ -75,14 +75,11 @@ __TODO__
             * Rebase career "base" files to be as-of end of 2018
             * Update all references from 2018 to 2019
         * Bugs
-            * Update time is not accurate
         * Refactoring
             * Move initial stats building into separate functions
             * Split updater into separate files
         * New features
             * Milestones
-                * Add remaining milestones
-                * Add keeping milestones and work out how to do a good description for them
                 * Integrate into table outputs
             * Add database views
             * Page per player

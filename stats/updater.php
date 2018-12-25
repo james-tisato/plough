@@ -19,8 +19,8 @@
     const NO_PC_PLAYER_ID = -1;
     const PC_DATE_FORMAT = "d/m/Y";
     const DATE_FORMAT = "Y-m-d";
-    const DATETIME_FORMAT = "Y-m-d h:m:s";
-    const DATETIME_FRIENDLY_FORMAT = "h:m A, D j M Y";
+    const DATETIME_FORMAT = "Y-m-d h:i:s";
+    const DATETIME_FRIENDLY_FORMAT = "h:i A, D j M Y";
 
     // Modes of dismissal
     const DID_NOT_BAT = "did not bat";
@@ -140,10 +140,8 @@
                 log\info("  Fetching matches since last update date [$matches_from_date]");
             }
 
-            //date_default_timezone_set("Europe/London");
-            //$current_datetime = date(DATETIME_FORMAT);
-            //$current_datetime = (new \DateTime("now", new \DateTimeZone("Europe/London")))->format(DATETIME_FORMAT);
-            $current_datetime = gmdate(DATETIME_FORMAT);
+            date_default_timezone_set("Europe/London");
+            $current_datetime = date(DATETIME_FORMAT);
             $matches_path = $input_mapper->getMatchesPath(SEASON, $matches_from_date);
             $matches_str = file_get_contents($matches_path);
 
@@ -480,19 +478,12 @@
             return $players;
         }
 
-        private function get_csv_output_stream($output_name)
+        private function generate_csv_output_from_query($output_name, $statement, $header = null)
         {
-            $output_dir = $this->_config->getOutputDir();
-            return fopen("$output_dir/$output_name.csv", "w");
-        }
+            $rows = array();
 
-        private function generate_csv_output($output_name, $header, $statement)
-        {
-            $out = $this->get_csv_output_stream($output_name);
-            \plough\fputcsv_eol($out, $header);
-
-            $result = $statement->execute();
-            while ($row = $result->fetchArray(SQLITE3_ASSOC))
+            $query_result = $statement->execute();
+            while ($row = $query_result->fetchArray(SQLITE3_ASSOC))
             {
                 $formatted_row = array();
                 foreach ($row as $key => $value)
@@ -507,16 +498,21 @@
                     array_push($formatted_row, $formatted_value);
                 }
 
-                \plough\fputcsv_eol($out, $formatted_row);
+                array_push($rows, $formatted_row);
             }
-            fclose($out);
+
+            $this->generate_csv_output($output_name, $rows, $header);
         }
 
-        private function generate_csv_output_from_array($output_name, $array)
+        private function generate_csv_output($output_name, $rows, $header = null)
         {
-            $out = $this->get_csv_output_stream($output_name);
+            $output_dir = $this->_config->getOutputDir();
+            $out = fopen("$output_dir/$output_name.csv", "w");
 
-            foreach ($array as $row)
+            if ($header)
+                \plough\fputcsv_eol($out, $header);
+
+            foreach ($rows as $row)
                 \plough\fputcsv_eol($out, $row);
 
             fclose($out);
@@ -544,7 +540,7 @@
             array_push($table, array("Last updated", $last_update));
             array_push($table, array("Last match", $last_match_str));
 
-            $this->generate_csv_output_from_array("last_updated", $table);
+            $this->generate_csv_output("last_updated", $table);
         }
 
         private function generate_career_summary(
@@ -892,7 +888,7 @@
                 ORDER by bs.Runs DESC, bs.Average DESC, bs.Innings DESC, bs.NotOuts DESC, bs.Matches DESC, p.Name
                 ');
 
-            $this->generate_csv_output($output_name, $header, $statement);
+            $this->generate_csv_output_from_query($output_name, $statement, $header);
         }
 
         private function load_bowling_career_summary_base($db)
@@ -1141,7 +1137,7 @@
                 ORDER by bs.Wickets DESC, bs.Average, bs.EconomyRate
                 ');
 
-            $this->generate_csv_output($output_name, $header, $statement);
+            $this->generate_csv_output_from_query($output_name, $statement, $header);
         }
 
         private function load_fielding_career_summary_base($db)
@@ -1271,7 +1267,7 @@
                 ORDER by fs.TotalFieldingWickets DESC, fs.CatchesFielding DESC, fs.Matches DESC, p.Name
                 ');
 
-            $this->generate_csv_output($output_name, $header, $statement);
+            $this->generate_csv_output_from_query($output_name, $statement, $header);
         }
 
         private function generate_keeping_summary_csv($db, $period_type)
@@ -1306,7 +1302,7 @@
                 ORDER by fs.TotalKeepingWickets DESC, fs.CatchesKeeping DESC, fs.Matches DESC, p.Name
                 ');
 
-            $this->generate_csv_output($output_name, $header, $statement);
+            $this->generate_csv_output_from_query($output_name, $statement, $header);
         }
     }
 ?>

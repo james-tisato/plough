@@ -16,10 +16,11 @@
     const MS_TYPE_KEEPING = "Keeping";
 
     // Milestone gaps to next - only record "next" milestone if within this gap
-    const MS_GAP_MATCHES = 5;
-    const MS_GAP_RUNS = 100;
-    const MS_GAP_WICKETS = 10;
-    const MS_GAP_CATCHES = 5;
+    const MS_GAP_MATCHES = 3;
+    const MS_GAP_RUNS = 50;
+    const MS_GAP_WICKETS = 5;
+    const MS_GAP_CATCHES = 3;
+    const MS_GAP_KEEPING_CATCHES = 3;
 
     // Helpers
     class MilestoneResult
@@ -82,6 +83,9 @@
         // Fielding
         private $_msValuesCatches;
 
+        // Keeping
+        private $_msValuesKeepingCatches;
+
         // Public methods
         public function __construct(\SQLite3 $db)
         {
@@ -91,13 +95,15 @@
             $this->_msValuesMatches = range(50, 10000, 50);
             $this->_msValuesRuns = range(1000, 50000, 1000);
             $this->_msValuesWickets = range(50, 5000, 50);
-            $this->_msValuesCatches = range(20, 500, 20);
+            $this->_msValuesCatches = range(25, 500, 25);
+            $this->_msValuesKeepingCatches = range(25, 500, 25);
         }
 
         public function generate_milestones()
         {
             $db = $this->_db;
             $inserter = db_create_insert_milestone($db);
+            db_truncate_table($db, "Milestone");
 
             // Fetch start / current data for fields of interest
             $statement = $db->prepare(
@@ -112,6 +118,8 @@
                     ,boc.Wickets as WicketsCurrent
                     ,fb.CatchesFielding as CatchesStart
                     ,fc.CatchesFielding as CatchesCurrent
+                    ,fb.CatchesKeeping as KeepingCatchesStart
+                    ,fc.CatchesKeeping as KeepingCatchesCurrent
                 FROM Player p
                 LEFT JOIN CareerBattingSummaryBase bab ON bab.PlayerId = p.PlayerId
                 INNER JOIN CareerBattingSummary bac ON bac.PlayerId = p.PlayerId
@@ -147,12 +155,17 @@
                     $this->calculate_and_store(
                         $inserter, $row, MS_TYPE_FIELDING, "Catches", $this->_msValuesCatches, MS_GAP_CATCHES
                         );
+
+                    // Keeping
+                    $this->calculate_and_store(
+                        $inserter, $row, MS_TYPE_FIELDING, "KeepingCatches", $this->_msValuesKeepingCatches, MS_GAP_KEEPING_CATCHES, "keeping catches"
+                        );
                 }
             }
         }
 
         private function calculate_and_store(
-            $inserter, $player_data, $type, $name, $value_list, $max_gap_to_next
+            $inserter, $player_data, $type, $name, $value_list, $max_gap_to_next, $name_for_desc = null
             )
         {
             // Calculate
@@ -165,10 +178,11 @@
             // Store
             $inserter->bindValue(":PlayerId", $player_data["PlayerId"]);
             $inserter->bindValue(":Type", $type);
+            $name_to_use = (is_null($name_for_desc) ? $name : $name_for_desc);
             foreach ($result->achieved as $milestone)
             {
                 $inserter->bindValue(":State", MS_STATE_ACHIEVED);
-                $inserter->bindValue(":Description", get_milestone_description($milestone, $name));
+                $inserter->bindValue(":Description", get_milestone_description($milestone, $name_to_use));
                 $inserter->execute();
             }
 
@@ -176,7 +190,7 @@
             if ($gap <= $max_gap_to_next)
             {
                 $inserter->bindValue(":State", MS_STATE_NEXT);
-                $inserter->bindValue(":Description", get_milestone_description($result->next, $name, $gap));
+                $inserter->bindValue(":Description", get_milestone_description($result->next, $name_to_use, $gap));
                 $inserter->execute();
             }
         }
