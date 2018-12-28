@@ -478,7 +478,27 @@
             return $players;
         }
 
+        private function generate_csv_output($output_name, $rows, $header = null)
+        {
+            $output_dir = $this->_config->getOutputDir();
+            $out = fopen("$output_dir/$output_name.csv", "w");
+
+            if ($header)
+                \plough\fputcsv_eol($out, $header);
+
+            foreach ($rows as $row)
+                \plough\fputcsv_eol($out, $row);
+
+            fclose($out);
+        }
+
         private function generate_csv_output_from_query($output_name, $statement, $header = null)
+        {
+            $rows = get_formatted_rows_from_query($statement);
+            $this->generate_csv_output($output_name, $rows, $header);
+        }
+
+        private function get_formatted_rows_from_query($statement)
         {
             $rows = array();
 
@@ -501,21 +521,67 @@
                 array_push($rows, $formatted_row);
             }
 
-            $this->generate_csv_output($output_name, $rows, $header);
+            return $rows;
         }
 
-        private function generate_csv_output($output_name, $rows, $header = null)
+        // Assumes the player name is in the first column of each row
+        private function join_milestones_to_player_rows($db, $rows, $milestone_types)
         {
-            $output_dir = $this->_config->getOutputDir();
-            $out = fopen("$output_dir/$output_name.csv", "w");
+            // Build map from player name to milestone text
+            $milestone_types_str = "'" . implode("', '", $milestone_types) . "'";
+            $statement = $db->prepare(
+               'SELECT
+                     p.Name
+                    ,m.State
+                    ,m.Description
+                FROM Player p
+                INNER JOIN Milestone m on m.PlayerId = p.PlayerId
+                WHERE
+                        m.Type in (' . $milestone_types_str . ')
+                ORDER BY p.Name, m.State, m.Description
+                ');
+            $query_result = $statement->execute();
 
-            if ($header)
-                \plough\fputcsv_eol($out, $header);
+            $name_to_milestone_text = array();
+            while ($row = $query_result->fetchArray(SQLITE3_ASSOC))
+            {
+                $name = $row["Name"];
+                $state = $row["State"];
 
+                if ($state == MS_STATE_ACHIEVED)
+                    $css_class = "achieved-milestone";
+                else
+                    $css_class = "next-milestone";
+
+                $text_for_this_milestone =
+                    "<span class='$css_class'>" . $row["Description"] . "</span>";
+
+                if (!array_key_exists($name, $name_to_milestone_text))
+                    $name_to_milestone_text[$name] = "";
+
+                $current_text = $name_to_milestone_text[$name];
+                if (strlen($current_text) > 0)
+                    $current_text = $current_text . PHP_EOL;
+
+                $current_text = $current_text . $text_for_this_milestone;
+                $name_to_milestone_text[$name] = $current_text;
+            }
+
+            $rows_with_milestones = array();
             foreach ($rows as $row)
-                \plough\fputcsv_eol($out, $row);
+            {
+                $row_with_milestones = $row;
+                $name = $row_with_milestones[0];
 
-            fclose($out);
+                $milestone_text = "";
+                if (array_key_exists($name, $name_to_milestone_text))
+                    $milestone_text = $name_to_milestone_text[$name];
+
+                array_push($row_with_milestones, $milestone_text);
+                array_push($rows_with_milestones, $row_with_milestones);
+            }
+
+            return $rows_with_milestones;
         }
 
         private function generate_last_updated_csv($db)
@@ -861,8 +927,8 @@
             }
 
             $header = array(
-                "Player", "Mat", "Inns", "NO", "Runs", "Ave", "SR",
-                "HS", "50s", "100s", "0s", "4s", "6s", "Balls", "Active"
+                "Player", "Mat", "Inns", "NO", "Runs", "Ave", "SR", "HS",
+                "50s", "100s", "0s", "4s", "6s", "Balls", "Active", "Milestones"
                 );
 
             $statement = $db->prepare(
@@ -888,7 +954,11 @@
                 ORDER by bs.Runs DESC, bs.Average DESC, bs.Innings DESC, bs.NotOuts DESC, bs.Matches DESC, p.Name
                 ');
 
-            $this->generate_csv_output_from_query($output_name, $statement, $header);
+            $rows = $this->get_formatted_rows_from_query($statement);
+            $rows_with_milestones = $this->join_milestones_to_player_rows(
+                $db, $rows, [ MS_TYPE_GENERAL, MS_TYPE_BATTING ]
+                );
+            $this->generate_csv_output($output_name, $rows_with_milestones, $header);
         }
 
         private function load_bowling_career_summary_base($db)
@@ -1111,7 +1181,7 @@
 
             $header = array(
                 "Player", "Mat", "Overs", "Mdns", "Runs", "Wkts", "Ave",
-                "Econ", "SR", "Best", "5wi", "Wides", "NBs", "Active"
+                "Econ", "SR", "Best", "5wi", "Wides", "NBs", "Active", "Milestones"
                 );
 
             $statement = $db->prepare(
@@ -1137,7 +1207,11 @@
                 ORDER by bs.Wickets DESC, bs.Average, bs.EconomyRate
                 ');
 
-            $this->generate_csv_output_from_query($output_name, $statement, $header);
+            $rows = $this->get_formatted_rows_from_query($statement);
+            $rows_with_milestones = $this->join_milestones_to_player_rows(
+                $db, $rows, [ MS_TYPE_GENERAL, MS_TYPE_BOWLING ]
+                );
+            $this->generate_csv_output($output_name, $rows_with_milestones, $header);
         }
 
         private function load_fielding_career_summary_base($db)
@@ -1249,7 +1323,7 @@
             }
 
             $header = array(
-                "Player", "Mat", "Ct", "RO", "Total", "Active"
+                "Player", "Mat", "Ct", "RO", "Total", "Active", "Milestones"
                 );
 
             $statement = $db->prepare(
@@ -1267,7 +1341,11 @@
                 ORDER by fs.TotalFieldingWickets DESC, fs.CatchesFielding DESC, fs.Matches DESC, p.Name
                 ');
 
-            $this->generate_csv_output_from_query($output_name, $statement, $header);
+            $rows = $this->get_formatted_rows_from_query($statement);
+            $rows_with_milestones = $this->join_milestones_to_player_rows(
+                $db, $rows, [ MS_TYPE_FIELDING ]
+                );
+            $this->generate_csv_output($output_name, $rows_with_milestones, $header);
         }
 
         private function generate_keeping_summary_csv($db, $period_type)
@@ -1284,7 +1362,7 @@
             }
 
             $header = array(
-                "Player", "Mat", "Wk Ct", "St", "Wk Total", "Active"
+                "Player", "Mat", "Wk Ct", "St", "Wk Total", "Active", "Milestones"
                 );
 
             $statement = $db->prepare(
@@ -1302,7 +1380,11 @@
                 ORDER by fs.TotalKeepingWickets DESC, fs.CatchesKeeping DESC, fs.Matches DESC, p.Name
                 ');
 
-            $this->generate_csv_output_from_query($output_name, $statement, $header);
+            $rows = $this->get_formatted_rows_from_query($statement);
+            $rows_with_milestones = $this->join_milestones_to_player_rows(
+                $db, $rows, [ MS_TYPE_KEEPING ]
+                );
+            $this->generate_csv_output($output_name, $rows_with_milestones, $header);
         }
     }
 ?>
