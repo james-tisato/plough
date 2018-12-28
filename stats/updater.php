@@ -36,15 +36,13 @@
     {
         // Properties
         private $_config;
+        private $_db;
 
         // Public methods
         public function __construct(Config $config)
         {
             $this->_config = $config;
-        }
 
-        public function update_stats()
-        {
             // Config
             $db_dir = $this->_config->getDbDir();
             if (!file_exists($db_dir))
@@ -57,13 +55,10 @@
             if ($this->_config->dumpInputs())
             {
                 $dump_dir = $this->_config->getInputDumpDir();
-                $dump_data_mapper = $this->_config->getInputDumpDataMapper();
 
                 if (!file_exists($dump_dir))
                     \plough\mkdirs($dump_dir);
             }
-
-            $input_mapper = $this->_config->getInputDataMapper();
 
             log\info("");
             $db_path = \plough\get_stats_db_path($this->_config);
@@ -89,14 +84,19 @@
             }
 
             // Open database and create schema if required
-            $db = new \SQLite3($db_path);
-            db_enable_foreign_keys($db);
+            $this->_db = new \SQLite3($db_path);
+            db_enable_foreign_keys($this->_db);
 
             if ($create_db_schema)
             {
                 log\info("Creating database schema");
-                db_create_schema($db);
+                db_create_schema($this->_db);
             }
+        }
+
+        public function update_stats()
+        {
+            $db = $this->_db;
 
             // Prepare statements
             $insert_update = db_create_insert_update($db);
@@ -122,18 +122,20 @@
             while ($row = $result->fetchArray(SQLITE3_ASSOC))
                 $player_cache[$row["PcPlayerId"]] = $row["PlayerId"];
 
+            $input_mapper = $this->_config->getInputDataMapper();
+
             // Get match list
             log\info("");
             log\info("Fetching match list...");
 
-            if ($create_db_schema)
+            $last_update = get_last_update_datetime($db);
+            if (is_null($last_update))
             {
                 $matches_from_date = "01/01/" . SEASON;
                 log\info("  Since the database was created from scratch, fetching matches updated since [$matches_from_date]");
             }
             else
             {
-                $last_update = get_last_update_datetime($db);
                 $last_update_str = $last_update->format(DATETIME_FORMAT);
                 log\info("  Datebase was last updated at [$last_update_str]");
                 $matches_from_date = $last_update->format('Y-m-d');
@@ -146,7 +148,10 @@
             $matches_str = file_get_contents($matches_path);
 
             if ($this->_config->dumpInputs())
-                file_put_contents($dump_data_mapper->getMatchesPath(SEASON, $matches_from_date), $matches_str);
+                file_put_contents(
+                    $this->_config->getInputDumpDataMapper()->getMatchesPath(SEASON, $matches_from_date),
+                    $matches_str
+                    );
 
             $matches = json_decode($matches_str, true)["matches"];
             $num_matches = count($matches);
@@ -169,7 +174,10 @@
                     $match_detail_str = file_get_contents($match_detail_path);
 
                     if ($this->_config->dumpInputs())
-                        file_put_contents($dump_data_mapper->getMatchDetailPath($pc_match_id), $match_detail_str);
+                        file_put_contents(
+                            $this->_config->getInputDumpDataMapper()->getMatchDetailPath($pc_match_id),
+                            $match_detail_str
+                            );
 
                     $match_detail = json_decode($match_detail_str, true)["match_details"][0];
 
@@ -465,19 +473,6 @@
         }
 
         // Private helpers
-        private function get_players_by_name($db)
-        {
-            $players = array();
-            $statement = $db->prepare(
-                'SELECT * FROM Player ORDER BY Name'
-                );
-            $result = $statement->execute();
-            while ($row = $result->fetchArray(SQLITE3_ASSOC))
-                $players[$row["Name"]] = $row;
-
-            return $players;
-        }
-
         private function generate_csv_output($output_name, $rows, $header = null)
         {
             $output_dir = $this->_config->getOutputDir();
@@ -617,7 +612,7 @@
             )
         {
             db_truncate_table($db, "Career" . $summary_type . "Summary");
-            $players = $this->get_players_by_name($db);
+            $players = get_players_by_name($db);
 
             foreach ($players as $player_name => $player)
             {
@@ -673,7 +668,7 @@
             $bind_row_to_insert
             )
         {
-            $players = $this->get_players_by_name($db);
+            $players = get_players_by_name($db);
 
             db_truncate_table($db, "Career" . $summary_type . "SummaryBase");
             $insert_player = db_create_insert_player($db);
@@ -762,7 +757,7 @@
 
         private function generate_batting_summary($db)
         {
-            $players = $this->get_players_by_name($db);
+            $players = get_players_by_name($db);
 
             db_truncate_table($db, "BattingSummary");
             $insert_batting_summary = db_create_insert_batting_summary($db);
@@ -1001,7 +996,7 @@
 
         private function generate_bowling_summary($db)
         {
-            $players = $this->get_players_by_name($db);
+            $players = get_players_by_name($db);
 
             db_truncate_table($db, "BowlingSummary");
             $insert_bowling_summary = db_create_insert_bowling_summary($db);
@@ -1241,7 +1236,7 @@
 
         private function generate_fielding_summary($db)
         {
-            $players = $this->get_players_by_name($db);
+            $players = get_players_by_name($db);
 
             db_truncate_table($db, "FieldingSummary");
             $insert_fielding_summary = db_create_insert_fielding_summary($db);

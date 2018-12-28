@@ -80,7 +80,13 @@ __TODO__
             * Split updater into separate files
         * New features
             * Milestones
-                * Integrate into table outputs
+                * Delete test table
+                * Update to latest plugin version
+                * Check new table output on site
+                * Apply CSS changes for milestone types
+                * Consider setting header to "Career Milestones"
+                    * Do we need to consider cell wrapping?
+                    * How well does it work on each device?
             * Add database views
             * Page per player
             * Team summary stats

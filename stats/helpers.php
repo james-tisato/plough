@@ -1,9 +1,9 @@
 <?php
     namespace plough\stats;
-    
+
     require_once("db.php");
 
-    // Date/time helpers
+    // DB helpers
     function get_last_update_datetime($db)
     {
         $statement = $db->prepare(
@@ -13,8 +13,29 @@
             ORDER BY UpdateTime DESC
             LIMIT 1
             ');
-        $last_update_str = $statement->execute()->fetchArray(SQLITE3_ASSOC)["UpdateTime"];
-        return date_create_from_format(DATETIME_FORMAT, $last_update_str);
+        $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
+        if (!$result)
+        {
+            return null;
+        }
+        else
+        {
+            $last_update_str = $result["UpdateTime"];
+            return date_create_from_format(DATETIME_FORMAT, $last_update_str);
+        }
+    }
+
+    function get_players_by_name($db)
+    {
+        $players = array();
+        $statement = $db->prepare(
+            'SELECT * FROM Player ORDER BY Name'
+            );
+        $result = $statement->execute();
+        while ($row = $result->fetchArray(SQLITE3_ASSOC))
+            $players[$row["Name"]] = $row;
+
+        return $players;
     }
 
     // Batting helpers
