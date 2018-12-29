@@ -34,13 +34,15 @@
             add_file($zip, "Psr/Log/LoggerInterface.php");
             add_file($zip, "Psr/Log/LogLevel.php");
 
-		    add_file($zip, "stats/config.php");
+            add_file($zip, "stats/career-summary-generator.php");
+            add_file($zip, "stats/config.php");
             add_file($zip, "stats/csv-generator.php");
             add_file($zip, "stats/data-mapper.php");
             add_file($zip, "stats/db.php");
             add_file($zip, "stats/helpers.php");
             add_file($zip, "stats/init.php");
             add_file($zip, "stats/milestone-generator.php");
+            add_file($zip, "stats/season-summary-generator.php");
 			add_file($zip, "stats/updater.php");
 
             add_file($zip, "stats/config/default.xml");
