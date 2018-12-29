@@ -27,7 +27,6 @@ __TODO__
         * Clean up custom CSS:
             * Change default table style so we don't need to specify centered text for every column
             * Reduce number of table style sections (don't need one per distinct column count)
-        * Can we make advanced CSS editor window larger? Maybe just expand entire sidebar?
     * Fixtures
         * Link to match reports
             * 2017
@@ -79,16 +78,10 @@ __TODO__
             * Move initial stats building into separate functions
             * Split updater into separate files
         * New features
-            * Milestones
-                * Delete test table
-                * Update to latest plugin version
-                * Check new table output on site
-                * Apply CSS changes for milestone types
-                * Consider setting header to "Career Milestones"
-                    * Do we need to consider cell wrapping?
-                    * How well does it work on each device?
             * Add database views
             * Page per player
             * Team summary stats
             * League table
+                * Scrape SCL site
+                * Highlight Plough using row highlighter
             * Excel export

@@ -1,6 +1,8 @@
 <?php
     namespace plough\stats;
+    use plough\log;
 
+    require_once(__DIR__ . "/../logger.php");
     require_once("db.php");
 
     // Constants
@@ -60,7 +62,7 @@
         $result = $value . " " . strtolower($name);
 
         if ($gap)
-            $result = $result . " ($gap needed)";
+            $result = $result . "\n($gap needed)";
 
         return $result;
     }
@@ -162,6 +164,68 @@
                         );
                 }
             }
+        }
+
+        // Assumes the player name is in the first column of each row
+        public function join_milestones_to_player_rows($rows, $milestone_types)
+        {
+            $db = $this->_db;
+
+            // Build map from player name to milestone text
+            $milestone_types_str = "'" . implode("', '", $milestone_types) . "'";
+            $statement = $db->prepare(
+               'SELECT
+                     p.Name
+                    ,m.State
+                    ,m.Description
+                FROM Player p
+                INNER JOIN Milestone m on m.PlayerId = p.PlayerId
+                WHERE
+                        m.Type in (' . $milestone_types_str . ')
+                ORDER BY p.Name, m.State, m.Description
+                ');
+            $query_result = $statement->execute();
+
+            $name_to_milestone_text = array();
+            while ($row = $query_result->fetchArray(SQLITE3_ASSOC))
+            {
+                $name = $row["Name"];
+                $state = $row["State"];
+
+                if ($state == MS_STATE_ACHIEVED)
+                    $css_class = "achieved-milestone";
+                else
+                    $css_class = "next-milestone";
+
+                $text_for_this_milestone =
+                    "<span class='$css_class'>" . $row["Description"] . "</span>";
+
+                if (!array_key_exists($name, $name_to_milestone_text))
+                    $name_to_milestone_text[$name] = "";
+
+                $current_text = $name_to_milestone_text[$name];
+                if (strlen($current_text) > 0)
+                    $current_text = $current_text . PHP_EOL;
+
+                $current_text = $current_text . $text_for_this_milestone;
+                $name_to_milestone_text[$name] = $current_text;
+            }
+
+            $rows_with_milestones = array();
+            foreach ($rows as $row)
+            {
+                $row_with_milestones = $row;
+                $name = $row_with_milestones[0];
+
+                $milestone_text = "";
+                if (array_key_exists($name, $name_to_milestone_text))
+                    $milestone_text = $name_to_milestone_text[$name];
+
+                array_push($row_with_milestones, $milestone_text);
+                array_push($rows_with_milestones, $row_with_milestones);
+            }
+
+            return $rows_with_milestones;
         }
 
         private function calculate_and_store(

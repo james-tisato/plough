@@ -35,6 +35,7 @@
             add_file($zip, "Psr/Log/LogLevel.php");
 
 		    add_file($zip, "stats/config.php");
+            add_file($zip, "stats/csv-generator.php");
             add_file($zip, "stats/data-mapper.php");
             add_file($zip, "stats/db.php");
             add_file($zip, "stats/helpers.php");

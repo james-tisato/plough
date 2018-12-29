@@ -1,12 +1,12 @@
 <?php
     namespace plough\stats;
-
     use plough\log;
 
     require_once(__DIR__ . "/../logger.php");
     require_once(__DIR__ . "/../utils.php");
 
     require_once("config.php");
+    require_once("csv-generator.php");
     require_once("data-mapper.php");
     require_once("db.php");
     require_once("helpers.php");
@@ -15,7 +15,6 @@
     // Constants
     const CLUB_NAME = "Ploughmans CC";
     const DELETED = "Deleted";
-    const SEASON = 2018;
     const NO_PC_PLAYER_ID = -1;
     const PC_DATE_FORMAT = "d/m/Y";
     const DATE_FORMAT = "Y-m-d";
@@ -28,15 +27,13 @@
     const RUN_OUT = "ro";
     const STUMPED = "st";
 
-    // Stats period types
-    const PERIOD_CAREER = 1;
-    const PERIOD_SEASON = 2;
-
     class Updater
     {
         // Properties
         private $_config;
         private $_db;
+        private $_milestone_generator;
+        private $_csv_generator;
 
         // Public methods
         public function __construct(Config $config)
@@ -92,6 +89,11 @@
                 log\info("Creating database schema");
                 db_create_schema($this->_db);
             }
+
+            $this->_milestone_generator = new MilestoneGenerator($this->_db);
+            $this->_csv_generator = new CsvGenerator(
+                $this->_config, $this->_db, $this->_milestone_generator
+                );
         }
 
         public function update_stats()
@@ -429,8 +431,7 @@
 
                 log\info("");
                 log\info("Generating milestones...");
-                $milestone_generator = new MilestoneGenerator($db);
-                $milestone_generator->generate_milestones();
+                $this->_milestone_generator->generate_milestones();
 
                 // Mark DB update
                 log\info("");
@@ -445,165 +446,12 @@
 
             // Generate outputs
             log\info("");
-            log\info("Generating CSV output...");
-            log\info("  Last updated");
-            $this->generate_last_updated_csv($db);
-            log\info("  Batting");
-            log\info("    Season " . SEASON);
-            $this->generate_batting_summary_csv($db, PERIOD_SEASON);
-            log\info("    Career");
-            $this->generate_batting_summary_csv($db, PERIOD_CAREER);
-            log\info("  Bowling");
-            log\info("    Season " . SEASON);
-            $this->generate_bowling_summary_csv($db, PERIOD_SEASON);
-            log\info("    Career");
-            $this->generate_bowling_summary_csv($db, PERIOD_CAREER);
-            log\info("  Fielding");
-            log\info("    Season " . SEASON);
-            $this->generate_fielding_summary_csv($db, PERIOD_SEASON);
-            log\info("    Career");
-            $this->generate_fielding_summary_csv($db, PERIOD_CAREER);
-            log\info("  Keeping");
-            log\info("    Season " . SEASON);
-            $this->generate_keeping_summary_csv($db, PERIOD_SEASON);
-            log\info("    Career");
-            $this->generate_keeping_summary_csv($db, PERIOD_CAREER);
+            $this->_csv_generator->generate_csv_files();
 
             log\info("");
         }
 
         // Private helpers
-        private function generate_csv_output($output_name, $rows, $header = null)
-        {
-            $output_dir = $this->_config->getOutputDir();
-            $out = fopen("$output_dir/$output_name.csv", "w");
-
-            if ($header)
-                \plough\fputcsv_eol($out, $header);
-
-            foreach ($rows as $row)
-                \plough\fputcsv_eol($out, $row);
-
-            fclose($out);
-        }
-
-        private function generate_csv_output_from_query($output_name, $statement, $header = null)
-        {
-            $rows = get_formatted_rows_from_query($statement);
-            $this->generate_csv_output($output_name, $rows, $header);
-        }
-
-        private function get_formatted_rows_from_query($statement)
-        {
-            $rows = array();
-
-            $query_result = $statement->execute();
-            while ($row = $query_result->fetchArray(SQLITE3_ASSOC))
-            {
-                $formatted_row = array();
-                foreach ($row as $key => $value)
-                {
-                    $formatted_value = $value;
-
-                    if (is_null($value))
-                        $formatted_value = "-";
-                    else if (is_float($value))
-                        $formatted_value = sprintf("%.2f", $value);
-
-                    array_push($formatted_row, $formatted_value);
-                }
-
-                array_push($rows, $formatted_row);
-            }
-
-            return $rows;
-        }
-
-        // Assumes the player name is in the first column of each row
-        private function join_milestones_to_player_rows($db, $rows, $milestone_types)
-        {
-            // Build map from player name to milestone text
-            $milestone_types_str = "'" . implode("', '", $milestone_types) . "'";
-            $statement = $db->prepare(
-               'SELECT
-                     p.Name
-                    ,m.State
-                    ,m.Description
-                FROM Player p
-                INNER JOIN Milestone m on m.PlayerId = p.PlayerId
-                WHERE
-                        m.Type in (' . $milestone_types_str . ')
-                ORDER BY p.Name, m.State, m.Description
-                ');
-            $query_result = $statement->execute();
-
-            $name_to_milestone_text = array();
-            while ($row = $query_result->fetchArray(SQLITE3_ASSOC))
-            {
-                $name = $row["Name"];
-                $state = $row["State"];
-
-                if ($state == MS_STATE_ACHIEVED)
-                    $css_class = "achieved-milestone";
-                else
-                    $css_class = "next-milestone";
-
-                $text_for_this_milestone =
-                    "<span class='$css_class'>" . $row["Description"] . "</span>";
-
-                if (!array_key_exists($name, $name_to_milestone_text))
-                    $name_to_milestone_text[$name] = "";
-
-                $current_text = $name_to_milestone_text[$name];
-                if (strlen($current_text) > 0)
-                    $current_text = $current_text . PHP_EOL;
-
-                $current_text = $current_text . $text_for_this_milestone;
-                $name_to_milestone_text[$name] = $current_text;
-            }
-
-            $rows_with_milestones = array();
-            foreach ($rows as $row)
-            {
-                $row_with_milestones = $row;
-                $name = $row_with_milestones[0];
-
-                $milestone_text = "";
-                if (array_key_exists($name, $name_to_milestone_text))
-                    $milestone_text = $name_to_milestone_text[$name];
-
-                array_push($row_with_milestones, $milestone_text);
-                array_push($rows_with_milestones, $row_with_milestones);
-            }
-
-            return $rows_with_milestones;
-        }
-
-        private function generate_last_updated_csv($db)
-        {
-            $last_update = get_last_update_datetime($db)->format(DATETIME_FRIENDLY_FORMAT);
-
-            $statement = $db->prepare(
-               'SELECT
-                     m.HomeClubName
-                    ,m.AwayClubName
-                    ,m.CompetitionType
-                FROM Match m
-                ORDER BY MatchDate DESC
-                LIMIT 1
-                ');
-            $last_match = $statement->execute()->fetchArray(SQLITE3_ASSOC);
-            $last_match_str =
-                $last_match["HomeClubName"] . " vs " . $last_match["AwayClubName"] .
-                " (" . $last_match["CompetitionType"] . ")";
-
-            $table = array();
-            array_push($table, array("Last updated", $last_update));
-            array_push($table, array("Last match", $last_match_str));
-
-            $this->generate_csv_output("last_updated", $table);
-        }
-
         private function generate_career_summary(
             $db,
             $summary_type,
@@ -908,54 +756,6 @@
                 );
         }
 
-        private function generate_batting_summary_csv($db, $period_type)
-        {
-            if ($period_type == PERIOD_CAREER)
-            {
-                $table_name = "CareerBattingSummary";
-                $output_name = "batting_career_ind_summary";
-            }
-            else if ($period_type == PERIOD_SEASON)
-            {
-                $table_name = "BattingSummary";
-                $output_name = "batting_ind_summary";
-            }
-
-            $header = array(
-                "Player", "Mat", "Inns", "NO", "Runs", "Ave", "SR", "HS",
-                "50s", "100s", "0s", "4s", "6s", "Balls", "Active", "Milestones"
-                );
-
-            $statement = $db->prepare(
-               'SELECT
-                      p.Name
-                     ,bs.Matches
-                     ,bs.Innings
-                     ,bs.NotOuts
-                     ,bs.Runs
-                     ,bs.Average
-                     ,bs.StrikeRate
-                     ,(CAST(bs.HighScore AS TEXT) || CASE bs.HighScoreNotOut WHEN 1 THEN \'*\' ELSE \'\' END) as HighScore
-                     ,bs.Fifties
-                     ,bs.Hundreds
-                     ,bs.Ducks
-                     ,bs.Fours
-                     ,bs.Sixes
-                     ,bs.Balls
-                     ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
-                FROM Player p
-                INNER JOIN ' . $table_name . ' bs on bs.PlayerId = p.PlayerId
-                WHERE bs.Innings > 0
-                ORDER by bs.Runs DESC, bs.Average DESC, bs.Innings DESC, bs.NotOuts DESC, bs.Matches DESC, p.Name
-                ');
-
-            $rows = $this->get_formatted_rows_from_query($statement);
-            $rows_with_milestones = $this->join_milestones_to_player_rows(
-                $db, $rows, [ MS_TYPE_GENERAL, MS_TYPE_BATTING ]
-                );
-            $this->generate_csv_output($output_name, $rows_with_milestones, $header);
-        }
-
         private function load_bowling_career_summary_base($db)
         {
             $bind_row_to_insert = function ($row, $idx, $player_id, $insert_career_bowling_summary_base)
@@ -1161,54 +961,6 @@
                 );
         }
 
-        private function generate_bowling_summary_csv($db, $period_type)
-        {
-            if ($period_type == PERIOD_CAREER)
-            {
-                $table_name = "CareerBowlingSummary";
-                $output_name = "bowling_career_ind_summary";
-            }
-            else if ($period_type == PERIOD_SEASON)
-            {
-                $table_name = "BowlingSummary";
-                $output_name = "bowling_ind_summary";
-            }
-
-            $header = array(
-                "Player", "Mat", "Overs", "Mdns", "Runs", "Wkts", "Ave",
-                "Econ", "SR", "Best", "5wi", "Wides", "NBs", "Active", "Milestones"
-                );
-
-            $statement = $db->prepare(
-                'SELECT
-                      p.Name
-                     ,bs.Matches
-                     ,(CAST(bs.CompletedOvers AS TEXT) || \'.\' || CAST(bs.PartialBalls AS TEXT)) as Overs
-                     ,bs.Maidens
-                     ,bs.Runs
-                     ,bs.Wickets
-                     ,bs.Average
-                     ,bs.EconomyRate
-                     ,bs.StrikeRate
-                     ,(CAST(bs.BestBowlingWickets AS TEXT) || \'/\' || CAST(bs.BestBowlingRuns AS TEXT)) as BestBowling
-                     ,bs.FiveFors
-                     ,bs.Wides
-                     ,bs.NoBalls
-                     ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
-                FROM Player p
-                INNER JOIN ' . $table_name . ' bs on bs.PlayerId = p.PlayerId
-                WHERE
-                        (bs.CompletedOvers > 0 OR bs.PartialBalls > 0)
-                ORDER by bs.Wickets DESC, bs.Average, bs.EconomyRate
-                ');
-
-            $rows = $this->get_formatted_rows_from_query($statement);
-            $rows_with_milestones = $this->join_milestones_to_player_rows(
-                $db, $rows, [ MS_TYPE_GENERAL, MS_TYPE_BOWLING ]
-                );
-            $this->generate_csv_output($output_name, $rows_with_milestones, $header);
-        }
-
         private function load_fielding_career_summary_base($db)
         {
             $bind_row_to_insert = function ($row, $idx, $player_id, $insert_career_fielding_summary_base)
@@ -1302,84 +1054,6 @@
                 db_create_insert_career_fielding_summary($db),
                 $combine
                 );
-        }
-
-        private function generate_fielding_summary_csv($db, $period_type)
-        {
-            if ($period_type == PERIOD_CAREER)
-            {
-                $table_name = "CareerFieldingSummary";
-                $output_name = "fielding_career_ind_summary";
-            }
-            else if ($period_type == PERIOD_SEASON)
-            {
-                $table_name = "FieldingSummary";
-                $output_name = "fielding_ind_summary";
-            }
-
-            $header = array(
-                "Player", "Mat", "Ct", "RO", "Total", "Active", "Milestones"
-                );
-
-            $statement = $db->prepare(
-               'SELECT
-                      p.Name
-                     ,fs.Matches
-                     ,fs.CatchesFielding
-                     ,fs.RunOuts
-                     ,fs.TotalFieldingWickets
-                     ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
-                FROM Player p
-                INNER JOIN ' . $table_name . ' fs on fs.PlayerId = p.PlayerId
-                WHERE
-                        fs.TotalFieldingWickets > 0
-                ORDER by fs.TotalFieldingWickets DESC, fs.CatchesFielding DESC, fs.Matches DESC, p.Name
-                ');
-
-            $rows = $this->get_formatted_rows_from_query($statement);
-            $rows_with_milestones = $this->join_milestones_to_player_rows(
-                $db, $rows, [ MS_TYPE_FIELDING ]
-                );
-            $this->generate_csv_output($output_name, $rows_with_milestones, $header);
-        }
-
-        private function generate_keeping_summary_csv($db, $period_type)
-        {
-            if ($period_type == PERIOD_CAREER)
-            {
-                $table_name = "CareerFieldingSummary";
-                $output_name = "keeping_career_ind_summary";
-            }
-            else if ($period_type == PERIOD_SEASON)
-            {
-                $table_name = "FieldingSummary";
-                $output_name = "keeping_ind_summary";
-            }
-
-            $header = array(
-                "Player", "Mat", "Wk Ct", "St", "Wk Total", "Active", "Milestones"
-                );
-
-            $statement = $db->prepare(
-               'SELECT
-                      p.Name
-                     ,fs.Matches
-                     ,fs.CatchesKeeping
-                     ,fs.Stumpings
-                     ,fs.TotalKeepingWickets
-                     ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
-                FROM Player p
-                INNER JOIN ' . $table_name . ' fs on fs.PlayerId = p.PlayerId
-                WHERE
-                        fs.TotalKeepingWickets > 0
-                ORDER by fs.TotalKeepingWickets DESC, fs.CatchesKeeping DESC, fs.Matches DESC, p.Name
-                ');
-
-            $rows = $this->get_formatted_rows_from_query($statement);
-            $rows_with_milestones = $this->join_milestones_to_player_rows(
-                $db, $rows, [ MS_TYPE_KEEPING ]
-                );
-            $this->generate_csv_output($output_name, $rows_with_milestones, $header);
         }
     }
 ?>

@@ -1,4 +1,4 @@
-Player,Mat,Inns,NO,Runs,Ave,SR,HS,50s,100s,0s,4s,6s,Balls,Active,Milestones
+Player,Mat,Inns,NO,Runs,Ave,SR,HS,50s,100s,0s,4s,6s,Balls,Active,"2018 Career Milestones"
 "Steve Britto",370,361,47,9026,28.75,-,135,47,6,30,917,101,-,Y,"<span class='achieved-milestone'>9000 runs</span>"
 "Dyll Davies",261,241,39,5752,28.48,-,123,35,3,19,123,2,-,N,
 "Nasser Khan",253,243,19,4708,21.02,-,83,20,0,24,118,3,-,N,
@@ -69,7 +69,8 @@ Player,Mat,Inns,NO,Runs,Ave,SR,HS,50s,100s,0s,4s,6s,Balls,Active,Milestones
 "H Ewinger",20,20,1,360,18.95,-,100,1,1,1,39,1,-,N,
 "P Basic",12,10,1,350,38.89,-,78,3,0,0,51,3,-,N,
 "Max Whiting",15,15,1,345,24.64,276.00,105,1,1,0,31,0,125,N,
-"Robert Keogh",47,44,4,342,8.55,-,46,0,0,10,45,0,-,Y,"<span class='next-milestone'>50 matches (3 needed)</span>"
+"Robert Keogh",47,44,4,342,8.55,-,46,0,0,10,45,0,-,Y,"<span class='next-milestone'>50 matches
+(3 needed)</span>"
 "B Clark",25,22,4,339,18.83,-,78,2,0,6,13,0,-,N,
 "Sid Swaminathan",47,38,10,326,11.64,-,47,0,0,2,26,0,-,N,
 "S Raghavan",13,12,2,311,31.10,-,65,1,0,0,26,2,-,N,

@@ -3,6 +3,9 @@
 
     require_once("db.php");
 
+    // Constants
+    const SEASON = 2018;
+
     // DB helpers
     function get_last_update_datetime($db)
     {
