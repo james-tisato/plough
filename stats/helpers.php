@@ -5,6 +5,11 @@
 
     // Constants
     const SEASON = 2018;
+    const NO_PC_PLAYER_ID = -1;
+
+    const DATE_FORMAT = "Y-m-d";
+    const DATETIME_FORMAT = "Y-m-d h:i:s";
+    const DATETIME_FRIENDLY_FORMAT = "h:i A, D j M Y";
 
     // DB helpers
     function get_last_update_datetime($db)

@@ -81,7 +81,6 @@
 
         public function generate_csv_files()
         {
-            log\info("Generating CSV output...");
             log\info("  Last updated");
             $this->generate_last_updated_csv();
             log\info("  Batting");
