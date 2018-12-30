@@ -42,7 +42,6 @@ __TODO__
     * History
         * Auto-sizing of roll of honour table?
     * Stats
-        * Add last updated table and insert it on every stats page with generated tables
         * Average sort doesn't work when people have no average
         * Best bowling sort doesn't work properly
         * Fix 2017 page
@@ -65,8 +64,6 @@ __TODO__
             * Start using levels properly
             * Add custom exception handler?
             * Can we do the same for warnings?
-        * Test harness
-            * Integrate to packaging script
         * Switch to class autoloading
     * Stats
         * 2019 season setup
@@ -75,8 +72,6 @@ __TODO__
             * Update all references from 2018 to 2019
         * Bugs
         * Refactoring
-            * Move initial stats building into separate functions
-            * Split updater into separate files
         * New features
             * Add database views
             * Page per player
