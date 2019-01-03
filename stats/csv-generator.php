@@ -13,9 +13,9 @@
     const PERIOD_SEASON = 2;
 
     // Helpers
-    function get_milestone_col_header()
+    function get_milestone_col_header($current_season)
     {
-        return SEASON . " Career Milestones";
+        return $current_season . " Career Milestones";
     }
 
     function get_table_and_output_names($period_type, $discipline_type, $table_prefix_override = null)
@@ -81,25 +81,27 @@
 
         public function generate_csv_files()
         {
+            $current_season = $this->_config->getCurrentSeason();
+
             log\info("  Last updated");
             $this->generate_last_updated_csv();
             log\info("  Batting");
-            log\info("    Season " . SEASON);
+            log\info("    Season " . $current_season);
             $this->generate_batting_summary_csv(PERIOD_SEASON);
             log\info("    Career");
             $this->generate_batting_summary_csv(PERIOD_CAREER);
             log\info("  Bowling");
-            log\info("    Season " . SEASON);
+            log\info("    Season " . $current_season);
             $this->generate_bowling_summary_csv(PERIOD_SEASON);
             log\info("    Career");
             $this->generate_bowling_summary_csv(PERIOD_CAREER);
             log\info("  Fielding");
-            log\info("    Season " . SEASON);
+            log\info("    Season " . $current_season);
             $this->generate_fielding_summary_csv(PERIOD_SEASON);
             log\info("    Career");
             $this->generate_fielding_summary_csv(PERIOD_CAREER);
             log\info("  Keeping");
-            log\info("    Season " . SEASON);
+            log\info("    Season " . $current_season);
             $this->generate_keeping_summary_csv(PERIOD_SEASON);
             log\info("    Career");
             $this->generate_keeping_summary_csv(PERIOD_CAREER);
@@ -135,12 +137,13 @@
         private function generate_batting_summary_csv($period_type)
         {
             $db = $this->_db;
+            $current_season = $this->_config->getCurrentSeason();
 
             [ $table_name, $output_name ] = get_table_and_output_names($period_type, "Batting");
 
             $header = array(
                 "Player", "Mat", "Inns", "NO", "Runs", "Ave", "SR", "HS",
-                "50s", "100s", "0s", "4s", "6s", "Balls", "Active", get_milestone_col_header()
+                "50s", "100s", "0s", "4s", "6s", "Balls", "Active", get_milestone_col_header($current_season)
                 );
 
             $statement = $db->prepare(
@@ -176,12 +179,13 @@
         private function generate_bowling_summary_csv($period_type)
         {
             $db = $this->_db;
+            $current_season = $this->_config->getCurrentSeason();
 
             [ $table_name, $output_name ] = get_table_and_output_names($period_type, "Bowling");
 
             $header = array(
                 "Player", "Mat", "Overs", "Mdns", "Runs", "Wkts", "Ave",
-                "Econ", "SR", "Best", "5wi", "Wides", "NBs", "Active", get_milestone_col_header()
+                "Econ", "SR", "Best", "5wi", "Wides", "NBs", "Active", get_milestone_col_header($current_season)
                 );
 
             $statement = $db->prepare(
@@ -217,11 +221,12 @@
         private function generate_fielding_summary_csv($period_type)
         {
             $db = $this->_db;
+            $current_season = $this->_config->getCurrentSeason();
 
             [ $table_name, $output_name ] = get_table_and_output_names($period_type, "Fielding");
 
             $header = array(
-                "Player", "Mat", "Ct", "RO", "Total", "Active", get_milestone_col_header()
+                "Player", "Mat", "Ct", "RO", "Total", "Active", get_milestone_col_header($current_season)
                 );
 
             $statement = $db->prepare(
@@ -249,13 +254,14 @@
         private function generate_keeping_summary_csv($period_type)
         {
             $db = $this->_db;
+            $current_season = $this->_config->getCurrentSeason();
 
             [ $table_name, $output_name ] = get_table_and_output_names(
                 $period_type, "Keeping", "Fielding"
                 );
 
             $header = array(
-                "Player", "Mat", "Wk Ct", "St", "Wk Total", "Active", get_milestone_col_header()
+                "Player", "Mat", "Wk Ct", "St", "Wk Total", "Active", get_milestone_col_header($current_season)
                 );
 
             $statement = $db->prepare(

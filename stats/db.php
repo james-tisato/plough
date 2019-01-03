@@ -18,6 +18,15 @@
         $statement->execute();
     }
 
+    function db_delete_season_from_table($db, $table_name, $season)
+    {
+        $statement = $db->prepare(
+            'DELETE FROM ' . $table_name .
+            ' WHERE Season = ' . $season
+            );
+        $statement->execute();
+    }
+
     function db_enable_foreign_keys($db)
     {
         $db->exec('PRAGMA foreign_keys = ON;');
@@ -106,6 +115,7 @@
             MatchId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             PcMatchId INTEGER,
             Status TEXT,
+            Season INTEGER,
             MatchDate DATETIME,
             CompetitionType TEXT,
             HomeClubId INTEGER,
@@ -186,7 +196,8 @@
 		// Performance summaries
 		$db->query('CREATE TABLE BattingSummary (
 			BattingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER, '
+			PlayerId INTEGER,
+            Season INTEGER, '
 			. BATTING_SUMMARY_COLS .
 			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
 			)');
@@ -207,7 +218,8 @@
 
 		$db->query('CREATE TABLE BowlingSummary (
 			BowlingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER,'
+			PlayerId INTEGER,
+            Season INTEGER, '
 			. BOWLING_SUMMARY_COLS .
 			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
 			)');
@@ -228,7 +240,8 @@
 
 		$db->query('CREATE TABLE FieldingSummary (
 			FieldingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER,'
+			PlayerId INTEGER,
+            Season INTEGER, '
 			. FIELDING_SUMMARY_COLS .
 			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
 			)');
@@ -273,12 +286,12 @@
     {
         return $db->prepare(
             'INSERT INTO Match (
-				PcMatchId, Status, MatchDate, CompetitionType, HomeClubId, HomeClubName, HomeTeamId, HomeTeamName,
+				PcMatchId, Status, Season, MatchDate, CompetitionType, HomeClubId, HomeClubName, HomeTeamId, HomeTeamName,
                 AwayClubId, AwayClubName, AwayTeamId, AwayTeamName, IsPloughMatch, IsPloughHome,
                 Result, ResultAppliedToTeamId, TossWonByTeamId, BattedFirstTeamId
 				)
              VALUES (
-				 :PcMatchId, :Status, :MatchDate, :CompetitionType, :HomeClubId, :HomeClubName, :HomeTeamId, :HomeTeamName,
+				 :PcMatchId, :Status, :Season, :MatchDate, :CompetitionType, :HomeClubId, :HomeClubName, :HomeTeamId, :HomeTeamName,
                  :AwayClubId, :AwayClubName, :AwayTeamId, :AwayTeamName, :IsPloughMatch, :IsPloughHome,
                  :Result, :ResultAppliedToTeamId, :TossWonByTeamId, :BattedFirstTeamId
 			 	)'

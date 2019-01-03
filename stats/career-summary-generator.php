@@ -20,6 +20,28 @@
             $this->_db = $db;
         }
 
+        public function clear_summary_tables()
+        {
+            $db = $this->_db;
+            
+            db_truncate_table($db, "CareerBattingSummary");
+            db_truncate_table($db, "CareerBattingSummaryBase");
+
+            db_truncate_table($db, "CareerBowlingSummary");
+            db_truncate_table($db, "CareerBowlingSummaryBase");
+
+            db_truncate_table($db, "CareerFieldingSummary");
+            db_truncate_table($db, "CareerFieldingSummaryBase");
+        }
+
+        public function copy_base_to_summary_tables()
+        {
+            $db = $this->_db;
+            $this->copy_base_to_summary("Batting", db_create_insert_career_batting_summary($db));
+            $this->copy_base_to_summary("Bowling", db_create_insert_career_bowling_summary($db));
+            $this->copy_base_to_summary("Fielding", db_create_insert_career_fielding_summary($db));
+        }
+
         // Batting
         public function load_batting_career_summary_base()
         {
@@ -60,8 +82,10 @@
             $this->load_career_summary_base("Batting", $insert_career_batting_summary_base, $bind_row_to_insert);
         }
 
-        public function generate_career_batting_summary($db)
+        public function generate_career_batting_summary()
         {
+            $db = $this->_db;
+
             $combine = function($career_base, $season)
             {
                 $career_summary = array();
@@ -241,8 +265,10 @@
             $this->load_career_summary_base("Fielding", $insert_career_fielding_summary_base, $bind_row_to_insert);
         }
 
-        public function generate_career_fielding_summary($db)
+        public function generate_career_fielding_summary()
         {
+            $db = $this->_db;
+
             $combine = function($career_base, $season)
             {
                 $career_summary = array();
@@ -265,6 +291,25 @@
         }
 
         // Private functions
+        private function copy_base_to_summary(
+            $summary_type,
+            $insert_career_summary
+            )
+        {
+            $db = $this->_db;
+
+            $statement = $db->prepare(
+                'SELECT * FROM Career' . $summary_type . 'SummaryBase'
+                );
+            $result = $statement->execute();
+
+            while ($row = $result->fetchArray(SQLITE3_ASSOC))
+            {
+                db_bind_values_from_row($insert_career_summary, $row);
+                $insert_career_summary->execute();
+            }
+        }
+
         private function generate_career_summary(
             $summary_type,
             $insert_career_summary,
@@ -272,7 +317,6 @@
             )
         {
             $db = $this->_db;
-            db_truncate_table($db, "Career" . $summary_type . "Summary");
             $players = get_players_by_name($db);
 
             foreach ($players as $player_name => $player)
@@ -330,12 +374,12 @@
         {
             $db = $this->_db;
             $players = get_players_by_name($db);
-
-            db_truncate_table($db, "Career" . $summary_type . "SummaryBase");
             $insert_player = db_create_insert_player($db);
 
-            $career_base_path = $this->_config->getStaticDir() . "/career-stats-" . strtolower($summary_type) . "-end-" . (SEASON - 1) . ".csv";
-            log\debug("    $career_base_path");
+            $career_base_path =
+                $this->_config->getStaticDir() . "/career-stats-" .
+                strtolower($summary_type) . "-end-" . ($this->_config->getCareerBaseSeason()) . ".csv";
+            log\debug("      $career_base_path");
             if (file_exists($career_base_path))
             {
                 $base = fopen($career_base_path, "r");

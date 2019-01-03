@@ -103,16 +103,37 @@
         {
             log\info("");
             $db = $this->_db;
+            $career_base_season = $this->_config->getCareerBaseSeason();
+            $first_update_season = $career_base_season + 1;
+            $current_season = $this->_config->getCurrentSeason();
 
             $last_update = get_last_update_datetime($db);
             date_default_timezone_set("Europe/London");
             $current_datetime = date(DATETIME_FORMAT);
 
-            log\info("Consuming all matches since last update...");
-            $matches_consumed = $this->_match_consumer->consume_matches_since_last_update($last_update);
+            log\info("Career base data calculated up to $career_base_season");
+            log\info("Current season is $current_season");
+            log\info("Stats will be updated for seasons $first_update_season to $current_season");
+            log\info("");
+
+            log\info("Consuming matches since last update...");
+            $matches_consumed = false;
+            for ($season = $first_update_season; $season <= $current_season; $season++)
+            {
+                log\info("  Season $season");
+                $matches_consumed_this_season = $this->_match_consumer->consume_matches_since_last_update(
+                    $season, $last_update
+                    );
+                $matches_consumed |= $matches_consumed_this_season;
+            }
+
             if ($matches_consumed)
             {
-                // Build summaries
+                log\info("");
+                log\info("Clearing existing summary tables...");
+                $this->_season_summary_generator->clear_summary_tables();
+                $this->_career_summary_generator->clear_summary_tables();
+
                 log\info("");
                 log\info("Loading career base tables...");
                 log\info("  Batting");
@@ -123,26 +144,35 @@
                 $this->_career_summary_generator->load_fielding_career_summary_base();
 
                 log\info("");
-                log\info("Building summary tables...");
-                log\info("  Batting");
-                log\info("    Season " . SEASON);
-                $this->_season_summary_generator->generate_batting_summary($db);
-                log\info("    Career");
-                $this->_career_summary_generator->generate_career_batting_summary($db);
-                log\info("  Bowling");
-                log\info("    Season " . SEASON);
-                $this->_season_summary_generator->generate_bowling_summary($db);
-                log\info("    Career");
-                $this->_career_summary_generator->generate_career_bowling_summary($db);
-                log\info("  Fielding");
-                log\info("    Season " . SEASON);
-                $this->_season_summary_generator->generate_fielding_summary($db);
-                log\info("    Career");
-                $this->_career_summary_generator->generate_career_fielding_summary($db);
+                log\info("Copying career base to career summary...");
+                //$this->_career_summary_generator->copy_base_to_summary_tables();
 
                 log\info("");
-                log\info("Generating milestones...");
-                $this->_milestone_generator->generate_milestones();
+                log\info("Building summary tables...");
+                for ($season = $first_update_season; $season <= $current_season; $season++)
+                {
+                    log\info("  Season $season");
+
+                    log\info("    Batting");
+                    log\info("      Generate season ");
+                    $this->_season_summary_generator->generate_batting_summary($season);
+                    log\info("      Add to career");
+                    $this->_career_summary_generator->generate_career_batting_summary();
+                    log\info("    Bowling");
+                    log\info("      Generate season ");
+                    $this->_season_summary_generator->generate_bowling_summary($season);
+                    log\info("      Add to career");
+                    $this->_career_summary_generator->generate_career_bowling_summary();
+                    log\info("    Fielding");
+                    log\info("      Generate season ");
+                    $this->_season_summary_generator->generate_fielding_summary($season);
+                    log\info("      Add to career");
+                    $this->_career_summary_generator->generate_career_fielding_summary();
+
+                    log\info("");
+                    log\info("    Generating milestones...");
+                    $this->_milestone_generator->generate_milestones();
+                }
 
                 // Mark DB update
                 log\info("");
@@ -153,7 +183,8 @@
             }
             else
             {
-                log\info("  No update required");
+                log\info("");
+                log\info("    No update required");
             }
 
             // Generate outputs

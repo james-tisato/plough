@@ -47,42 +47,42 @@
         }
 
         // Consumes all matches that have changed since the last update
-        public function consume_matches_since_last_update($last_update)
+        public function consume_matches_since_last_update($season, $last_update)
         {
             $db = $this->_db;
             $input_mapper = $this->_config->getInputDataMapper();
 
-            log\info("Fetching match list...");
+            log\info("    Fetching match list...");
             if (is_null($last_update))
             {
-                $matches_from_date = "01/01/" . SEASON;
-                log\info("  Since the database was created from scratch, fetching matches updated since [$matches_from_date]");
+                $matches_from_date = "01/01/" . $season;
+                log\info("      Since the database was created from scratch, fetching matches updated since [$matches_from_date]");
             }
             else
             {
                 $last_update_str = $last_update->format(DATETIME_FORMAT);
-                log\info("  Datebase was last updated at [$last_update_str]");
+                log\info("      Datebase was last updated at [$last_update_str]");
                 $matches_from_date = $last_update->format('Y-m-d');
-                log\info("  Fetching matches since last update date [$matches_from_date]");
+                log\info("      Fetching matches since last update date [$matches_from_date]");
             }
 
-            $matches_path = $input_mapper->getMatchesPath(SEASON, $matches_from_date);
+            $matches_path = $input_mapper->getMatchesPath($season, $matches_from_date);
             $matches_str = file_get_contents($matches_path);
 
             if ($this->_config->dumpInputs())
                 file_put_contents(
-                    $this->_config->getInputDumpDataMapper()->getMatchesPath(SEASON, $matches_from_date),
+                    $this->_config->getInputDumpDataMapper()->getMatchesPath($season, $matches_from_date),
                     $matches_str
                     );
 
             $matches = json_decode($matches_str, true)["matches"];
             $num_matches = count($matches);
-            log\info("  $num_matches matches found");
+            log\info("      $num_matches matches found");
             log\info("");
 
             if ($num_matches > 0)
             {
-                $this->consume_matches($matches);
+                $this->consume_matches($season, $matches);
 
                 // At least one match consumed
                 return true;
@@ -95,18 +95,18 @@
         }
 
         // Private functions
-        private function consume_matches($matches)
+        private function consume_matches($season, $matches)
         {
             $db = $this->_db;
             $insert_match = db_create_insert_match($db);
             $delete_match = db_create_delete_match($db);
             $input_mapper = $this->_config->getInputDataMapper();
 
-            log\info("Fetching match details...");
+            log\info("    Fetching match details...");
             foreach ($matches as $match_idx => $match)
             {
                 $pc_match_id = $match["id"];
-                log\info("  Processing match $match_idx (Play-Cricket id $pc_match_id)...");
+                log\info("      Processing match $match_idx (Play-Cricket id $pc_match_id)...");
 
                 // Get match detail
                 $match_detail_path = $input_mapper->getMatchDetailPath($pc_match_id);
@@ -122,11 +122,11 @@
 
                 if ($match_detail["status"] == DELETED)
                 {
-                    log\info("    Skipping match because it was deleted...");
+                    log\info("        Skipping match because it was deleted...");
                 }
                 else if (empty($match_detail["result"]))
                 {
-                    log\info("    Skipping match because it is a future fixture...");
+                    log\info("        Skipping match because it is a future fixture...");
                 }
                 else
                 {
@@ -173,6 +173,7 @@
                     // Insert match
                     $insert_match->bindValue(":PcMatchId", $pc_match_id);
                     $insert_match->bindValue(":Status", $match_detail["status"]);
+                    $insert_match->bindValue(":Season", $season);
                     $insert_match->bindValue(":MatchDate", $match_date_str);
                     $insert_match->bindValue(":CompetitionType", $match_detail["competition_type"]);
                     $insert_match->bindValue(":HomeClubId", $match_detail["home_club_id"]);

@@ -18,12 +18,19 @@
             $this->_db = $db;
         }
 
-        public function generate_batting_summary()
+        public function clear_summary_tables()
+        {
+            $db = $this->_db;
+            db_truncate_table($db, "BattingSummary");
+            db_truncate_table($db, "BowlingSummary");
+            db_truncate_table($db, "FieldingSummary");
+        }
+
+        public function generate_batting_summary($season)
         {
             $db = $this->_db;
             $players = get_players_by_name($db);
 
-            db_truncate_table($db, "BattingSummary");
             $insert_batting_summary = db_create_insert_batting_summary($db);
 
             foreach ($players as $player_name => $player)
@@ -74,13 +81,16 @@
                         ,SUM(bp.Sixes) as Sixes
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
+                    INNER JOIN Match m on m.MatchId = pp.MatchId
                     --INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
                     LEFT JOIN BattingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
+                        and m.Season = :Season
                     GROUP BY p.PlayerId, p.Name
                     ');
                 $statement->bindValue(":PlayerId", $player_id);
+                $statement->bindValue(":Season", $season);
                 $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
                 if (empty($result))
                     continue;
@@ -98,14 +108,17 @@
                             ELSE 0 END) as HighScoreNotOut
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
+                    INNER JOIN Match m on m.MatchId = pp.MatchId
                     INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
                     LEFT JOIN BattingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
+                        and m.Season = :Season
                     ORDER BY HighScore DESC, HighScoreNotOut DESC
                     LIMIT 1
                     ');
                 $statement->bindValue(":PlayerId", $player_id);
+                $statement->bindValue(":Season", $season);
                 $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
                 db_bind_values_from_row($insert_batting_summary, $result);
 
@@ -114,12 +127,11 @@
             }
         }
 
-        public function generate_bowling_summary()
+        public function generate_bowling_summary($season)
         {
             $db = $this->_db;
             $players = get_players_by_name($db);
 
-            db_truncate_table($db, "BowlingSummary");
             $insert_bowling_summary = db_create_insert_bowling_summary($db);
 
             foreach ($players as $player_name => $player)
@@ -163,13 +175,16 @@
                         ,SUM(bp.NoBalls) as NoBalls
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
+                    INNER JOIN Match m on m.MatchId = pp.MatchId
                     INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
                     LEFT JOIN BowlingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
+                        and m.Season = :Season
                     GROUP BY p.PlayerId, p.Name
                     ');
                 $statement->bindValue(":PlayerId", $player_id);
+                $statement->bindValue(":Season", $season);
                 $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
                 if (empty($result))
                     continue;
@@ -186,12 +201,15 @@
                         ,SUM(bp.PartialBalls) as PartialBalls
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
+                    INNER JOIN Match m on m.MatchId = pp.MatchId
                     INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
                     LEFT JOIN BowlingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
-                        p.PlayerId = :PlayerId
+                            p.PlayerId = :PlayerId
+                        and m.Season = :Season
                     ');
                 $statement->bindValue(":PlayerId", $player_id);
+                $statement->bindValue(":Season", $season);
                 $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
                 $collapsed_overs = collapse_overs($result["CompletedOvers"], $result["PartialBalls"]);
                 $completed_overs = $collapsed_overs[0];
@@ -212,14 +230,17 @@
                         ,bp.Runs as BestBowlingRuns
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
+                    INNER JOIN Match m on m.MatchId = pp.MatchId
                     INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
                     LEFT JOIN BowlingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
+                        and m.Season = :Season
                     ORDER BY BestBowlingWickets DESC, BestBowlingRuns ASC
                     LIMIT 1
                     ');
                 $statement->bindValue(":PlayerId", $player_id);
+                $statement->bindValue(":Season", $season);
                 $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
                 db_bind_values_from_row($insert_bowling_summary, $result);
 
@@ -228,19 +249,18 @@
             }
         }
 
-        public function generate_fielding_summary()
+        public function generate_fielding_summary($season)
         {
             $db = $this->_db;
             $players = get_players_by_name($db);
 
-            db_truncate_table($db, "FieldingSummary");
             $insert_fielding_summary = db_create_insert_fielding_summary($db);
 
             foreach ($players as $player)
             {
                 $player_id = $player["PlayerId"];
 
-                // filter
+                // Filter
 
                 // Basic fields
                 $statement = $db->prepare(
@@ -253,12 +273,15 @@
                         ,SUM(fp.Stumpings) as Stumpings
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
+                    INNER JOIN Match m on m.MatchId = pp.MatchId
                     LEFT JOIN FieldingPerformance fp on fp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
+                        and m.Season = :Season
                     GROUP BY p.PlayerId, p.Name
                     ');
                 $statement->bindValue(":PlayerId", $player_id);
+                $statement->bindValue(":Season", $season);
                 $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
                 if (empty($result))
                     continue;

@@ -4,7 +4,6 @@
     require_once("db.php");
 
     // Constants
-    const SEASON = 2018;
     const NO_PC_PLAYER_ID = -1;
 
     const DATE_FORMAT = "Y-m-d";

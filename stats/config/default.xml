@@ -1,7 +1,18 @@
 <StatsConfig>
+    <!-- Seasons -->
+    <Pair Key="CareerBaseSeason" Value="2017" />
+    <Pair Key="CurrentSeason" Value="2018" />
+
+    <!-- Database -->
     <Pair Key="ClearDb" Value="false" />
     <Pair Key="DbDir" Value="{stats_root}/db" />
+
+    <!-- Static -->
     <Pair Key="StaticDir" Value="{stats_root}/static" />
+
+    <!-- Input -->
     <Pair Key="InputMapperName" Value="web" />
+
+    <!-- Output -->
     <Pair Key="OutputDir" Value="{stats_root}/output" />
 </StatsConfig>

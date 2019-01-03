@@ -1,9 +1,20 @@
 <StatsConfig>
+    <!-- Seasons -->
+    <Pair Key="CareerBaseSeason" Value="2017" />
+    <Pair Key="CurrentSeason" Value="2018" />
+
+    <!-- Database -->
     <Pair Key="ClearDb" Value="true" />
     <Pair Key="DbDir" Value="{stats_root}/db" />
+
+    <!-- Static -->
     <Pair Key="StaticDir" Value="{stats_root}/static" />
+
+    <!-- Input -->
     <Pair Key="InputMapperName" Value="file" />
     <Pair Key="InputMapperDir" Value="{stats_root}/test/input/All-2018" />
     <!--<Pair Key="InputDumpDir" Value="{stats_root}/dump" />-->
+
+    <!-- Output -->
     <Pair Key="OutputDir" Value="{stats_root}/output" />
 </StatsConfig>
