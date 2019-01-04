@@ -23,7 +23,7 @@
         public function clear_summary_tables()
         {
             $db = $this->_db;
-            
+
             db_truncate_table($db, "CareerBattingSummary");
             db_truncate_table($db, "CareerBattingSummaryBase");
 
@@ -82,25 +82,25 @@
             $this->load_career_summary_base("Batting", $insert_career_batting_summary_base, $bind_row_to_insert);
         }
 
-        public function generate_career_batting_summary()
+        public function add_season_to_career_batting_summary($season)
         {
             $db = $this->_db;
 
-            $combine = function($career_base, $season)
+            $combine = function($current_career, $season)
             {
                 $career_summary = array();
-                $career_summary["Matches"] = $career_base["Matches"] + $season["Matches"];
-                $career_summary["Innings"] = $career_base["Innings"] + $season["Innings"];
-                $career_summary["NotOuts"] = $career_base["NotOuts"] + $season["NotOuts"];
-                $career_summary["Runs"] = $career_base["Runs"] + $season["Runs"];
+                $career_summary["Matches"] = $current_career["Matches"] + $season["Matches"];
+                $career_summary["Innings"] = $current_career["Innings"] + $season["Innings"];
+                $career_summary["NotOuts"] = $current_career["NotOuts"] + $season["NotOuts"];
+                $career_summary["Runs"] = $current_career["Runs"] + $season["Runs"];
 
                 $career_summary["Average"] = get_batting_average(
                     $career_summary["Runs"], $career_summary["Innings"], $career_summary["NotOuts"]
                     );
 
-                if ($career_base["Balls"])
+                if ($current_career["Balls"])
                 {
-                    $career_summary["Balls"] = $career_base["Balls"] + $season["Balls"];
+                    $career_summary["Balls"] = $current_career["Balls"] + $season["Balls"];
                     $career_summary["StrikeRate"] = get_batting_strike_rate($career_summary["Runs"], $career_summary["Balls"]);
                 }
                 else
@@ -109,12 +109,12 @@
                     $career_summary["StrikeRate"] = null;
                 }
 
-                if ($career_base["HighScore"] > $season["HighScore"])
+                if ($current_career["HighScore"] > $season["HighScore"])
                 {
-                    $career_summary["HighScore"] = $career_base["HighScore"];
-                    $career_summary["HighScoreNotOut"] = $career_base["HighScoreNotOut"];
+                    $career_summary["HighScore"] = $current_career["HighScore"];
+                    $career_summary["HighScoreNotOut"] = $current_career["HighScoreNotOut"];
                 }
-                else if ($season["HighScore"] > $career_base["HighScore"])
+                else if ($season["HighScore"] > $current_career["HighScore"])
                 {
                     $career_summary["HighScore"] = $season["HighScore"];
                     $career_summary["HighScoreNotOut"] = $season["HighScoreNotOut"];
@@ -122,19 +122,20 @@
                 else
                 {
                     $career_summary["HighScore"] = $season["HighScore"];
-                    $career_summary["HighScoreNotOut"] = max($career_base["HighScoreNotOut"], $season["HighScoreNotOut"]);
+                    $career_summary["HighScoreNotOut"] = max($current_career["HighScoreNotOut"], $season["HighScoreNotOut"]);
                 }
 
-                $career_summary["Fifties"] = $career_base["Fifties"] + $season["Fifties"];
-                $career_summary["Hundreds"] = $career_base["Hundreds"] + $season["Hundreds"];
-                $career_summary["Ducks"] = $career_base["Ducks"] + $season["Ducks"];
-                $career_summary["Fours"] = $career_base["Fours"] + $season["Fours"];
-                $career_summary["Sixes"] = $career_base["Sixes"] + $season["Sixes"];
+                $career_summary["Fifties"] = $current_career["Fifties"] + $season["Fifties"];
+                $career_summary["Hundreds"] = $current_career["Hundreds"] + $season["Hundreds"];
+                $career_summary["Ducks"] = $current_career["Ducks"] + $season["Ducks"];
+                $career_summary["Fours"] = $current_career["Fours"] + $season["Fours"];
+                $career_summary["Sixes"] = $current_career["Sixes"] + $season["Sixes"];
 
                 return $career_summary;
             };
 
-            $this->generate_career_summary(
+            $this->add_season_to_career_summary(
+                $season,
                 "Batting",
                 db_create_insert_career_batting_summary($db),
                 $combine
@@ -182,23 +183,23 @@
             $this->load_career_summary_base("Bowling", $insert_career_bowling_summary_base, $bind_row_to_insert);
         }
 
-        public function generate_career_bowling_summary()
+        public function add_season_to_career_bowling_summary($season)
         {
             $db = $this->_db;
 
-            $combine = function($career_base, $season)
+            $combine = function($current_career, $season)
             {
                 $career_summary = array();
-                $career_summary["Matches"] = $career_base["Matches"] + $season["Matches"];
+                $career_summary["Matches"] = $current_career["Matches"] + $season["Matches"];
                 $collapsed_overs = collapse_overs(
-                    $career_base["CompletedOvers"] + $season["CompletedOvers"],
-                    $career_base["PartialBalls"] + $season["PartialBalls"]
+                    $current_career["CompletedOvers"] + $season["CompletedOvers"],
+                    $current_career["PartialBalls"] + $season["PartialBalls"]
                     );
                 $career_summary["CompletedOvers"] = $collapsed_overs[0];
                 $career_summary["PartialBalls"] = $collapsed_overs[1];
-                $career_summary["Maidens"] = $career_base["Maidens"] + $season["Maidens"];
-                $career_summary["Runs"] = $career_base["Runs"] + $season["Runs"];
-                $career_summary["Wickets"] = $career_base["Wickets"] + $season["Wickets"];
+                $career_summary["Maidens"] = $current_career["Maidens"] + $season["Maidens"];
+                $career_summary["Runs"] = $current_career["Runs"] + $season["Runs"];
+                $career_summary["Wickets"] = $current_career["Wickets"] + $season["Wickets"];
                 $career_summary["Average"] = get_bowling_average($career_summary["Runs"], $career_summary["Wickets"]);
                 $career_summary["EconomyRate"] = get_bowling_economy_rate(
                     $career_summary["Runs"], $career_summary["CompletedOvers"], $career_summary["PartialBalls"]
@@ -207,12 +208,12 @@
                     $career_summary["CompletedOvers"], $career_summary["PartialBalls"], $career_summary["Wickets"]
                     );
 
-                if ($career_base["BestBowlingWickets"] > $season["BestBowlingWickets"])
+                if ($current_career["BestBowlingWickets"] > $season["BestBowlingWickets"])
                 {
-                    $career_summary["BestBowlingWickets"] = $career_base["BestBowlingWickets"];
-                    $career_summary["BestBowlingRuns"] = $career_base["BestBowlingRuns"];
+                    $career_summary["BestBowlingWickets"] = $current_career["BestBowlingWickets"];
+                    $career_summary["BestBowlingRuns"] = $current_career["BestBowlingRuns"];
                 }
-                else if ($season["BestBowlingWickets"] > $career_base["BestBowlingWickets"])
+                else if ($season["BestBowlingWickets"] > $current_career["BestBowlingWickets"])
                 {
                     $career_summary["BestBowlingWickets"] = $season["BestBowlingWickets"];
                     $career_summary["BestBowlingRuns"] = $season["BestBowlingRuns"];
@@ -220,17 +221,18 @@
                 else
                 {
                     $career_summary["BestBowlingWickets"] = $season["BestBowlingWickets"];
-                    $career_summary["BestBowlingRuns"] = min($career_base["BestBowlingRuns"], $season["BestBowlingRuns"]);
+                    $career_summary["BestBowlingRuns"] = min($current_career["BestBowlingRuns"], $season["BestBowlingRuns"]);
                 }
 
-                $career_summary["FiveFors"] = $career_base["FiveFors"] + $season["FiveFors"];
-                $career_summary["Wides"] = $career_base["Wides"] + $season["Wides"];
-                $career_summary["NoBalls"] = $career_base["NoBalls"] + $season["NoBalls"];
+                $career_summary["FiveFors"] = $current_career["FiveFors"] + $season["FiveFors"];
+                $career_summary["Wides"] = $current_career["Wides"] + $season["Wides"];
+                $career_summary["NoBalls"] = $current_career["NoBalls"] + $season["NoBalls"];
 
                 return $career_summary;
             };
 
-            $this->generate_career_summary(
+            $this->add_season_to_career_summary(
+                $season,
                 "Bowling",
                 db_create_insert_career_bowling_summary($db),
                 $combine
@@ -265,25 +267,26 @@
             $this->load_career_summary_base("Fielding", $insert_career_fielding_summary_base, $bind_row_to_insert);
         }
 
-        public function generate_career_fielding_summary()
+        public function add_season_to_career_fielding_summary($season)
         {
             $db = $this->_db;
 
-            $combine = function($career_base, $season)
+            $combine = function($current_career, $season)
             {
                 $career_summary = array();
-                $career_summary["Matches"] = $career_base["Matches"] + $season["Matches"];
-                $career_summary["CatchesFielding"] = $career_base["CatchesFielding"] + $season["CatchesFielding"];
-                $career_summary["RunOuts"] = $career_base["RunOuts"] + $season["RunOuts"];
-                $career_summary["TotalFieldingWickets"] = $career_base["TotalFieldingWickets"] + $season["TotalFieldingWickets"];
-                $career_summary["CatchesKeeping"] = $career_base["CatchesKeeping"] + $season["CatchesKeeping"];
-                $career_summary["Stumpings"] = $career_base["Stumpings"] + $season["Stumpings"];
-                $career_summary["TotalKeepingWickets"] = $career_base["TotalKeepingWickets"] + $season["TotalKeepingWickets"];
+                $career_summary["Matches"] = $current_career["Matches"] + $season["Matches"];
+                $career_summary["CatchesFielding"] = $current_career["CatchesFielding"] + $season["CatchesFielding"];
+                $career_summary["RunOuts"] = $current_career["RunOuts"] + $season["RunOuts"];
+                $career_summary["TotalFieldingWickets"] = $current_career["TotalFieldingWickets"] + $season["TotalFieldingWickets"];
+                $career_summary["CatchesKeeping"] = $current_career["CatchesKeeping"] + $season["CatchesKeeping"];
+                $career_summary["Stumpings"] = $current_career["Stumpings"] + $season["Stumpings"];
+                $career_summary["TotalKeepingWickets"] = $current_career["TotalKeepingWickets"] + $season["TotalKeepingWickets"];
 
                 return $career_summary;
             };
 
-            $this->generate_career_summary(
+            $this->add_season_to_career_summary(
+                $season,
                 "Fielding",
                 db_create_insert_career_fielding_summary($db),
                 $combine
@@ -310,57 +313,67 @@
             }
         }
 
-        private function generate_career_summary(
+        private function add_season_to_career_summary(
+            $season,
             $summary_type,
             $insert_career_summary,
-            $combine_career_base_and_season
+            $combine_career_and_season
             )
         {
             $db = $this->_db;
             $players = get_players_by_name($db);
+            $career_summary_table = "Career" . $summary_type . "Summary";
 
             foreach ($players as $player_name => $player)
             {
                 $player_id = $player["PlayerId"];
 
-                // Career base
+                // Current career summary
                 $statement = $db->prepare(
-                    'SELECT * FROM Career' . $summary_type . 'SummaryBase WHERE PlayerId = :PlayerId'
+                    'SELECT * FROM ' . $career_summary_table . ' WHERE PlayerId = :PlayerId'
                     );
                 $statement->bindValue(":PlayerId", $player_id);
-                $career_base = $statement->execute()->fetchArray(SQLITE3_ASSOC);
+                $current_career = $statement->execute()->fetchArray(SQLITE3_ASSOC);
 
                 // Season
                 $statement = $db->prepare(
-                    'SELECT * FROM ' . $summary_type . 'Summary WHERE PlayerId = :PlayerId'
-                    );
+                    'SELECT
+                        *
+                     FROM ' . $summary_type . 'Summary
+                     WHERE
+                            PlayerId = :PlayerId
+                        AND Season = :Season
+                    ');
                 $statement->bindValue(":PlayerId", $player_id);
-                $season = $statement->execute()->fetchArray(SQLITE3_ASSOC);
+                $statement->bindValue(":Season", $season);
+                $season_summary = $statement->execute()->fetchArray(SQLITE3_ASSOC);
 
-                $career_summary = null;
-                if (!empty($career_base))
+                $new_career = null;
+                if (!empty($current_career))
                 {
-                    if (!empty($season))
+                    if (!empty($season_summary))
                     {
-                        // Sum career base and season
-                        $career_summary = $combine_career_base_and_season($career_base, $season);
-                        $career_summary["PlayerId"] = $player_id;
+                        // Sum current career and season
+                        $new_career = $combine_career_and_season($current_career, $season_summary);
+                        $new_career["PlayerId"] = $player_id;
                     }
                     else
                     {
-                        // No season - use career base
-                        $career_summary = $career_base;
+                        // No season - use current career
+                        $new_career = $current_career;
                     }
                 }
-                else if (!empty($season))
+                else if (!empty($season_summary))
                 {
-                    // No career base - use season
-                    $career_summary = $season;
+                    // No current career - use season
+                    $new_career = $season_summary;
                 }
 
-                if ($career_summary)
+                if ($new_career)
                 {
-                    db_bind_values_from_row($insert_career_summary, $career_summary);
+                    $new_career["Season"] = $season;
+                    db_delete_player_from_table($db, $career_summary_table, $player_id);
+                    db_bind_values_from_row($insert_career_summary, $new_career);
                     $insert_career_summary->execute();
                 }
             }
@@ -373,13 +386,14 @@
             )
         {
             $db = $this->_db;
+            $career_base_season = $this->_config->getCareerBaseSeason();
             $players = get_players_by_name($db);
             $insert_player = db_create_insert_player($db);
 
             $career_base_path =
                 $this->_config->getStaticDir() . "/career-stats-" .
                 strtolower($summary_type) . "-end-" . ($this->_config->getCareerBaseSeason()) . ".csv";
-            log\debug("      $career_base_path");
+            //log\debug("      $career_base_path");
             if (file_exists($career_base_path))
             {
                 $base = fopen($career_base_path, "r");
@@ -410,6 +424,7 @@
                             $player_id = $players[$name]["PlayerId"];
                         }
 
+                        $insert_career_summary_base->bindValue(":Season", $career_base_season);
                         $bind_row_to_insert($row, $idx, $player_id, $insert_career_summary_base);
                         $insert_career_summary_base->execute();
                     }

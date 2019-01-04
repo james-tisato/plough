@@ -101,36 +101,49 @@
             $this->_msValuesKeepingCatches = range(25, 500, 25);
         }
 
-        public function generate_milestones()
+        public function clear_milestones()
+        {
+            $db = $this->_db;
+            db_truncate_table($db, "Milestone");
+        }
+
+        public function generate_milestones($season)
         {
             $db = $this->_db;
             $inserter = db_create_insert_milestone($db);
-            db_truncate_table($db, "Milestone");
 
-            // Fetch start / current data for fields of interest
+            // Fetch start / season data for fields of interest
+            // Assumes that this function is called immediately after the season
+            // summary is calculated for $season but before it is added to the
+            // career summary.
             $statement = $db->prepare(
                'SELECT
                      p.PlayerId
                     ,p.Active as PlayerActive
-                    ,bab.Matches as MatchesStart
-                    ,bac.Matches as MatchesCurrent
-                    ,bab.Runs as RunsStart
-                    ,bac.Runs as RunsCurrent
-                    ,bob.Wickets as WicketsStart
-                    ,boc.Wickets as WicketsCurrent
-                    ,fb.CatchesFielding as CatchesStart
-                    ,fc.CatchesFielding as CatchesCurrent
-                    ,fb.CatchesKeeping as KeepingCatchesStart
-                    ,fc.CatchesKeeping as KeepingCatchesCurrent
+                    ,bac.Matches as MatchesStart
+                    ,bas.Matches as MatchesSeason
+                    ,bac.Runs as RunsStart
+                    ,bas.Runs as RunsSeason
+                    ,boc.Wickets as WicketsStart
+                    ,bos.Wickets as WicketsSeason
+                    ,fc.CatchesFielding as CatchesStart
+                    ,fs.CatchesFielding as CatchesSeason
+                    ,fc.CatchesKeeping as KeepingCatchesStart
+                    ,fs.CatchesKeeping as KeepingCatchesSeason
                 FROM Player p
-                LEFT JOIN CareerBattingSummaryBase bab ON bab.PlayerId = p.PlayerId
-                INNER JOIN CareerBattingSummary bac ON bac.PlayerId = p.PlayerId
-                LEFT JOIN CareerBowlingSummaryBase bob ON bob.PlayerId = p.PlayerId
-                INNER JOIN CareerBowlingSummary boc ON boc.PlayerId = p.PlayerId
-                LEFT JOIN CareerFieldingSummaryBase fb ON fb.PlayerId = p.PlayerId
-                INNER JOIN CareerFieldingSummary fc ON fc.PlayerId = p.PlayerId
+                LEFT JOIN CareerBattingSummary bac ON bac.PlayerId = p.PlayerId
+                INNER JOIN BattingSummary bas ON bas.PlayerId = p.PlayerId
+                LEFT JOIN CareerBowlingSummary boc ON boc.PlayerId = p.PlayerId
+                INNER JOIN BowlingSummary bos ON bos.PlayerId = p.PlayerId
+                LEFT JOIN CareerFieldingSummary fc ON fc.PlayerId = p.PlayerId
+                INNER JOIN FieldingSummary fs ON fs.PlayerId = p.PlayerId
+                --WHERE
+                --        bas.Season = :Season
+                --    and bos.Season = :Season
+                --    and fs.Season = :Season
                 ORDER BY p.PlayerId
                 ');
+            $statement->bindValue(":Season", $season);
             $result = $statement->execute();
 
             // Calculate relevant milestones for active players
@@ -140,27 +153,27 @@
                 {
                     // General
                     $this->calculate_and_store(
-                        $inserter, $row, MS_TYPE_GENERAL, "Matches", $this->_msValuesMatches, MS_GAP_MATCHES
+                        $inserter, $season, $row, MS_TYPE_GENERAL, "Matches", $this->_msValuesMatches, MS_GAP_MATCHES
                         );
 
                     // Batting
                     $this->calculate_and_store(
-                        $inserter, $row, MS_TYPE_BATTING, "Runs", $this->_msValuesRuns, MS_GAP_RUNS
+                        $inserter, $season, $row, MS_TYPE_BATTING, "Runs", $this->_msValuesRuns, MS_GAP_RUNS
                         );
 
                     // Bowling
                     $this->calculate_and_store(
-                        $inserter, $row, MS_TYPE_BOWLING, "Wickets", $this->_msValuesWickets, MS_GAP_WICKETS
+                        $inserter, $season, $row, MS_TYPE_BOWLING, "Wickets", $this->_msValuesWickets, MS_GAP_WICKETS
                         );
 
                     // Fielding
                     $this->calculate_and_store(
-                        $inserter, $row, MS_TYPE_FIELDING, "Catches", $this->_msValuesCatches, MS_GAP_CATCHES
+                        $inserter, $season, $row, MS_TYPE_FIELDING, "Catches", $this->_msValuesCatches, MS_GAP_CATCHES
                         );
 
                     // Keeping
                     $this->calculate_and_store(
-                        $inserter, $row, MS_TYPE_FIELDING, "KeepingCatches", $this->_msValuesKeepingCatches, MS_GAP_KEEPING_CATCHES, "keeping catches"
+                        $inserter, $season, $row, MS_TYPE_FIELDING, "KeepingCatches", $this->_msValuesKeepingCatches, MS_GAP_KEEPING_CATCHES, "keeping catches"
                         );
                 }
             }
@@ -229,18 +242,19 @@
         }
 
         private function calculate_and_store(
-            $inserter, $player_data, $type, $name, $value_list, $max_gap_to_next, $name_for_desc = null
+            $inserter, $season, $player_data, $type, $name, $value_list, $max_gap_to_next, $name_for_desc = null
             )
         {
             // Calculate
             $start_value = $player_data[$name . "Start"];
             if (is_null($start_value))
                 $start_value = 0;
-            $current_value = $player_data[$name . "Current"];
+            $current_value = $start_value + $player_data[$name . "Season"];
             $result = calculate_milestones($start_value, $current_value, $value_list);
 
             // Store
             $inserter->bindValue(":PlayerId", $player_data["PlayerId"]);
+            $inserter->bindValue(":Season", $season);
             $inserter->bindValue(":Type", $type);
             $name_to_use = (is_null($name_for_desc) ? $name : $name_for_desc);
             foreach ($result->achieved as $milestone)

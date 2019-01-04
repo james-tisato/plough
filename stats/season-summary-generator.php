@@ -32,6 +32,7 @@
             $players = get_players_by_name($db);
 
             $insert_batting_summary = db_create_insert_batting_summary($db);
+            $insert_batting_summary->bindValue(":Season", $season);
 
             foreach ($players as $player_name => $player)
             {
@@ -133,6 +134,7 @@
             $players = get_players_by_name($db);
 
             $insert_bowling_summary = db_create_insert_bowling_summary($db);
+            $insert_bowling_summary->bindValue(":Season", $season);
 
             foreach ($players as $player_name => $player)
             {
@@ -255,6 +257,7 @@
             $players = get_players_by_name($db);
 
             $insert_fielding_summary = db_create_insert_fielding_summary($db);
+            $insert_fielding_summary->bindValue(":Season", $season);
 
             foreach ($players as $player)
             {

@@ -27,6 +27,15 @@
         $statement->execute();
     }
 
+    function db_delete_player_from_table($db, $table_name, $player_id)
+    {
+        $statement = $db->prepare(
+            'DELETE FROM ' . $table_name .
+            ' WHERE PlayerId = ' . $player_id
+            );
+        $statement->execute();
+    }
+
     function db_enable_foreign_keys($db)
     {
         $db->exec('PRAGMA foreign_keys = ON;');
@@ -34,6 +43,7 @@
 
 
     const BATTING_SUMMARY_COLS = '
+        Season INTEGER,
         Matches INTEGER,
         Innings INTEGER,
         NotOuts INTEGER,
@@ -51,15 +61,16 @@
         ';
 
     CONST BATTING_SUMMARY_INSERT = '(
-            PlayerId, Matches, Innings, NotOuts, Runs, Average, StrikeRate,
+            PlayerId, Season, Matches, Innings, NotOuts, Runs, Average, StrikeRate,
             HighScore, HighScoreNotOut, Fifties, Hundreds, Ducks, Balls, Fours, Sixes
             )
          VALUES (
-             :PlayerId, :Matches, :Innings, :NotOuts, :Runs, :Average, :StrikeRate,
+             :PlayerId, :Season, :Matches, :Innings, :NotOuts, :Runs, :Average, :StrikeRate,
              :HighScore, :HighScoreNotOut, :Fifties, :Hundreds, :Ducks, :Balls, :Fours, :Sixes
              )';
 
     const BOWLING_SUMMARY_COLS = '
+        Season INTEGER,
         Matches INTEGER,
         CompletedOvers INTEGER,
         PartialBalls INTEGER,
@@ -77,15 +88,16 @@
         ';
 
     const BOWLING_SUMMARY_INSERT = '(
-            PlayerId, Matches, CompletedOvers, PartialBalls, Maidens, Runs, Wickets, Average,
+            PlayerId, Season, Matches, CompletedOvers, PartialBalls, Maidens, Runs, Wickets, Average,
             EconomyRate, StrikeRate, BestBowlingWickets, BestBowlingRuns, FiveFors, Wides, NoBalls
             )
          VALUES (
-             :PlayerId, :Matches, :CompletedOvers, :PartialBalls, :Maidens, :Runs, :Wickets, :Average,
+             :PlayerId, :Season, :Matches, :CompletedOvers, :PartialBalls, :Maidens, :Runs, :Wickets, :Average,
              :EconomyRate, :StrikeRate, :BestBowlingWickets, :BestBowlingRuns, :FiveFors, :Wides, :NoBalls
              )';
 
     const FIELDING_SUMMARY_COLS = '
+        Season INTEGER,
         Matches INTEGER,
         CatchesFielding INTEGER,
         RunOuts INTEGER,
@@ -96,11 +108,11 @@
         ';
 
     const FIELDING_SUMMARY_INSERT = '(
-            PlayerId, Matches, CatchesFielding, RunOuts, TotalFieldingWickets,
+            PlayerId, Season, Matches, CatchesFielding, RunOuts, TotalFieldingWickets,
             CatchesKeeping, Stumpings, TotalKeepingWickets
 			)
         VALUES (
-            :PlayerId, :Matches, :CatchesFielding, :RunOuts, :TotalFieldingWickets,
+            :PlayerId, :Season, :Matches, :CatchesFielding, :RunOuts, :TotalFieldingWickets,
 			:CatchesKeeping, :Stumpings, :TotalKeepingWickets
 		    )';
 
@@ -196,8 +208,7 @@
 		// Performance summaries
 		$db->query('CREATE TABLE BattingSummary (
 			BattingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER,
-            Season INTEGER, '
+			PlayerId INTEGER,'
 			. BATTING_SUMMARY_COLS .
 			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
 			)');
@@ -218,8 +229,7 @@
 
 		$db->query('CREATE TABLE BowlingSummary (
 			BowlingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER,
-            Season INTEGER, '
+			PlayerId INTEGER,'
 			. BOWLING_SUMMARY_COLS .
 			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
 			)');
@@ -240,8 +250,7 @@
 
 		$db->query('CREATE TABLE FieldingSummary (
 			FieldingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER,
-            Season INTEGER, '
+			PlayerId INTEGER,'
 			. FIELDING_SUMMARY_COLS .
 			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
 			)');
@@ -263,6 +272,7 @@
         $db->query('CREATE TABLE Milestone (
 			MilestoneId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			PlayerId INTEGER,
+            Season INTEGER,
             State TEXT,
             Type TEXT,
             Description TEXT,
@@ -421,10 +431,10 @@
     {
         return $db->prepare(
             'INSERT INTO Milestone (
-                PlayerId, State, Type, Description
+                PlayerId, Season, State, Type, Description
                 )
              VALUES (
-                 :PlayerId, :State, :Type, :Description
+                 :PlayerId, :Season, :State, :Type, :Description
                 )'
             );
     }

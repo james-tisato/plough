@@ -133,6 +133,7 @@
                 log\info("Clearing existing summary tables...");
                 $this->_season_summary_generator->clear_summary_tables();
                 $this->_career_summary_generator->clear_summary_tables();
+                $this->_milestone_generator->clear_milestones();
 
                 log\info("");
                 log\info("Loading career base tables...");
@@ -145,7 +146,7 @@
 
                 log\info("");
                 log\info("Copying career base to career summary...");
-                //$this->_career_summary_generator->copy_base_to_summary_tables();
+                $this->_career_summary_generator->copy_base_to_summary_tables();
 
                 log\info("");
                 log\info("Building summary tables...");
@@ -153,25 +154,26 @@
                 {
                     log\info("  Season $season");
 
-                    log\info("    Batting");
-                    log\info("      Generate season ");
+                    log\info("    Generating season summaries");
+                    log\info("      Batting");
                     $this->_season_summary_generator->generate_batting_summary($season);
-                    log\info("      Add to career");
-                    $this->_career_summary_generator->generate_career_batting_summary();
-                    log\info("    Bowling");
-                    log\info("      Generate season ");
+                    log\info("      Bowling");
                     $this->_season_summary_generator->generate_bowling_summary($season);
-                    log\info("      Add to career");
-                    $this->_career_summary_generator->generate_career_bowling_summary();
-                    log\info("    Fielding");
-                    log\info("      Generate season ");
+                    log\info("      Fielding");
                     $this->_season_summary_generator->generate_fielding_summary($season);
-                    log\info("      Add to career");
-                    $this->_career_summary_generator->generate_career_fielding_summary();
 
                     log\info("");
-                    log\info("    Generating milestones...");
-                    $this->_milestone_generator->generate_milestones();
+                    log\info("    Generating career milestones achieved this season...");
+                    $this->_milestone_generator->generate_milestones($season);
+
+                    log\info("");
+                    log\info("    Adding season summaries to career summaries...");
+                    log\info("      Batting");
+                    $this->_career_summary_generator->add_season_to_career_batting_summary($season);
+                    log\info("      Bowling");
+                    $this->_career_summary_generator->add_season_to_career_bowling_summary($season);
+                    log\info("      Fielding");
+                    $this->_career_summary_generator->add_season_to_career_fielding_summary($season);
                 }
 
                 // Mark DB update
