@@ -109,12 +109,12 @@
                 log\info("      Processing match $match_idx (Play-Cricket id $pc_match_id)...");
 
                 // Get match detail
-                $match_detail_path = $input_mapper->getMatchDetailPath($pc_match_id);
+                $match_detail_path = $input_mapper->getMatchDetailPath($season, $pc_match_id);
                 $match_detail_str = file_get_contents($match_detail_path);
 
                 if ($this->_config->dumpInputs())
                     file_put_contents(
-                        $this->_config->getInputDumpDataMapper()->getMatchDetailPath($pc_match_id),
+                        $this->_config->getInputDumpDataMapper()->getMatchDetailPath($season, $pc_match_id),
                         $match_detail_str
                         );
 

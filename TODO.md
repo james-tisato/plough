@@ -86,8 +86,7 @@ __TODO__
                 * Per-season summaries as well as career
         * 2019 season setup
             * Check that 2018 test baselines match what we have on the website now
-            * Rebase career "base" files to be as-of end of 2018
-            * Update all references from 2018 to 2019
+            * Update config to 2019
         * Bugs
         * Refactoring
         * New features
@@ -100,3 +99,4 @@ __TODO__
             * Excel export
         * New tests
             * No update required
+            * 2016 base
