@@ -82,7 +82,6 @@ __TODO__
                         * Do we have this data?
                         * How would we get it into the system?
                 * Will we have problems with everything adding up?
-            * Orchestrate season-by-season within the Updater
             * Output
                 * Per-season summaries as well as career
         * 2019 season setup

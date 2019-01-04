@@ -79,32 +79,34 @@
             $this->_milestone_generator = $milestone_generator;
         }
 
-        public function generate_csv_files()
+        public function generate_season_csv_files($season)
         {
-            $current_season = $this->_config->getCurrentSeason();
-
-            log\info("  Last updated");
-            $this->generate_last_updated_csv();
-            log\info("  Batting");
-            log\info("    Season " . $current_season);
+            log\info("    Batting");
             $this->generate_batting_summary_csv(PERIOD_SEASON);
-            log\info("    Career");
-            $this->generate_batting_summary_csv(PERIOD_CAREER);
-            log\info("  Bowling");
-            log\info("    Season " . $current_season);
+            log\info("    Bowling");
             $this->generate_bowling_summary_csv(PERIOD_SEASON);
-            log\info("    Career");
-            $this->generate_bowling_summary_csv(PERIOD_CAREER);
-            log\info("  Fielding");
-            log\info("    Season " . $current_season);
+            log\info("    Fielding");
             $this->generate_fielding_summary_csv(PERIOD_SEASON);
-            log\info("    Career");
-            $this->generate_fielding_summary_csv(PERIOD_CAREER);
-            log\info("  Keeping");
-            log\info("    Season " . $current_season);
+            log\info("    Keeping");
             $this->generate_keeping_summary_csv(PERIOD_SEASON);
-            log\info("    Career");
+        }
+
+        public function generate_career_csv_files()
+        {
+            log\info("    Batting");
+            $this->generate_batting_summary_csv(PERIOD_CAREER);
+            log\info("    Bowling");
+            $this->generate_bowling_summary_csv(PERIOD_CAREER);
+            log\info("    Fielding");
+            $this->generate_fielding_summary_csv(PERIOD_CAREER);
+            log\info("    Keeping");
             $this->generate_keeping_summary_csv(PERIOD_CAREER);
+        }
+
+        public function generate_other_csv_files()
+        {
+            log\info("    Last updated");
+            $this->generate_last_updated_csv();
         }
 
         // Private generators

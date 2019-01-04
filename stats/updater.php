@@ -192,7 +192,19 @@
             // Generate outputs
             log\info("");
             log\info("Generating CSV output...");
-            $this->_csv_generator->generate_csv_files();
+            for ($season = $first_update_season; $season <= $current_season; $season++)
+            {
+                log\info("  Season $season");
+                $this->_csv_generator->generate_season_csv_files($season);
+            }
+
+            log\info("");
+            log\info("  Career");
+            $this->_csv_generator->generate_career_csv_files();
+
+            log\info("");
+            log\info("  Other");
+            $this->_csv_generator->generate_other_csv_files();
 
             log\info("");
         }
