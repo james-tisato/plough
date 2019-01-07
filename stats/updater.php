@@ -11,6 +11,7 @@
     require_once("data-mapper.php");
     require_once("db.php");
     require_once("helpers.php");
+    require_once("league-table-consumer.php");
     require_once("match-consumer.php");
     require_once("milestone-generator.php");
     require_once("season-summary-generator.php");
@@ -22,6 +23,7 @@
         private $_db;
 
         private $_match_consumer;
+        private $_league_table_consumer;
         private $_career_summary_generator;
         private $_season_summary_generator;
         private $_milestone_generator;
@@ -85,6 +87,9 @@
             $this->_match_consumer = new MatchConsumer(
                 $this->_config, $this->_db
                 );
+            $this->_league_table_consumer = new LeagueTableConsumer(
+                $this->_config, $this->_db
+                );
             $this->_career_summary_generator = new CareerSummaryGenerator(
                 $this->_config, $this->_db
                 );
@@ -110,6 +115,10 @@
             $last_update = get_last_update_datetime($db);
             date_default_timezone_set("Europe/London");
             $current_datetime = date(DATETIME_FORMAT);
+
+            // log\info("");
+            // log\info("Consuming league table...");
+            // $this->_league_table_consumer->consume_league_table($current_season);
 
             log\info("Career base data calculated up to $career_base_season");
             log\info("Current season is $current_season");

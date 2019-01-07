@@ -62,7 +62,6 @@
                 $strike_rate = get_batting_strike_rate($runs, $balls);
 
                 $insert_career_batting_summary_base->bindValue(":PlayerId", $player_id);
-                $insert_career_batting_summary_base->bindValue(":Matches", $row[$idx["Mat"]]);
                 $insert_career_batting_summary_base->bindValue(":Innings", $innings);
                 $insert_career_batting_summary_base->bindValue(":NotOuts", $not_outs);
                 $insert_career_batting_summary_base->bindValue(":Runs", $runs);
@@ -163,7 +162,6 @@
                 $strike_rate = get_bowling_strike_rate($completed_overs, $partial_balls, $wickets);
 
                 $insert_career_bowling_summary_base->bindValue(":PlayerId", $player_id);
-                $insert_career_bowling_summary_base->bindValue(":Matches", $row[$idx["Mat"]]);
                 $insert_career_bowling_summary_base->bindValue(":CompletedOvers", $completed_overs);
                 $insert_career_bowling_summary_base->bindValue(":PartialBalls", $partial_balls);
                 $insert_career_bowling_summary_base->bindValue(":Maidens", $row[$idx["Mdns"]]);
@@ -254,7 +252,6 @@
                 $total_keeping = $catches_keeping + $stumpings;
 
                 $insert_career_fielding_summary_base->bindValue(":PlayerId", $player_id);
-                $insert_career_fielding_summary_base->bindValue(":Matches", $row[$idx["Mat"]]);
                 $insert_career_fielding_summary_base->bindValue(":CatchesFielding", $catches_fielding);
                 $insert_career_fielding_summary_base->bindValue(":RunOuts", $run_outs);
                 $insert_career_fielding_summary_base->bindValue(":TotalFieldingWickets", $total_fielding);
@@ -394,11 +391,12 @@
             $career_base_season = $this->_config->getCareerBaseSeason();
             $players = get_players_by_name($db);
             $insert_player = db_create_insert_player($db);
+
             $active_players = $this->load_active_players_map();
+            $matches = $this->load_matches_map();
 
             $career_base_path =
-                $this->_config->getStaticDir() . "/career-stats-" .
-                strtolower($summary_type) . "-end-" . ($this->_config->getCareerBaseSeason()) . ".csv";
+                $this->_config->getStaticDir() . "/" . $this->get_career_base_filename($summary_type);
             //log\debug("      $career_base_path");
             if (file_exists($career_base_path))
             {
@@ -425,6 +423,7 @@
                         }
 
                         $insert_career_summary_base->bindValue(":Season", $career_base_season);
+                        $insert_career_summary_base->bindValue(":Matches", $matches[$name]);
                         $bind_row_to_insert($row, $idx, $player_id, $insert_career_summary_base);
                         $insert_career_summary_base->execute();
                     }
@@ -464,6 +463,40 @@
             }
 
             return $result;
+        }
+
+        private function load_matches_map()
+        {
+            $result = array();
+
+            $matches_path =
+                $this->_config->getStaticDir() . "/" . $this->get_career_base_filename("matches");
+            if (file_exists($matches_path))
+            {
+                $base = fopen($matches_path, "r");
+                while ($row = fgetcsv($base))
+                {
+                    if ($row[0] == "Player")
+                    {
+                        $idx = array_flip($row);
+                    }
+                    else
+                    {
+                        $name = $row[$idx["Player"]];
+                        $matches = $row[$idx["Mat"]];
+
+                        $result[$name] = $matches;
+                    }
+                }
+            }
+
+            return $result;
+        }
+
+        function get_career_base_filename($summary_type)
+        {
+            return "career-stats-" . strtolower($summary_type) .
+                   "-end-" . ($this->_config->getCareerBaseSeason()) . ".csv";
         }
     }
 ?>

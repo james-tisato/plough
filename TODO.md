@@ -73,7 +73,9 @@ __TODO__
                 * Do we need to wait for any season setup on Play-Cricket to be done? What happens if we try setting to 2019 now?
         * Bugs
         * Refactoring
-            * Normalise career base data - matches
+            * Consider normalising match counts within DB schema (not just career base statics)
+        * Improvements
+            * Add DB table indices for common queries
         * New features
             * Add test filtering via regex / wildcards
             * Add static season summary support
@@ -81,7 +83,8 @@ __TODO__
             * Page per player
             * Team summary stats
             * League table
-                * Scrape SCL site
+                * Scrape SCL site - XML is poorly formed
+                * How will we support multiple seasons?
                 * Highlight Plough using row highlighter
             * Excel export
         * New tests

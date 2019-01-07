@@ -278,6 +278,21 @@
             Description TEXT,
 			FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
 			)');
+
+        $db->query('CREATE TABLE LeagueTableEntry (
+			LeagueTableEntryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            Season INTEGER,
+            Club TEXT,
+            Abandoned INTEGER,
+            Played INTEGER,
+            Won INTEGER,
+            Lost INTEGER,
+            Tied INTEGER,
+            BonusPoints INTEGER,
+            PenaltyPoints INTEGER,
+            TotalPoints INTEGER,
+            AveragePoints REAL
+			)');
     }
 
     function db_create_insert_update($db)
@@ -435,6 +450,20 @@
                 )
              VALUES (
                  :PlayerId, :Season, :State, :Type, :Description
+                )'
+            );
+    }
+
+    function db_create_insert_league_table_entry($db)
+    {
+        return $db->prepare(
+            'INSERT INTO LeagueTableEntry (
+                Season, Club, Abandoned, Won, Lost, Tied,
+                BonusPoints, PenaltyPoints, TotalPoints, AveragePoints
+                )
+             VALUES (
+                 :Season, :Club, :Abandoned, :Won, :Lost, :Tied,
+                 :BonusPoints, :PenaltyPoints, :TotalPoints, :AveragePoints
                 )'
             );
     }
