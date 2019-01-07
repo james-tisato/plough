@@ -75,6 +75,7 @@ __TODO__
         * Refactoring
             * Normalise career base data - matches
         * New features
+            * Add test filtering via regex / wildcards
             * Add static season summary support
             * Add database views
             * Page per player
@@ -84,4 +85,3 @@ __TODO__
                 * Highlight Plough using row highlighter
             * Excel export
         * New tests
-            * No update required

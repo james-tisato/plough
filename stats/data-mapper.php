@@ -5,6 +5,8 @@
     {
         public function getMatchesPath($season, $from_date);
         public function getMatchDetailPath($season, $pc_match_id);
+
+        //public function getLeagueTable
     }
 
     class FileDataMapper implements DataMapper

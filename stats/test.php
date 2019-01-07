@@ -16,6 +16,7 @@
     const IGNORE_PHRASES = array("Last updated");
 
     log\init(true);
+    log\info("");
     log\info("Initialising test harness");
 
     $tests_passed = 0;

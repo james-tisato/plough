@@ -187,8 +187,7 @@
             }
             else
             {
-                log\info("");
-                log\info("    No update required");
+                log\info("  No update required");
             }
 
             // Generate outputs
