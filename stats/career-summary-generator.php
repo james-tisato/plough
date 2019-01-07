@@ -328,10 +328,16 @@
             {
                 $player_id = $player["PlayerId"];
 
-                // Current career summary
+                // Current career summary (i.e. most recent career summary entry)
                 $statement = $db->prepare(
-                    'SELECT * FROM ' . $career_summary_table . ' WHERE PlayerId = :PlayerId'
-                    );
+                    'SELECT
+                        *
+                    FROM ' . $career_summary_table . '
+                    WHERE
+                            PlayerId = :PlayerId
+                    ORDER BY Season DESC
+                    LIMIT 1
+                    ');
                 $statement->bindValue(":PlayerId", $player_id);
                 $current_career = $statement->execute()->fetchArray(SQLITE3_ASSOC);
 
@@ -372,7 +378,6 @@
                 if ($new_career)
                 {
                     $new_career["Season"] = $season;
-                    db_delete_player_from_table($db, $career_summary_table, $player_id);
                     db_bind_values_from_row($insert_career_summary, $new_career);
                     $insert_career_summary->execute();
                 }

@@ -13,15 +13,15 @@
     const PERIOD_SEASON = 2;
 
     // Helpers
-    function get_milestone_col_header($current_season)
+    function get_milestone_col_header($season)
     {
-        return $current_season . " Career Milestones";
+        return $season . " Career Milestones";
     }
 
     function get_table_and_output_names(
         $period_type,
         $discipline_type,
-        $season = null,
+        $season,
         $table_prefix_override = null
         )
     {
@@ -31,7 +31,7 @@
         {
             return [
                 "Career" . $table_prefix . "Summary",
-                strtolower($discipline_type) . "_career_ind_summary"
+                strtolower($discipline_type) . "_" . $season . "_career_ind_summary"
                 ];
         }
         else if ($period_type == PERIOD_SEASON)
@@ -96,16 +96,16 @@
             $this->generate_keeping_summary_csv(PERIOD_SEASON, $season);
         }
 
-        public function generate_career_csv_files()
+        public function generate_career_csv_files($season)
         {
             log\info("    Batting");
-            $this->generate_batting_summary_csv(PERIOD_CAREER);
+            $this->generate_batting_summary_csv(PERIOD_CAREER, $season);
             log\info("    Bowling");
-            $this->generate_bowling_summary_csv(PERIOD_CAREER);
+            $this->generate_bowling_summary_csv(PERIOD_CAREER, $season);
             log\info("    Fielding");
-            $this->generate_fielding_summary_csv(PERIOD_CAREER);
+            $this->generate_fielding_summary_csv(PERIOD_CAREER, $season);
             log\info("    Keeping");
-            $this->generate_keeping_summary_csv(PERIOD_CAREER);
+            $this->generate_keeping_summary_csv(PERIOD_CAREER, $season);
         }
 
         public function generate_other_csv_files()
@@ -141,20 +141,18 @@
             $this->generate_csv_output("last_updated", $table);
         }
 
-        private function generate_batting_summary_csv($period_type, $season = null)
+        private function generate_batting_summary_csv($period_type, $season)
         {
             $db = $this->_db;
-            $milestone_season = is_null($season) ? $this->_config->getCurrentSeason() : $season;
 
             [ $table_name, $output_name ] = get_table_and_output_names($period_type, "Batting", $season);
 
             $header = array(
                 "Player", "Mat", "Inns", "NO", "Runs", "Ave", "SR", "HS",
                 "50s", "100s", "0s", "4s", "6s", "Balls",
-                "Active", get_milestone_col_header($milestone_season)
+                "Active", get_milestone_col_header($season)
                 );
 
-            $season_filter = is_null($season) ? "" : "AND Season = $season";
             $statement = $db->prepare(
                'SELECT
                       p.Name
@@ -176,31 +174,30 @@
                 INNER JOIN ' . $table_name . ' bs on bs.PlayerId = p.PlayerId
                 WHERE
                         bs.Innings > 0
-                    ' . $season_filter . '
+                    AND bs.Season = :Season
                 ORDER by bs.Runs DESC, bs.Average DESC, bs.Innings DESC, bs.NotOuts DESC, bs.Matches DESC, p.Name
                 ');
+            $statement->bindValue(":Season", $season);
 
             $rows = get_formatted_rows_from_query($statement);
             $rows_with_milestones = $this->_milestone_generator->join_milestones_to_player_rows(
-                $milestone_season, $rows, [ MS_TYPE_GENERAL, MS_TYPE_BATTING ]
+                $season, $rows, [ MS_TYPE_GENERAL, MS_TYPE_BATTING ]
                 );
             $this->generate_csv_output($output_name, $rows_with_milestones, $header);
         }
 
-        private function generate_bowling_summary_csv($period_type, $season = null)
+        private function generate_bowling_summary_csv($period_type, $season)
         {
             $db = $this->_db;
-            $milestone_season = is_null($season) ? $this->_config->getCurrentSeason() : $season;
 
             [ $table_name, $output_name ] = get_table_and_output_names($period_type, "Bowling", $season);
 
             $header = array(
                 "Player", "Mat", "Overs", "Mdns", "Runs", "Wkts", "Ave",
                 "Econ", "SR", "Best", "5wi", "Wides", "NBs",
-                "Active", get_milestone_col_header($milestone_season)
+                "Active", get_milestone_col_header($season)
                 );
 
-            $season_filter = is_null($season) ? "" : "AND Season = $season";
             $statement = $db->prepare(
                 'SELECT
                       p.Name
@@ -221,30 +218,29 @@
                 INNER JOIN ' . $table_name . ' bs on bs.PlayerId = p.PlayerId
                 WHERE
                         (bs.CompletedOvers > 0 OR bs.PartialBalls > 0)
-                    ' . $season_filter . '
+                    AND bs.Season = :Season
                 ORDER by bs.Wickets DESC, bs.Average, bs.EconomyRate
                 ');
+            $statement->bindValue(":Season", $season);
 
             $rows = get_formatted_rows_from_query($statement);
             $rows_with_milestones = $this->_milestone_generator->join_milestones_to_player_rows(
-                $milestone_season, $rows, [ MS_TYPE_GENERAL, MS_TYPE_BOWLING ]
+                $season, $rows, [ MS_TYPE_GENERAL, MS_TYPE_BOWLING ]
                 );
             $this->generate_csv_output($output_name, $rows_with_milestones, $header);
         }
 
-        private function generate_fielding_summary_csv($period_type, $season = null)
+        private function generate_fielding_summary_csv($period_type, $season)
         {
             $db = $this->_db;
-            $milestone_season = is_null($season) ? $this->_config->getCurrentSeason() : $season;
 
             [ $table_name, $output_name ] = get_table_and_output_names($period_type, "Fielding", $season);
 
             $header = array(
                 "Player", "Mat", "Ct", "RO", "Total",
-                "Active", get_milestone_col_header($milestone_season)
+                "Active", get_milestone_col_header($season)
                 );
 
-            $season_filter = is_null($season) ? "" : "AND Season = $season";
             $statement = $db->prepare(
                'SELECT
                       p.Name
@@ -257,21 +253,21 @@
                 INNER JOIN ' . $table_name . ' fs on fs.PlayerId = p.PlayerId
                 WHERE
                         fs.TotalFieldingWickets > 0
-                    ' . $season_filter . '
+                    AND fs.Season = :Season
                 ORDER by fs.TotalFieldingWickets DESC, fs.CatchesFielding DESC, fs.Matches DESC, p.Name
                 ');
+            $statement->bindValue(":Season", $season);
 
             $rows = get_formatted_rows_from_query($statement);
             $rows_with_milestones = $this->_milestone_generator->join_milestones_to_player_rows(
-                $milestone_season, $rows, [ MS_TYPE_FIELDING ]
+                $season, $rows, [ MS_TYPE_FIELDING ]
                 );
             $this->generate_csv_output($output_name, $rows_with_milestones, $header);
         }
 
-        private function generate_keeping_summary_csv($period_type, $season = null)
+        private function generate_keeping_summary_csv($period_type, $season)
         {
             $db = $this->_db;
-            $milestone_season = is_null($season) ? $this->_config->getCurrentSeason() : $season;
 
             [ $table_name, $output_name ] = get_table_and_output_names(
                 $period_type, "Keeping", $season, "Fielding"
@@ -279,10 +275,9 @@
 
             $header = array(
                 "Player", "Mat", "Wk Ct", "St", "Wk Total",
-                "Active", get_milestone_col_header($milestone_season)
+                "Active", get_milestone_col_header($season)
                 );
 
-            $season_filter = is_null($season) ? "" : "AND Season = $season";
             $statement = $db->prepare(
                'SELECT
                       p.Name
@@ -295,13 +290,14 @@
                 INNER JOIN ' . $table_name . ' fs on fs.PlayerId = p.PlayerId
                 WHERE
                         fs.TotalKeepingWickets > 0
-                    ' . $season_filter . '
+                    AND fs.Season = :Season
                 ORDER by fs.TotalKeepingWickets DESC, fs.CatchesKeeping DESC, fs.Matches DESC, p.Name
                 ');
+            $statement->bindValue(":Season", $season);
 
             $rows = get_formatted_rows_from_query($statement);
             $rows_with_milestones = $this->_milestone_generator->join_milestones_to_player_rows(
-                $milestone_season, $rows, [ MS_TYPE_KEEPING ]
+                $season, $rows, [ MS_TYPE_KEEPING ]
                 );
             $this->generate_csv_output($output_name, $rows_with_milestones, $header);
         }

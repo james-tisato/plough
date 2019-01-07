@@ -138,11 +138,15 @@
                 LEFT JOIN CareerFieldingSummary fc ON fc.PlayerId = p.PlayerId
                 INNER JOIN FieldingSummary fs ON fs.PlayerId = p.PlayerId
                 WHERE
-                        bas.Season = :Season
-                    and bos.Season = :Season
-                    and fs.Season = :Season
+                        bac.Season = :SeasonCareer
+                    AND bas.Season = :Season
+                    AND boc.Season = :SeasonCareer
+                    AND bos.Season = :Season
+                    AND fc.Season = :SeasonCareer
+                    AND fs.Season = :Season
                 ORDER BY p.PlayerId
                 ');
+            $statement->bindValue(":SeasonCareer", $season - 1);
             $statement->bindValue(":Season", $season);
             $result = $statement->execute();
 

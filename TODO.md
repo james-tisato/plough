@@ -70,11 +70,9 @@ __TODO__
             * Separate active players from career base
             * Check that 2018 test baselines match what we have on the website now
             * Update config to 2019
+                * Do we need to wait for any season setup on Play-Cricket to be done? What happens if we try setting to 2019 now?
         * Bugs
         * Refactoring
-            * Improve season support in summary and milestone code
-                * Retain career summaries as of end of each season
-                * Remove is_null logic for season vs career summaries
             * Normalise career base data - matches
         * New features
             * Add static season summary support
