@@ -42,6 +42,7 @@ __TODO__
     * History
         * Auto-sizing of roll of honour table?
     * Stats
+        * Upload latest plugin and update CSV auto-import paths
         * Average sort doesn't work when people have no average
         * Best bowling sort doesn't work properly
         * Fix 2017 page
@@ -67,7 +68,6 @@ __TODO__
         * Switch to class autoloading
     * Stats
         * 2019 season setup
-            * Separate active players from career base
             * Check that 2018 test baselines match what we have on the website now
             * Update config to 2019
                 * Do we need to wait for any season setup on Play-Cricket to be done? What happens if we try setting to 2019 now?
