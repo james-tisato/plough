@@ -11,6 +11,7 @@
     const CLUB_NAME = "Ploughmans CC";
     const DELETED = "Deleted";
     const PC_DATE_FORMAT = "d/m/Y";
+    const UNSURE_NAME = "Unsure";
 
     // Modes of dismissal
     const DID_NOT_BAT = "did not bat";
@@ -70,10 +71,17 @@
             $matches_str = file_get_contents($matches_path);
 
             if ($this->_config->dumpInputs())
-                file_put_contents(
-                    $this->_config->getInputDumpDataMapper()->getMatchesPath($season, $matches_from_date),
-                    $matches_str
+            {
+                $matches_path = $this->_config->getInputDumpDataMapper()->getMatchesPath(
+                    $season, $matches_from_date
                     );
+                $matches_dir = dirname($matches_path);
+
+                if (!file_exists($matches_dir))
+                    \plough\mkdirs($matches_dir);
+
+                file_put_contents($matches_path, $matches_str);
+            }
 
             $matches = json_decode($matches_str, true)["matches"];
             $num_matches = count($matches);
@@ -113,10 +121,17 @@
                 $match_detail_str = file_get_contents($match_detail_path);
 
                 if ($this->_config->dumpInputs())
-                    file_put_contents(
-                        $this->_config->getInputDumpDataMapper()->getMatchDetailPath($season, $pc_match_id),
-                        $match_detail_str
+                {
+                    $match_detail_path = $this->_config->getInputDumpDataMapper()->getMatchDetailPath(
+                        $season, $pc_match_id
                         );
+                    $match_detail_dir = dirname($match_detail_path);
+
+                    if (!file_exists($match_detail_dir))
+                        \plough\mkdirs($match_detail_dir);
+
+                    file_put_contents($match_detail_path, $match_detail_str);
+                }
 
                 $match_detail = json_decode($match_detail_str, true)["match_details"][0];
 
@@ -220,33 +235,36 @@
                 $pc_player_id = $player["player_id"];
                 $player_name = $player["player_name"];
 
-                if (!array_key_exists($pc_player_id, $this->_player_cache))
+                if ($player_name != UNSURE_NAME)
                 {
-                    // Player doesn't exist - insert
-                    $insert_player->bindValue(":PcPlayerId", $pc_player_id);
-                    $insert_player->bindValue(":Name", $player_name);
-                    $insert_player->bindValue(":Active", 1);
-                    $player_id = db_insert_and_return_id($db, $insert_player);
-                    $this->_player_cache[$pc_player_id] = $player_id;
-                }
-                else
-                {
-                    // Player exists - update player name and/or PC player id in case it has changed
-                    // Also mark as active because they have played a game this season
-                    $update_player->bindValue(":PcPlayerId", $pc_player_id);
-                    $update_player->bindValue(":Name", $player_name);
-                    $update_player->bindValue(":Active", 1);
-                    $update_player->execute();
-                }
+                    if (!array_key_exists($pc_player_id, $this->_player_cache))
+                    {
+                        // Player doesn't exist - insert
+                        $insert_player->bindValue(":PcPlayerId", $pc_player_id);
+                        $insert_player->bindValue(":Name", $player_name);
+                        $insert_player->bindValue(":Active", 1);
+                        $player_id = db_insert_and_return_id($db, $insert_player);
+                        $this->_player_cache[$pc_player_id] = $player_id;
+                    }
+                    else
+                    {
+                        // Player exists - update player name and/or PC player id in case it has changed
+                        // Also mark as active because they have played a game this season
+                        $update_player->bindValue(":PcPlayerId", $pc_player_id);
+                        $update_player->bindValue(":Name", $player_name);
+                        $update_player->bindValue(":Active", 1);
+                        $update_player->execute();
+                    }
 
-                // Insert player performance
-                $player_id = $this->_player_cache[$pc_player_id];
-                $insert_player_perf->bindValue(":MatchId", $match_id);
-                $insert_player_perf->bindValue(":PlayerId", $player_id);
-                $insert_player_perf->bindValue(":Captain", \plough\int_from_bool($player["captain"]));
-                $insert_player_perf->bindValue(":Wicketkeeper", \plough\int_from_bool($player["wicket_keeper"]));
-                $player_perf_id = db_insert_and_return_id($db, $insert_player_perf);
-                $player_perf_cache[$pc_player_id] = $player_perf_id;
+                    // Insert player performance
+                    $player_id = $this->_player_cache[$pc_player_id];
+                    $insert_player_perf->bindValue(":MatchId", $match_id);
+                    $insert_player_perf->bindValue(":PlayerId", $player_id);
+                    $insert_player_perf->bindValue(":Captain", \plough\int_from_bool($player["captain"]));
+                    $insert_player_perf->bindValue(":Wicketkeeper", \plough\int_from_bool($player["wicket_keeper"]));
+                    $player_perf_id = db_insert_and_return_id($db, $insert_player_perf);
+                    $player_perf_cache[$pc_player_id] = $player_perf_id;
+                }
             }
 
             $innings = $match_detail["innings"];
@@ -279,8 +297,9 @@
             foreach ($batting_perfs as $batting_perf_idx => $batting_perf)
             {
                 $pc_player_id = $batting_perf["batsman_id"];
+                $pc_player_name = $batting_perf["batsman_name"];
 
-                if (!empty($pc_player_id))
+                if (!empty($pc_player_id) && $pc_player_name != UNSURE_NAME)
                 {
                     $player_id = $this->_player_cache[$pc_player_id];
                     $player_perf_id = $player_perf_cache[$pc_player_id];
@@ -309,28 +328,33 @@
             foreach ($bowling_perfs as $bowling_perf_idx => $bowling_perf)
             {
                 $pc_player_id = $bowling_perf["bowler_id"];
-                $player_id = $this->_player_cache[$pc_player_id];
-                $player_perf_id = $player_perf_cache[$pc_player_id];
+                $player_name = $bowling_perf["bowler_name"];
 
-                // Handle full and partial overs
-                $over_parts = explode(".", $bowling_perf["overs"]);
-                $completed_overs = $over_parts[0];
-                if (count($over_parts) > 1)
-                    $partial_balls = $over_parts[1];
-                else
-                    $partial_balls = 0;
+                if ($player_name != UNSURE_NAME)
+                {
+                    $player_id = $this->_player_cache[$pc_player_id];
+                    $player_perf_id = $player_perf_cache[$pc_player_id];
 
-                $insert_bowling_perf->bindValue(":PlayerPerformanceId", $player_perf_id);
-                $insert_bowling_perf->bindValue(":PlayerId", $player_id);
-                $insert_bowling_perf->bindValue(":Position", $bowling_perf_idx + 1);
-                $insert_bowling_perf->bindValue(":CompletedOvers", $completed_overs);
-                $insert_bowling_perf->bindValue(":PartialBalls", $partial_balls);
-                $insert_bowling_perf->bindValue(":Maidens", $bowling_perf["maidens"]);
-                $insert_bowling_perf->bindValue(":Runs", $bowling_perf["runs"]);
-                $insert_bowling_perf->bindValue(":Wickets", $bowling_perf["wickets"]);
-                $insert_bowling_perf->bindValue(":Wides", $bowling_perf["wides"]);
-                $insert_bowling_perf->bindValue(":NoBalls", $bowling_perf["no_balls"]);
-                $insert_bowling_perf->execute();
+                    // Handle full and partial overs
+                    $over_parts = explode(".", $bowling_perf["overs"]);
+                    $completed_overs = $over_parts[0];
+                    if (count($over_parts) > 1)
+                        $partial_balls = $over_parts[1];
+                    else
+                        $partial_balls = 0;
+
+                    $insert_bowling_perf->bindValue(":PlayerPerformanceId", $player_perf_id);
+                    $insert_bowling_perf->bindValue(":PlayerId", $player_id);
+                    $insert_bowling_perf->bindValue(":Position", $bowling_perf_idx + 1);
+                    $insert_bowling_perf->bindValue(":CompletedOvers", $completed_overs);
+                    $insert_bowling_perf->bindValue(":PartialBalls", $partial_balls);
+                    $insert_bowling_perf->bindValue(":Maidens", $bowling_perf["maidens"]);
+                    $insert_bowling_perf->bindValue(":Runs", $bowling_perf["runs"]);
+                    $insert_bowling_perf->bindValue(":Wickets", $bowling_perf["wickets"]);
+                    $insert_bowling_perf->bindValue(":Wides", $bowling_perf["wides"]);
+                    $insert_bowling_perf->bindValue(":NoBalls", $bowling_perf["no_balls"]);
+                    $insert_bowling_perf->execute();
+                }
             }
         }
 
@@ -343,7 +367,9 @@
             foreach ($oppo_batting_perfs as $oppo_batting_perf_idx => $oppo_batting_perf)
             {
                 $pc_player_id = $oppo_batting_perf["fielder_id"];
-                if (!empty($pc_player_id))
+                $player_name = $oppo_batting_perf["fielder_name"];
+
+                if (!empty($pc_player_id) && $player_name != UNSURE_NAME)
                 {
                     if (!array_key_exists($pc_player_id, $player_to_fielding))
                     {

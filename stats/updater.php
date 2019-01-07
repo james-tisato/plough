@@ -120,6 +120,7 @@
             $matches_consumed = false;
             for ($season = $first_update_season; $season <= $current_season; $season++)
             {
+                log\info("");
                 log\info("  Season $season");
                 $matches_consumed_this_season = $this->_match_consumer->consume_matches_since_last_update(
                     $season, $last_update
@@ -152,6 +153,7 @@
                 log\info("Building summary tables...");
                 for ($season = $first_update_season; $season <= $current_season; $season++)
                 {
+                    log\info("");
                     log\info("  Season $season");
 
                     log\info("    Generating season summaries");
@@ -194,6 +196,7 @@
             log\info("Generating CSV output...");
             for ($season = $first_update_season; $season <= $current_season; $season++)
             {
+                log\info("");
                 log\info("  Season $season");
                 $this->_csv_generator->generate_season_csv_files($season);
             }

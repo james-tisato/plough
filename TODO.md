@@ -89,6 +89,10 @@ __TODO__
             * Update config to 2019
         * Bugs
         * Refactoring
+            * Improve season support in summary and milestone code
+                * Retain career summaries as of end of each season
+                * Remove is_null logic for season vs career summaries
+            * Normalise career base data - matches
         * New features
             * Add database views
             * Page per player

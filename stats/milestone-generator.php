@@ -137,10 +137,10 @@
                 INNER JOIN BowlingSummary bos ON bos.PlayerId = p.PlayerId
                 LEFT JOIN CareerFieldingSummary fc ON fc.PlayerId = p.PlayerId
                 INNER JOIN FieldingSummary fs ON fs.PlayerId = p.PlayerId
-                --WHERE
-                --        bas.Season = :Season
-                --    and bos.Season = :Season
-                --    and fs.Season = :Season
+                WHERE
+                        bas.Season = :Season
+                    and bos.Season = :Season
+                    and fs.Season = :Season
                 ORDER BY p.PlayerId
                 ');
             $statement->bindValue(":Season", $season);
@@ -180,7 +180,7 @@
         }
 
         // Assumes the player name is in the first column of each row
-        public function join_milestones_to_player_rows($rows, $milestone_types)
+        public function join_milestones_to_player_rows($season, $rows, $milestone_types)
         {
             $db = $this->_db;
 
@@ -195,8 +195,10 @@
                 INNER JOIN Milestone m on m.PlayerId = p.PlayerId
                 WHERE
                         m.Type in (' . $milestone_types_str . ')
+                    and m.Season = :Season
                 ORDER BY p.Name, m.State, m.Description
                 ');
+            $statement->bindValue(":Season", $season);
             $query_result = $statement->execute();
 
             $name_to_milestone_text = array();
