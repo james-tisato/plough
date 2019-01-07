@@ -66,25 +66,8 @@ __TODO__
             * Can we do the same for warnings?
         * Switch to class autoloading
     * Stats
-        * Multi-season support
-            * General flow
-                * Load career base up until year X
-                * Load static season summaries from years X to Y (where game level info isn't available)
-                * For all years between Y and current season:
-                    * Consume matches from Play Cricket as of last update time
-                    * Build summaries for that season
-                * Calculate career summaries from base + all season summaries
-            * When should the career base be?
-                * Options:
-                    * End-of-2017
-                    * End-of-2013 + static summaries from each season since then
-                    * End-of-2013 + match-level info for all games since then
-                        * Do we have this data?
-                        * How would we get it into the system?
-                * Will we have problems with everything adding up?
-            * Output
-                * Per-season summaries as well as career
         * 2019 season setup
+            * Separate active players from career base
             * Check that 2018 test baselines match what we have on the website now
             * Update config to 2019
         * Bugs
@@ -94,6 +77,7 @@ __TODO__
                 * Remove is_null logic for season vs career summaries
             * Normalise career base data - matches
         * New features
+            * Add static season summary support
             * Add database views
             * Page per player
             * Team summary stats
@@ -103,4 +87,3 @@ __TODO__
             * Excel export
         * New tests
             * No update required
-            * 2016 base

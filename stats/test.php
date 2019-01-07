@@ -35,7 +35,7 @@
         // Backup DB
         $db_path = \plough\get_stats_db_path($config);
         $db_path_backup = $db_path . ".backup";
-        if (file_exists($db_path))
+        if (file_exists($db_path) && !$config->clearDb())
             copy($db_path, $db_path_backup);
 
         $updater = new Updater($config);
@@ -99,7 +99,7 @@
             $tests_passed += 1;
 
             // Restore DB as test has passed
-            if (file_exists($db_path_backup))
+            if (file_exists($db_path_backup) && !$config->clearDb())
             {
                 copy($db_path_backup, $db_path);
                 unlink($db_path_backup);
