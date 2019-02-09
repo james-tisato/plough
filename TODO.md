@@ -92,6 +92,8 @@ __TODO__
                         * How will graphs work?
                             * Looks like we just need to attach the necessary Chartist attributes to the render options and generate_chart will be called automatically by the renderer
                             * Where does the chart end up though?
+                    * Build proof of concept
+                        * 
                     * How can we define the URL in terms of the player's name?
             * Team summary stats
             * League table
