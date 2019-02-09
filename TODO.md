@@ -67,14 +67,10 @@ __TODO__
             * Can we do the same for warnings?
         * Switch to class autoloading
     * Stats
-        * 2019 season setup
-            * Check that 2018 test baselines match what we have on the website now
-            * Update config to 2019
         * Bugs
         * Refactoring
             * Consider normalising match counts within DB schema (not just career base statics)
         * Improvements
-            * Add DB table indices for common queries
         * Performance
             * Set up xdebug + cachegrind viewer on laptop
         * New features
@@ -93,7 +89,7 @@ __TODO__
                             * Looks like we just need to attach the necessary Chartist attributes to the render options and generate_chart will be called automatically by the renderer
                             * Where does the chart end up though?
                     * Build proof of concept
-                        * 
+                        *
                     * How can we define the URL in terms of the player's name?
             * Team summary stats
             * League table
