@@ -67,7 +67,6 @@ __TODO__
         * 2019 season setup
             * Check that 2018 test baselines match what we have on the website now
             * Update config to 2019
-                * Do we need to wait for any season setup on Play-Cricket to be done? What happens if we try setting to 2019 now?
         * Bugs
         * Refactoring
             * Consider normalising match counts within DB schema (not just career base statics)
