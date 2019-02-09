@@ -41,6 +41,19 @@
         $db->exec('PRAGMA foreign_keys = ON;');
     }
 
+    function db_create_player_view($db, $table_name)
+    {
+        $statement = $db->prepare(
+           'CREATE VIEW ' . $table_name . 'View AS
+            SELECT
+                 p.Name
+                ,s.*
+            FROM ' . $table_name . ' s
+            INNER JOIN Player p on p.PlayerId = s.PlayerId
+            ');
+        $statement->execute();
+    }
+
 
     const BATTING_SUMMARY_COLS = '
         Season INTEGER,
@@ -118,6 +131,7 @@
 
     function db_create_schema($db)
     {
+        // Tables
         $db->query('CREATE TABLE DbUpdate (
             UpdateId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             UpdateTime DATETIME
@@ -293,6 +307,26 @@
             TotalPoints INTEGER,
             AveragePoints REAL
 			)');
+
+        // Views
+        db_create_player_view($db, "PlayerPerformance");
+
+        db_create_player_view($db, "BattingPerformance");
+        db_create_player_view($db, "BattingSummary");
+        db_create_player_view($db, "CareerBattingSummary");
+        db_create_player_view($db, "CareerBattingSummaryBase");
+
+        db_create_player_view($db, "BowlingPerformance");
+        db_create_player_view($db, "BowlingSummary");
+        db_create_player_view($db, "CareerBowlingSummary");
+        db_create_player_view($db, "CareerBowlingSummaryBase");
+
+        db_create_player_view($db, "FieldingPerformance");
+        db_create_player_view($db, "FieldingSummary");
+        db_create_player_view($db, "CareerFieldingSummary");
+        db_create_player_view($db, "CareerFieldingSummaryBase");
+
+        db_create_player_view($db, "Milestone");
     }
 
     function db_create_insert_update($db)

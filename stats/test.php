@@ -22,7 +22,12 @@
     $tests_passed = 0;
     $tests_failed = 0;
 
-    foreach (glob(TEST_DIR . "*.xml") as $test_file)
+    if ($argc == 1)
+        $filter = "*";
+    elseif ($argc == 2)
+        $filter = $argv[1];
+
+    foreach (glob(TEST_DIR . "{$filter}.xml") as $test_file)
     {
         $test_name = basename($test_file, ".xml");
 

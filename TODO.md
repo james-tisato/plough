@@ -10,10 +10,7 @@ __TODO__
             * Set up multiple menu levels
             * Test on phone, tablet, desktop
         * Fixtures
-            * Create page
             * Add net bookings
-            * Add fixtures (when Leon has them)
-            * Update ploughmanscc.com/fixtures link
             * Add to multi-season menu list
         * Stats
             * Create page
@@ -77,9 +74,7 @@ __TODO__
         * Improvements
             * Add DB table indices for common queries
         * New features
-            * Add test filtering via regex / wildcards
             * Add static season summary support
-            * Add database views
             * Page per player
             * Team summary stats
             * League table
