@@ -34,6 +34,8 @@
             $insert_batting_summary = db_create_insert_batting_summary($db);
             $insert_batting_summary->bindValue(":Season", $season);
 
+            $db->exec('BEGIN');
+
             foreach ($players as $player_name => $player)
             {
                 $player_id = $player["PlayerId"];
@@ -126,6 +128,8 @@
                 // Insert
                 $insert_batting_summary->execute();
             }
+
+            $db->exec('COMMIT');
         }
 
         public function generate_bowling_summary($season)
@@ -135,6 +139,8 @@
 
             $insert_bowling_summary = db_create_insert_bowling_summary($db);
             $insert_bowling_summary->bindValue(":Season", $season);
+
+            $db->exec('BEGIN');
 
             foreach ($players as $player_name => $player)
             {
@@ -249,6 +255,8 @@
                 // Insert
                 $insert_bowling_summary->execute();
             }
+
+            $db->exec('COMMIT');
         }
 
         public function generate_fielding_summary($season)
@@ -258,6 +266,8 @@
 
             $insert_fielding_summary = db_create_insert_fielding_summary($db);
             $insert_fielding_summary->bindValue(":Season", $season);
+
+            $db->exec('BEGIN');
 
             foreach ($players as $player)
             {
@@ -299,6 +309,8 @@
                 // Insert
                 $insert_fielding_summary->execute();
             }
+
+            $db->exec('COMMIT');
         }
     }
 ?>

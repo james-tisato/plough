@@ -303,11 +303,13 @@
                 );
             $result = $statement->execute();
 
+            $db->exec('BEGIN');
             while ($row = $result->fetchArray(SQLITE3_ASSOC))
             {
                 db_bind_values_from_row($insert_career_summary, $row);
                 $insert_career_summary->execute();
             }
+            $db->exec('COMMIT');
         }
 
         private function add_season_to_career_summary(
@@ -321,6 +323,8 @@
             $players = get_players_by_name($db);
             $career_summary_table = "Career" . $summary_type . "Summary";
 
+            $db->exec('BEGIN');
+            
             foreach ($players as $player_name => $player)
             {
                 $player_id = $player["PlayerId"];
@@ -379,6 +383,8 @@
                     $insert_career_summary->execute();
                 }
             }
+
+            $db->exec('COMMIT');
         }
 
         private function load_career_summary_base(
@@ -397,9 +403,11 @@
 
             $career_base_path =
                 $this->_config->getStaticDir() . "/" . $this->get_career_base_filename($summary_type);
-            //log\debug("      $career_base_path");
+
             if (file_exists($career_base_path))
             {
+                $db->exec('BEGIN');
+
                 $base = fopen($career_base_path, "r");
                 while ($row = fgetcsv($base))
                 {
@@ -429,6 +437,7 @@
                     }
                 }
 
+                $db->exec('COMMIT');
                 fclose($base);
             }
             else

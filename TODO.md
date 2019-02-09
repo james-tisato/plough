@@ -3,7 +3,9 @@ __TODO__
     * Infrastructure
         * Upgrades
             * PHP 7.3
-            * Windows machine PHP version?
+                * Server
+                * Desktop - including XDebug upgrade
+                * Laptop - including XDebug upgrade
     * 2019 season setup
         * New mobile menu plugin
             * How does the styling work? How can we make the styles the same as the current menus?
@@ -74,7 +76,7 @@ __TODO__
         * Improvements
             * Add DB table indices for common queries
         * Performance
-            * Set up xdebug + cachegrind viewer on laptop and desktop
+            * Set up xdebug + cachegrind viewer on laptop
         * New features
             * Add static season summary support
             * Page per player

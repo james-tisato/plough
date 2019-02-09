@@ -2,6 +2,7 @@
 stats/db
 stats/dump
 stats/output
+stats/profile
 stats/test/database
 !stats/test/database/Update
 !stats/test/database/Update-NothingNew
