@@ -7,14 +7,6 @@ __TODO__
                 * Desktop - including XDebug upgrade
                 * Laptop - including XDebug upgrade
     * 2019 season setup
-        * New mobile menu plugin
-            * How does the styling work? How can we make the styles the same as the current menus?
-            * Enable mobile menu plugin
-            * Set up multiple menu levels
-            * Test on phone, tablet, desktop
-        * Fixtures
-            * Add net bookings
-            * Add to multi-season menu list
         * Stats
             * Create page
             * Create 2019 tables and add to page
