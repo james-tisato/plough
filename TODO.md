@@ -8,7 +8,6 @@ __TODO__
                 * Laptop - including XDebug upgrade
     * 2019 season setup
         * Stats
-            * Update import links for career to 2019 versions
             * When season starts:
                 * Update ploughmanscc.com/statistics link
         * Tour
