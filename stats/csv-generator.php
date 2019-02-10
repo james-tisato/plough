@@ -7,11 +7,6 @@
     require_once("db.php");
     require_once("helpers.php");
 
-    // Constants
-    // Stats period types
-    const PERIOD_CAREER = 1;
-    const PERIOD_SEASON = 2;
-
     // Helpers
     function get_milestone_col_header($season)
     {

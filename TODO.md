@@ -8,11 +8,9 @@ __TODO__
                 * Laptop - including XDebug upgrade
     * 2019 season setup
         * Stats
-            * Create page
-            * Create 2019 tables and add to page
+            * Update import links for career to 2019 versions
             * When season starts:
                 * Update ploughmanscc.com/statistics link
-                * Add to multi-season menu list
         * Tour
             * Add 2019 details
     * Styling
@@ -90,3 +88,4 @@ __TODO__
                 * Highlight Plough using row highlighter
             * Excel export
         * New tests
+            * Empty 2019 season stats, should be identical to 2018 except for missing achieved milestones

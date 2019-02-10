@@ -7,8 +7,12 @@
     const NO_PC_PLAYER_ID = -1;
 
     const DATE_FORMAT = "Y-m-d";
-    const DATETIME_FORMAT = "Y-m-d h:i:s";
+    const DATETIME_FORMAT = "Y-m-d H:i:s";
     const DATETIME_FRIENDLY_FORMAT = "h:i A, D j M Y";
+
+    // Stats period types
+    const PERIOD_CAREER = 1;
+    const PERIOD_SEASON = 2;
 
     // DB helpers
     function get_last_update_datetime($db)
