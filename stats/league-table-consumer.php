@@ -23,6 +23,12 @@
         public function consume_league_table($season)
         {
             $db = $this->_db;
+            $inserter = db_create_insert_league_table_entry($db);
+
+            // Clear existing league table data for this season
+            db_delete_season_from_table($db, "LeagueTableEntry", $season);
+
+            // Fetch raw input HTML
             $input_mapper = $this->_config->getInputDataMapper();
 
             $table_path = $input_mapper->getLeagueTablePath($season);
@@ -41,9 +47,55 @@
                 file_put_contents($dump_path, $table_str);
             }
 
-            //$table_html = \simplexml_load_string($table_str);
-        }
+            // Parse HTML to extract league table data
+            // Note that the HTML is usually malformed so we disable libxml error / warning
+            // generation to avoid repeatedly triggering the debugger's "stop on exception"
+            // behaviour during development.
+            $doc = new \DOMDocument();
+            \libxml_use_internal_errors(true);
+            @$doc->loadhtml($table_str);
+            \libxml_use_internal_errors(false);
+            $xpath = new \DOMXPath($doc);
+            $rows = $xpath->query('//article/table/tbody')->item(0)->getElementsByTagName('tr');
 
-        // Private functions
+            // Add each league table entry to the database
+            $db->exec('BEGIN');
+            $cell_map = array();
+            $sentinel = "\u{a0}";
+            foreach ($rows as $idx => $row)
+            {
+                $cells = $row->getElementsByTagName('td');
+                if ($idx == 0)
+                {
+                    // This is the header - map cell header names to indices
+                    foreach ($cells as $idx => $cell)
+                        $cell_map[$cell->textContent] = $idx;
+                }
+                else
+                {
+                    $club = $cells->item($cell_map["Club"])->textContent;
+                    $length = strlen($club);
+                    if ($club !== $sentinel)
+                    {
+                        $inserter->bindValue(":Season", $season);
+                        $inserter->bindValue(":Position", $idx);
+                        $inserter->bindValue(":Club", $club);
+                        $inserter->bindValue(":Abandoned", $cells->item($cell_map["A"])->textContent);
+                        $inserter->bindValue(":Played", $cells->item($cell_map["P"])->textContent);
+                        $inserter->bindValue(":Won", $cells->item($cell_map["W"])->textContent);
+                        $inserter->bindValue(":Lost", $cells->item($cell_map["L"])->textContent);
+                        $inserter->bindValue(":Tied", $cells->item($cell_map["T"])->textContent);
+                        $inserter->bindValue(":BonusPoints", $cells->item($cell_map["Bonus Points"])->textContent);
+                        $inserter->bindValue(":PenaltyPoints", $cells->item($cell_map["Penalty Points"])->textContent);
+                        $inserter->bindValue(":TotalPoints", $cells->item($cell_map["Total Points"])->textContent);
+                        $inserter->bindValue(":AveragePoints", $cells->item($cell_map["Avge"])->textContent);
+
+                        $inserter->execute();
+                    }
+                }
+            }
+
+            $db->exec('COMMIT');
+        }
     }
 ?>
