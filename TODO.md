@@ -88,4 +88,3 @@ __TODO__
                 * Highlight Plough using row highlighter
             * Excel export
         * New tests
-            * Empty 2019 season stats, should be identical to 2018 except for missing achieved milestones
