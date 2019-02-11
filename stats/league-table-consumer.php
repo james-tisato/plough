@@ -7,6 +7,9 @@
     require_once("db.php");
     require_once("helpers.php");
 
+    // Constants
+    const TABLE_SENTINEL = "\u{a0}";
+
     class LeagueTableConsumer
     {
         // Properties
@@ -61,7 +64,6 @@
             // Add each league table entry to the database
             $db->exec('BEGIN');
             $cell_map = array();
-            $sentinel = "\u{a0}";
             foreach ($rows as $idx => $row)
             {
                 $cells = $row->getElementsByTagName('td');
@@ -75,7 +77,7 @@
                 {
                     $club = $cells->item($cell_map["Club"])->textContent;
                     $length = strlen($club);
-                    if ($club !== $sentinel)
+                    if ($club !== TABLE_SENTINEL)
                     {
                         $inserter->bindValue(":Season", $season);
                         $inserter->bindValue(":Position", $idx);
@@ -88,7 +90,11 @@
                         $inserter->bindValue(":BonusPoints", $cells->item($cell_map["Bonus Points"])->textContent);
                         $inserter->bindValue(":PenaltyPoints", $cells->item($cell_map["Penalty Points"])->textContent);
                         $inserter->bindValue(":TotalPoints", $cells->item($cell_map["Total Points"])->textContent);
-                        $inserter->bindValue(":AveragePoints", $cells->item($cell_map["Avge"])->textContent);
+
+                        $average = $cells->item($cell_map["Avge"])->textContent;
+                        if ($average === TABLE_SENTINEL)
+                            $average = "-";
+                        $inserter->bindValue(":AveragePoints", $average);
 
                         $inserter->execute();
                     }

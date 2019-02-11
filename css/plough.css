@@ -723,12 +723,12 @@ body {
   max-width: 600px;
 }
 
-.league-table .row-2 {
-    color: #25aae1;
-}
-
 .league-table .column-1 {
     text-align: left;
+}
+
+.row-highlight-ploughmans-cc, .row-highlight-ploughmans {
+    color: #25aae1;
 }
 
 /*----------------------------------Live Scores----------------------------------*/

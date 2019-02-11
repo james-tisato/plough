@@ -103,8 +103,10 @@
             $this->generate_keeping_summary_csv(PERIOD_CAREER, $season);
         }
 
-        public function generate_other_csv_files()
+        public function generate_other_csv_files($season)
         {
+            log\info("    League table for $season");
+            $this->generate_league_table_csv($season);
             log\info("    Last updated");
             $this->generate_last_updated_csv();
         }
@@ -134,6 +136,37 @@
             array_push($table, array("Last match", $last_match_str));
 
             $this->generate_csv_output("last_updated", $table);
+        }
+
+        private function generate_league_table_csv($season)
+        {
+            $db = $this->_db;
+
+            $header = array(
+                "Team", "A", "P", "W", "L", "T", "Bonus", "Penalty", "Total", "Average"
+                );
+
+            $statement = $db->prepare(
+               'SELECT
+                      Club
+                     ,Abandoned
+                     ,Played
+                     ,Won
+                     ,Lost
+                     ,Tied
+                     ,BonusPoints
+                     ,PenaltyPoints
+                     ,TotalPoints
+                     ,AveragePoints
+                FROM LeagueTableEntry
+                WHERE
+                        Season = :Season
+                ORDER BY Position
+                ');
+            $statement->bindValue(":Season", $season);
+
+            $rows = get_formatted_rows_from_query($statement);
+            $this->generate_csv_output("league_table_$season", $rows, $header);
         }
 
         private function generate_batting_summary_csv($period_type, $season)

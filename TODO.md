@@ -81,9 +81,5 @@ __TODO__
                         *
                     * How can we define the URL in terms of the player's name?
             * Team summary stats
-            * League table
-                * Scrape SCL site - XML is poorly formed
-                * How will we support multiple seasons?
-                * Highlight Plough using row highlighter
             * Excel export
         * New tests
