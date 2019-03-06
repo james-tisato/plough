@@ -33,8 +33,8 @@
         else if ($period_type == PERIOD_SEASON)
         {
             return [
-                "MatchesSummary",
-                $table_prefix . "Summary",
+                "SeasonMatchesSummary",
+                "Season" . $table_prefix . "Summary",
                 strtolower($discipline_type) . "_" . $season . "_ind_summary"
                 ];
         }

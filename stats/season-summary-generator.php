@@ -21,10 +21,10 @@
         public function clear_summary_tables()
         {
             $db = $this->_db;
-            db_truncate_table($db, "MatchesSummary");
-            db_truncate_table($db, "BattingSummary");
-            db_truncate_table($db, "BowlingSummary");
-            db_truncate_table($db, "FieldingSummary");
+            db_truncate_table($db, "SeasonMatchesSummary");
+            db_truncate_table($db, "SeasonBattingSummary");
+            db_truncate_table($db, "SeasonBowlingSummary");
+            db_truncate_table($db, "SeasonFieldingSummary");
         }
 
         public function generate_matches_summary($season)
@@ -32,7 +32,7 @@
             $db = $this->_db;
             $players = get_players_by_name($db);
 
-            $insert_matches_summary = db_create_insert_matches_summary($db);
+            $insert_matches_summary = db_create_insert_season_matches_summary($db);
             $insert_matches_summary->bindValue(":Season", $season);
 
             $db->exec('BEGIN');
@@ -74,7 +74,7 @@
             $db = $this->_db;
             $players = get_players_by_name($db);
 
-            $insert_batting_summary = db_create_insert_batting_summary($db);
+            $insert_batting_summary = db_create_insert_season_batting_summary($db);
             $insert_batting_summary->bindValue(":Season", $season);
 
             $db->exec('BEGIN');
@@ -179,7 +179,7 @@
             $db = $this->_db;
             $players = get_players_by_name($db);
 
-            $insert_bowling_summary = db_create_insert_bowling_summary($db);
+            $insert_bowling_summary = db_create_insert_season_bowling_summary($db);
             $insert_bowling_summary->bindValue(":Season", $season);
 
             $db->exec('BEGIN');
@@ -305,7 +305,7 @@
             $db = $this->_db;
             $players = get_players_by_name($db);
 
-            $insert_fielding_summary = db_create_insert_fielding_summary($db);
+            $insert_fielding_summary = db_create_insert_season_fielding_summary($db);
             $insert_fielding_summary->bindValue(":Season", $season);
 
             $db->exec('BEGIN');

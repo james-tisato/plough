@@ -357,7 +357,6 @@
         {
             $db = $this->_db;
             $players = get_players_by_name($db);
-            $career_summary_table = "Career" . $summary_type . "Summary";
 
             $db->exec('BEGIN');
 
@@ -369,7 +368,7 @@
                 $statement = $db->prepare(
                     'SELECT
                         *
-                    FROM ' . $career_summary_table . '
+                    FROM Career' . $summary_type . 'Summary
                     WHERE
                             PlayerId = :PlayerId
                     ORDER BY Season DESC
@@ -382,7 +381,7 @@
                 $statement = $db->prepare(
                     'SELECT
                         *
-                     FROM ' . $summary_type . 'Summary
+                     FROM Season' . $summary_type . 'Summary
                      WHERE
                             PlayerId = :PlayerId
                         AND Season = :Season

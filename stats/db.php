@@ -245,8 +245,8 @@
             )');
 
 		// Performance summaries
-        $db->query('CREATE TABLE MatchesSummary (
-			MatchesSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        $db->query('CREATE TABLE SeasonMatchesSummary (
+			SeasonMatchesSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			PlayerId INTEGER,'
 			. MATCHES_SUMMARY_COLS .
 			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
@@ -266,8 +266,8 @@
 			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
 			)');
 
-		$db->query('CREATE TABLE BattingSummary (
-			BattingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+		$db->query('CREATE TABLE SeasonBattingSummary (
+			SeasonBattingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			PlayerId INTEGER,'
 			. BATTING_SUMMARY_COLS .
 			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
@@ -287,8 +287,8 @@
 			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
 			)');
 
-		$db->query('CREATE TABLE BowlingSummary (
-			BowlingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+		$db->query('CREATE TABLE SeasonBowlingSummary (
+			SeasonBowlingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			PlayerId INTEGER,'
 			. BOWLING_SUMMARY_COLS .
 			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
@@ -308,8 +308,8 @@
 			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
 			)');
 
-		$db->query('CREATE TABLE FieldingSummary (
-			FieldingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+		$db->query('CREATE TABLE SeasonFieldingSummary (
+			SeasonFieldingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			PlayerId INTEGER,'
 			. FIELDING_SUMMARY_COLS .
 			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
@@ -358,22 +358,22 @@
         // Views
         db_create_player_view($db, "PlayerPerformance");
 
-        db_create_player_view($db, "MatchesSummary");
+        db_create_player_view($db, "SeasonMatchesSummary");
         db_create_player_view($db, "CareerMatchesSummary");
         db_create_player_view($db, "CareerMatchesSummaryBase");
 
         db_create_player_view($db, "BattingPerformance");
-        db_create_player_with_matches_view($db, "BattingSummary", "MatchesSummary");
+        db_create_player_with_matches_view($db, "SeasonBattingSummary", "SeasonMatchesSummary");
         db_create_player_with_matches_view($db, "CareerBattingSummary", "CareerMatchesSummary");
         db_create_player_with_matches_view($db, "CareerBattingSummaryBase", "CareerMatchesSummaryBase");
 
         db_create_player_view($db, "BowlingPerformance");
-        db_create_player_with_matches_view($db, "BowlingSummary", "MatchesSummary");
+        db_create_player_with_matches_view($db, "SeasonBowlingSummary", "SeasonMatchesSummary");
         db_create_player_with_matches_view($db, "CareerBowlingSummary", "CareerMatchesSummary");
         db_create_player_with_matches_view($db, "CareerBowlingSummaryBase", "CareerMatchesSummaryBase");
 
         db_create_player_view($db, "FieldingPerformance");
-        db_create_player_with_matches_view($db, "FieldingSummary", "MatchesSummary");
+        db_create_player_with_matches_view($db, "SeasonFieldingSummary", "SeasonMatchesSummary");
         db_create_player_with_matches_view($db, "CareerFieldingSummary", "CareerMatchesSummary");
         db_create_player_with_matches_view($db, "CareerFieldingSummaryBase", "CareerMatchesSummaryBase");
 
@@ -482,9 +482,9 @@
             );
     }
 
-    function db_create_insert_matches_summary($db)
+    function db_create_insert_season_matches_summary($db)
     {
-        return $db->prepare('INSERT INTO MatchesSummary ' . MATCHES_SUMMARY_INSERT);
+        return $db->prepare('INSERT INTO SeasonMatchesSummary ' . MATCHES_SUMMARY_INSERT);
     }
 
     function db_create_insert_career_matches_summary_base($db)
@@ -497,9 +497,9 @@
         return $db->prepare('INSERT INTO CareerMatchesSummary ' . MATCHES_SUMMARY_INSERT);
     }
 
-    function db_create_insert_batting_summary($db)
+    function db_create_insert_season_batting_summary($db)
     {
-        return $db->prepare('INSERT INTO BattingSummary ' . BATTING_SUMMARY_INSERT);
+        return $db->prepare('INSERT INTO SeasonBattingSummary ' . BATTING_SUMMARY_INSERT);
     }
 
     function db_create_insert_career_batting_summary_base($db)
@@ -512,9 +512,9 @@
         return $db->prepare('INSERT INTO CareerBattingSummary ' . BATTING_SUMMARY_INSERT);
     }
 
-    function db_create_insert_bowling_summary($db)
+    function db_create_insert_season_bowling_summary($db)
     {
-        return $db->prepare('INSERT INTO BowlingSummary ' . BOWLING_SUMMARY_INSERT);
+        return $db->prepare('INSERT INTO SeasonBowlingSummary ' . BOWLING_SUMMARY_INSERT);
     }
 
     function db_create_insert_career_bowling_summary_base($db)
@@ -527,9 +527,9 @@
         return $db->prepare('INSERT INTO CareerBowlingSummary ' . BOWLING_SUMMARY_INSERT);
     }
 
-    function db_create_insert_fielding_summary($db)
+    function db_create_insert_season_fielding_summary($db)
     {
-        return $db->prepare('INSERT INTO FieldingSummary ' . FIELDING_SUMMARY_INSERT);
+        return $db->prepare('INSERT INTO SeasonFieldingSummary ' . FIELDING_SUMMARY_INSERT);
     }
 
     function db_create_insert_career_fielding_summary_base($db)

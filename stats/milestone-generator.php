@@ -231,7 +231,7 @@
             if ($period_type == PERIOD_CAREER)
                 $table_prefix = "Career";
             else if ($period_type == PERIOD_SEASON)
-                $table_prefix = "";
+                $table_prefix = "Season";
 
             $statement = $db->prepare(
                'SELECT
