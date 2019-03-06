@@ -25,6 +25,7 @@
         if ($period_type == PERIOD_CAREER)
         {
             return [
+                "CareerMatchesSummary",
                 "Career" . $table_prefix . "Summary",
                 strtolower($discipline_type) . "_" . $season . "_career_ind_summary"
                 ];
@@ -32,6 +33,7 @@
         else if ($period_type == PERIOD_SEASON)
         {
             return [
+                "MatchesSummary",
                 $table_prefix . "Summary",
                 strtolower($discipline_type) . "_" . $season . "_ind_summary"
                 ];
@@ -173,7 +175,9 @@
         {
             $db = $this->_db;
 
-            [ $table_name, $output_name ] = get_table_and_output_names($period_type, "Batting", $season);
+            [ $matches_table_name, $table_name, $output_name ] = get_table_and_output_names(
+                $period_type, "Batting", $season
+                );
 
             $header = array(
                 "Player", "Mat", "Inns", "NO", "Runs", "Ave", "SR", "HS",
@@ -184,7 +188,7 @@
             $statement = $db->prepare(
                'SELECT
                       p.Name
-                     ,bs.Matches
+                     ,ms.Matches
                      ,bs.Innings
                      ,bs.NotOuts
                      ,bs.Runs
@@ -200,10 +204,12 @@
                      ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
                 FROM Player p
                 INNER JOIN ' . $table_name . ' bs on bs.PlayerId = p.PlayerId
+                INNER JOIN ' . $matches_table_name . ' ms on ms.PlayerId = p.PlayerId
                 WHERE
                         bs.Innings > 0
                     AND bs.Season = :Season
-                ORDER by bs.Runs DESC, bs.Average DESC, bs.Innings DESC, bs.NotOuts DESC, bs.Matches DESC, p.Name
+                    AND ms.Season = :Season
+                ORDER by bs.Runs DESC, bs.Average DESC, bs.Innings DESC, bs.NotOuts DESC, ms.Matches DESC, p.Name
                 ');
             $statement->bindValue(":Season", $season);
 
@@ -218,7 +224,9 @@
         {
             $db = $this->_db;
 
-            [ $table_name, $output_name ] = get_table_and_output_names($period_type, "Bowling", $season);
+            [ $matches_table_name, $table_name, $output_name ] = get_table_and_output_names(
+                $period_type, "Bowling", $season
+                );
 
             $header = array(
                 "Player", "Mat", "Overs", "Mdns", "Runs", "Wkts", "Ave",
@@ -229,7 +237,7 @@
             $statement = $db->prepare(
                 'SELECT
                       p.Name
-                     ,bs.Matches
+                     ,ms.Matches
                      ,(CAST(bs.CompletedOvers AS TEXT) || \'.\' || CAST(bs.PartialBalls AS TEXT)) as Overs
                      ,bs.Maidens
                      ,bs.Runs
@@ -244,9 +252,11 @@
                      ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
                 FROM Player p
                 INNER JOIN ' . $table_name . ' bs on bs.PlayerId = p.PlayerId
+                INNER JOIN ' . $matches_table_name . ' ms on ms.PlayerId = p.PlayerId
                 WHERE
                         (bs.CompletedOvers > 0 OR bs.PartialBalls > 0)
                     AND bs.Season = :Season
+                    AND ms.Season = :Season
                 ORDER by bs.Wickets DESC, bs.Average, bs.EconomyRate
                 ');
             $statement->bindValue(":Season", $season);
@@ -262,7 +272,9 @@
         {
             $db = $this->_db;
 
-            [ $table_name, $output_name ] = get_table_and_output_names($period_type, "Fielding", $season);
+            [ $matches_table_name, $table_name, $output_name ] = get_table_and_output_names(
+                $period_type, "Fielding", $season
+                );
 
             $header = array(
                 "Player", "Mat", "Ct", "RO", "Total",
@@ -272,17 +284,19 @@
             $statement = $db->prepare(
                'SELECT
                       p.Name
-                     ,fs.Matches
+                     ,ms.Matches
                      ,fs.CatchesFielding
                      ,fs.RunOuts
                      ,fs.TotalFieldingWickets
                      ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
                 FROM Player p
                 INNER JOIN ' . $table_name . ' fs on fs.PlayerId = p.PlayerId
+                INNER JOIN ' . $matches_table_name . ' ms on ms.PlayerId = p.PlayerId
                 WHERE
                         fs.TotalFieldingWickets > 0
                     AND fs.Season = :Season
-                ORDER by fs.TotalFieldingWickets DESC, fs.CatchesFielding DESC, fs.Matches DESC, p.Name
+                    AND ms.Season = :Season
+                ORDER by fs.TotalFieldingWickets DESC, fs.CatchesFielding DESC, ms.Matches DESC, p.Name
                 ');
             $statement->bindValue(":Season", $season);
 
@@ -297,7 +311,7 @@
         {
             $db = $this->_db;
 
-            [ $table_name, $output_name ] = get_table_and_output_names(
+            [ $matches_table_name, $table_name, $output_name ] = get_table_and_output_names(
                 $period_type, "Keeping", $season, "Fielding"
                 );
 
@@ -309,17 +323,19 @@
             $statement = $db->prepare(
                'SELECT
                       p.Name
-                     ,fs.Matches
+                     ,ms.Matches
                      ,fs.CatchesKeeping
                      ,fs.Stumpings
                      ,fs.TotalKeepingWickets
                      ,CASE p.Active WHEN 1 THEN "Y" ELSE "N" END AS Active
                 FROM Player p
                 INNER JOIN ' . $table_name . ' fs on fs.PlayerId = p.PlayerId
+                INNER JOIN ' . $matches_table_name . ' ms on ms.PlayerId = p.PlayerId
                 WHERE
                         fs.TotalKeepingWickets > 0
                     AND fs.Season = :Season
-                ORDER by fs.TotalKeepingWickets DESC, fs.CatchesKeeping DESC, fs.Matches DESC, p.Name
+                    AND ms.Season = :Season
+                ORDER by fs.TotalKeepingWickets DESC, fs.CatchesKeeping DESC, ms.Matches DESC, p.Name
                 ');
             $statement->bindValue(":Season", $season);
 

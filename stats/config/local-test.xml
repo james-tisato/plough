@@ -11,11 +11,11 @@
     <Pair Key="StaticDir" Value="{stats_root}/static" />
 
     <!-- Input -->
-    <Pair Key="InputMapperName" Value="file" />
+    <Pair Key="InputMapperName" Value="web" />
     <Pair Key="InputMapperDir" Value="{stats_root}/dump" />
     <!--<Pair Key="InputMapperDir" Value="{stats_root}/test/input/All-2018" />-->
-    <!--<Pair Key="InputMapperDir" Value="{stats_root}/dump" />
-    <Pair Key="InputDumpDir" Value="{stats_root}/dump" />-->
+    <!--<Pair Key="InputMapperDir" Value="{stats_root}/dump" />-->
+    <Pair Key="InputDumpDir" Value="{stats_root}/dump" />
 
     <!-- Output -->
     <Pair Key="OutputDir" Value="{stats_root}/output" />

@@ -21,9 +21,52 @@
         public function clear_summary_tables()
         {
             $db = $this->_db;
+            db_truncate_table($db, "MatchesSummary");
             db_truncate_table($db, "BattingSummary");
             db_truncate_table($db, "BowlingSummary");
             db_truncate_table($db, "FieldingSummary");
+        }
+
+        public function generate_matches_summary($season)
+        {
+            $db = $this->_db;
+            $players = get_players_by_name($db);
+
+            $insert_matches_summary = db_create_insert_matches_summary($db);
+            $insert_matches_summary->bindValue(":Season", $season);
+
+            $db->exec('BEGIN');
+
+            foreach ($players as $player_name => $player)
+            {
+                $player_id = $player["PlayerId"];
+
+                // Basic fields
+                $statement = $db->prepare(
+                    'SELECT
+                         p.PlayerId
+                        ,COUNT(pp.PlayerPerformanceId) AS Matches
+                    FROM Player p
+                    INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
+                    INNER JOIN Match m on m.MatchId = pp.MatchId
+                    WHERE
+                            p.PlayerId = :PlayerId
+                        and m.Season = :Season
+                    GROUP BY p.PlayerId, p.Name
+                    ');
+                $statement->bindValue(":PlayerId", $player_id);
+                $statement->bindValue(":Season", $season);
+                $result = $statement->execute()->fetchArray(SQLITE3_ASSOC);
+                if (empty($result))
+                    continue;
+
+                db_bind_values_from_row($insert_matches_summary, $result);
+
+                // Insert
+                $insert_matches_summary->execute();
+            }
+
+            $db->exec('COMMIT');
         }
 
         public function generate_batting_summary($season)
@@ -67,7 +110,6 @@
                 $statement = $db->prepare(
                     'SELECT
                          p.PlayerId
-                        ,COUNT(pp.PlayerPerformanceId) AS Matches
                         ,COUNT(bp.BattingPerformanceId) AS Innings
                         ,SUM(CASE bp.HowOut
                             WHEN "no" THEN 1
@@ -173,7 +215,6 @@
                 $statement = $db->prepare(
                    'SELECT
                          p.PlayerId
-                        ,COUNT(pp.PlayerPerformanceId) AS Matches
                         ,SUM(bp.Maidens) as Maidens
                         ,SUM(bp.Runs) AS Runs
                         ,SUM(bp.Wickets) AS Wickets
@@ -279,7 +320,6 @@
                 $statement = $db->prepare(
                    'SELECT
                          p.PlayerId as PlayerId
-                        ,COUNT(pp.PlayerPerformanceId) AS Matches
                         ,SUM(CASE WHEN pp.Wicketkeeper = 0 THEN fp.Catches ELSE 0 END) as CatchesFielding
                         ,SUM(fp.RunOuts) as RunOuts
                         ,SUM(CASE WHEN pp.Wicketkeeper = 1 THEN fp.Catches ELSE 0 END) as CatchesKeeping

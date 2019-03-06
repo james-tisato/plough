@@ -50,8 +50,9 @@ __TODO__
         * Switch to class autoloading
     * Stats
         * Bugs
+            * Resolve issue with missing match data for 2018
         * Refactoring
-            * Consider normalising match counts within DB schema (not just career base statics)
+            * Rename season summary tables to have "Summary" in the names
         * Improvements
         * Performance
             * Set up xdebug + cachegrind viewer on laptop

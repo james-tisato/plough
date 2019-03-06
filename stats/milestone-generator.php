@@ -235,17 +235,19 @@
 
             $statement = $db->prepare(
                'SELECT
-                     ba.Matches as Matches
+                     m.Matches as Matches
                     ,ba.Runs as Runs
                     ,bo.Wickets as Wickets
                     ,f.CatchesFielding as Catches
                     ,f.CatchesKeeping as KeepingCatches
                 FROM Player p
+                LEFT JOIN ' . $table_prefix . 'MatchesSummary m ON m.PlayerId = p.PlayerId
                 LEFT JOIN ' . $table_prefix . 'BattingSummary ba ON ba.PlayerId = p.PlayerId
                 LEFT JOIN ' . $table_prefix . 'BowlingSummary bo ON bo.PlayerId = p.PlayerId
                 LEFT JOIN ' . $table_prefix . 'FieldingSummary f ON f.PlayerId = p.PlayerId
                 WHERE
                         p.PlayerId = :PlayerId
+                    AND m.Season = :Season
                     AND ba.Season = :Season
                     AND bo.Season = :Season
                     AND f.Season = :Season

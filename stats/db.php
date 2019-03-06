@@ -54,10 +54,37 @@
         $statement->execute();
     }
 
+    function db_create_player_with_matches_view($db, $table_name, $matches_table_name)
+    {
+        $statement = $db->prepare(
+           'CREATE VIEW ' . $table_name . 'View AS
+            SELECT
+                 p.Name
+                ,ms.Matches
+                ,s.*
+            FROM ' . $table_name . ' s
+            INNER JOIN Player p on p.PlayerId = s.PlayerId
+            INNER JOIN ' . $matches_table_name . ' ms on ms.PlayerId = s.PlayerId
+            WHERE
+                s.Season = ms.Season
+            ');
+        $statement->execute();
+    }
+
+    const MATCHES_SUMMARY_COLS = '
+        Season INTEGER,
+        Matches INTEGER,
+        ';
+
+    const MATCHES_SUMMARY_INSERT = '(
+            PlayerId, Season, Matches
+            )
+        VALUES (
+            :PlayerId, :Season, :Matches
+        )';
 
     const BATTING_SUMMARY_COLS = '
         Season INTEGER,
-        Matches INTEGER,
         Innings INTEGER,
         NotOuts INTEGER,
         Runs INTEGER,
@@ -74,17 +101,16 @@
         ';
 
     CONST BATTING_SUMMARY_INSERT = '(
-            PlayerId, Season, Matches, Innings, NotOuts, Runs, Average, StrikeRate,
+            PlayerId, Season, Innings, NotOuts, Runs, Average, StrikeRate,
             HighScore, HighScoreNotOut, Fifties, Hundreds, Ducks, Balls, Fours, Sixes
             )
          VALUES (
-             :PlayerId, :Season, :Matches, :Innings, :NotOuts, :Runs, :Average, :StrikeRate,
+             :PlayerId, :Season, :Innings, :NotOuts, :Runs, :Average, :StrikeRate,
              :HighScore, :HighScoreNotOut, :Fifties, :Hundreds, :Ducks, :Balls, :Fours, :Sixes
              )';
 
     const BOWLING_SUMMARY_COLS = '
         Season INTEGER,
-        Matches INTEGER,
         CompletedOvers INTEGER,
         PartialBalls INTEGER,
         Maidens INTEGER,
@@ -101,17 +127,16 @@
         ';
 
     const BOWLING_SUMMARY_INSERT = '(
-            PlayerId, Season, Matches, CompletedOvers, PartialBalls, Maidens, Runs, Wickets, Average,
+            PlayerId, Season, CompletedOvers, PartialBalls, Maidens, Runs, Wickets, Average,
             EconomyRate, StrikeRate, BestBowlingWickets, BestBowlingRuns, FiveFors, Wides, NoBalls
             )
          VALUES (
-             :PlayerId, :Season, :Matches, :CompletedOvers, :PartialBalls, :Maidens, :Runs, :Wickets, :Average,
+             :PlayerId, :Season, :CompletedOvers, :PartialBalls, :Maidens, :Runs, :Wickets, :Average,
              :EconomyRate, :StrikeRate, :BestBowlingWickets, :BestBowlingRuns, :FiveFors, :Wides, :NoBalls
              )';
 
     const FIELDING_SUMMARY_COLS = '
         Season INTEGER,
-        Matches INTEGER,
         CatchesFielding INTEGER,
         RunOuts INTEGER,
         TotalFieldingWickets INTEGER,
@@ -121,11 +146,11 @@
         ';
 
     const FIELDING_SUMMARY_INSERT = '(
-            PlayerId, Season, Matches, CatchesFielding, RunOuts, TotalFieldingWickets,
+            PlayerId, Season, CatchesFielding, RunOuts, TotalFieldingWickets,
             CatchesKeeping, Stumpings, TotalKeepingWickets
 			)
         VALUES (
-            :PlayerId, :Season, :Matches, :CatchesFielding, :RunOuts, :TotalFieldingWickets,
+            :PlayerId, :Season, :CatchesFielding, :RunOuts, :TotalFieldingWickets,
 			:CatchesKeeping, :Stumpings, :TotalKeepingWickets
 		    )';
 
@@ -220,6 +245,27 @@
             )');
 
 		// Performance summaries
+        $db->query('CREATE TABLE MatchesSummary (
+			MatchesSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			PlayerId INTEGER,'
+			. MATCHES_SUMMARY_COLS .
+			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+			)');
+
+        $db->query('CREATE TABLE CareerMatchesSummaryBase (
+			CareerMatchesSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			PlayerId INTEGER, '
+			. MATCHES_SUMMARY_COLS .
+			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+			)');
+
+        $db->query('CREATE TABLE CareerMatchesSummary (
+			CareerMatchesSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+			PlayerId INTEGER, '
+			. MATCHES_SUMMARY_COLS .
+			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+			)');
+
 		$db->query('CREATE TABLE BattingSummary (
 			BattingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			PlayerId INTEGER,'
@@ -312,20 +358,24 @@
         // Views
         db_create_player_view($db, "PlayerPerformance");
 
+        db_create_player_view($db, "MatchesSummary");
+        db_create_player_view($db, "CareerMatchesSummary");
+        db_create_player_view($db, "CareerMatchesSummaryBase");
+
         db_create_player_view($db, "BattingPerformance");
-        db_create_player_view($db, "BattingSummary");
-        db_create_player_view($db, "CareerBattingSummary");
-        db_create_player_view($db, "CareerBattingSummaryBase");
+        db_create_player_with_matches_view($db, "BattingSummary", "MatchesSummary");
+        db_create_player_with_matches_view($db, "CareerBattingSummary", "CareerMatchesSummary");
+        db_create_player_with_matches_view($db, "CareerBattingSummaryBase", "CareerMatchesSummaryBase");
 
         db_create_player_view($db, "BowlingPerformance");
-        db_create_player_view($db, "BowlingSummary");
-        db_create_player_view($db, "CareerBowlingSummary");
-        db_create_player_view($db, "CareerBowlingSummaryBase");
+        db_create_player_with_matches_view($db, "BowlingSummary", "MatchesSummary");
+        db_create_player_with_matches_view($db, "CareerBowlingSummary", "CareerMatchesSummary");
+        db_create_player_with_matches_view($db, "CareerBowlingSummaryBase", "CareerMatchesSummaryBase");
 
         db_create_player_view($db, "FieldingPerformance");
-        db_create_player_view($db, "FieldingSummary");
-        db_create_player_view($db, "CareerFieldingSummary");
-        db_create_player_view($db, "CareerFieldingSummaryBase");
+        db_create_player_with_matches_view($db, "FieldingSummary", "MatchesSummary");
+        db_create_player_with_matches_view($db, "CareerFieldingSummary", "CareerMatchesSummary");
+        db_create_player_with_matches_view($db, "CareerFieldingSummaryBase", "CareerMatchesSummaryBase");
 
         db_create_player_view($db, "Milestone");
     }
@@ -430,6 +480,21 @@
 				 :PlayerPerformanceId, :PlayerId, :Catches, :RunOuts, :Stumpings
 			 	)'
             );
+    }
+
+    function db_create_insert_matches_summary($db)
+    {
+        return $db->prepare('INSERT INTO MatchesSummary ' . MATCHES_SUMMARY_INSERT);
+    }
+
+    function db_create_insert_career_matches_summary_base($db)
+    {
+        return $db->prepare('INSERT INTO CareerMatchesSummaryBase ' . MATCHES_SUMMARY_INSERT);
+    }
+
+    function db_create_insert_career_matches_summary($db)
+    {
+        return $db->prepare('INSERT INTO CareerMatchesSummary ' . MATCHES_SUMMARY_INSERT);
     }
 
     function db_create_insert_batting_summary($db)

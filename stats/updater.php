@@ -147,6 +147,8 @@
 
                 log\info("");
                 log\info("Loading career base tables...");
+                log\info("  Matches");
+                $this->_career_summary_generator->load_matches_career_summary_base();
                 log\info("  Batting");
                 $this->_career_summary_generator->load_batting_career_summary_base();
                 log\info("  Bowling");
@@ -166,6 +168,8 @@
                     log\info("  Season $season");
 
                     log\info("    Generating season summaries");
+                    log\info("      Matches");
+                    $this->_season_summary_generator->generate_matches_summary($season);
                     log\info("      Batting");
                     $this->_season_summary_generator->generate_batting_summary($season);
                     log\info("      Bowling");
@@ -179,6 +183,8 @@
 
                     log\info("");
                     log\info("    Adding season summaries to career summaries...");
+                    log\info("      Matches");
+                    $this->_career_summary_generator->add_season_to_career_matches_summary($season);
                     log\info("      Batting");
                     $this->_career_summary_generator->add_season_to_career_batting_summary($season);
                     log\info("      Bowling");

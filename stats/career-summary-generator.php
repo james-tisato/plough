@@ -24,6 +24,9 @@
         {
             $db = $this->_db;
 
+            db_truncate_table($db, "CareerMatchesSummary");
+            db_truncate_table($db, "CareerMatchesSummaryBase");
+
             db_truncate_table($db, "CareerBattingSummary");
             db_truncate_table($db, "CareerBattingSummaryBase");
 
@@ -37,9 +40,45 @@
         public function copy_base_to_summary_tables()
         {
             $db = $this->_db;
+            $this->copy_base_to_summary("Matches", db_create_insert_career_matches_summary($db));
             $this->copy_base_to_summary("Batting", db_create_insert_career_batting_summary($db));
             $this->copy_base_to_summary("Bowling", db_create_insert_career_bowling_summary($db));
             $this->copy_base_to_summary("Fielding", db_create_insert_career_fielding_summary($db));
+        }
+
+        // Matches
+        public function load_matches_career_summary_base()
+        {
+            $db = $this->_db;
+
+            $bind_row_to_insert = function ($row, $idx, $player_id, $insert_career_matches_summary_base)
+            {
+                $insert_career_matches_summary_base->bindValue(":PlayerId", $player_id);
+                $insert_career_matches_summary_base->bindValue(":Matches", $row[$idx["Mat"]]);
+            };
+
+            $insert_career_matches_summary_base = db_create_insert_career_matches_summary_base($db);
+            $this->load_career_summary_base("Matches", $insert_career_matches_summary_base, $bind_row_to_insert);
+        }
+
+        public function add_season_to_career_matches_summary($season)
+        {
+            $db = $this->_db;
+
+            $combine = function($current_career, $season)
+            {
+                $career_summary = array();
+                $career_summary["Matches"] = $current_career["Matches"] + $season["Matches"];
+
+                return $career_summary;
+            };
+
+            $this->add_season_to_career_summary(
+                $season,
+                "Matches",
+                db_create_insert_career_matches_summary($db),
+                $combine
+                );
         }
 
         // Batting
@@ -88,7 +127,6 @@
             $combine = function($current_career, $season)
             {
                 $career_summary = array();
-                $career_summary["Matches"] = $current_career["Matches"] + $season["Matches"];
                 $career_summary["Innings"] = $current_career["Innings"] + $season["Innings"];
                 $career_summary["NotOuts"] = $current_career["NotOuts"] + $season["NotOuts"];
                 $career_summary["Runs"] = $current_career["Runs"] + $season["Runs"];
@@ -188,7 +226,6 @@
             $combine = function($current_career, $season)
             {
                 $career_summary = array();
-                $career_summary["Matches"] = $current_career["Matches"] + $season["Matches"];
                 $collapsed_overs = collapse_overs(
                     $current_career["CompletedOvers"] + $season["CompletedOvers"],
                     $current_career["PartialBalls"] + $season["PartialBalls"]
@@ -271,7 +308,6 @@
             $combine = function($current_career, $season)
             {
                 $career_summary = array();
-                $career_summary["Matches"] = $current_career["Matches"] + $season["Matches"];
                 $career_summary["CatchesFielding"] = $current_career["CatchesFielding"] + $season["CatchesFielding"];
                 $career_summary["RunOuts"] = $current_career["RunOuts"] + $season["RunOuts"];
                 $career_summary["TotalFieldingWickets"] = $current_career["TotalFieldingWickets"] + $season["TotalFieldingWickets"];
@@ -324,7 +360,7 @@
             $career_summary_table = "Career" . $summary_type . "Summary";
 
             $db->exec('BEGIN');
-            
+
             foreach ($players as $player_name => $player)
             {
                 $player_id = $player["PlayerId"];
@@ -399,8 +435,6 @@
             $insert_player = db_create_insert_player($db);
 
             $active_players = $this->load_active_players_map();
-            $matches = $this->load_matches_map();
-
             $career_base_path =
                 $this->_config->getStaticDir() . "/" . $this->get_career_base_filename($summary_type);
 
@@ -431,7 +465,6 @@
                         }
 
                         $insert_career_summary_base->bindValue(":Season", $career_base_season);
-                        $insert_career_summary_base->bindValue(":Matches", $matches[$name]);
                         $bind_row_to_insert($row, $idx, $player_id, $insert_career_summary_base);
                         $insert_career_summary_base->execute();
                     }
@@ -467,34 +500,6 @@
                         $active = ($active_str == "Y");
 
                         $result[$name] = $active;
-                    }
-                }
-            }
-
-            return $result;
-        }
-
-        private function load_matches_map()
-        {
-            $result = array();
-
-            $matches_path =
-                $this->_config->getStaticDir() . "/" . $this->get_career_base_filename("matches");
-            if (file_exists($matches_path))
-            {
-                $base = fopen($matches_path, "r");
-                while ($row = fgetcsv($base))
-                {
-                    if ($row[0] == "Player")
-                    {
-                        $idx = array_flip($row);
-                    }
-                    else
-                    {
-                        $name = $row[$idx["Player"]];
-                        $matches = $row[$idx["Mat"]];
-
-                        $result[$name] = $matches;
                     }
                 }
             }
