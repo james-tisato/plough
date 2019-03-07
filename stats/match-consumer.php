@@ -68,7 +68,7 @@
             }
 
             $matches_path = $input_mapper->getMatchesPath($season, $matches_from_date);
-            log\debug("        " . $matches_path);
+            //log\debug("        " . $matches_path);
             $matches_str = file_get_contents($matches_path);
 
             if ($this->_config->dumpInputs())
@@ -84,7 +84,12 @@
                 file_put_contents($matches_path, $matches_str);
             }
 
-            $matches = json_decode($matches_str, true)["matches"];
+            $matches_list = json_decode($matches_str, true);
+            if (array_key_exists("result_summary", $matches_list))
+                $matches = $matches_list["result_summary"];
+            else
+                $matches = $matches_list["matches"];
+
             $num_matches = count($matches);
             log\info("      $num_matches matches found");
             log\info("");

@@ -42,7 +42,7 @@
 
         public function getMatchesPath($season, $from_date)
         {
-            return $this->getPlayCricketUrlPrefix("matches") . "&site_id=" . WebDataMapper::URL_SITE_ID .
+            return $this->getPlayCricketUrlPrefix("result_summary") . "&site_id=" . WebDataMapper::URL_SITE_ID .
                 "&season=" . $season . "&from_entry_date=" . $from_date;
         }
 
