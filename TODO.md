@@ -52,7 +52,6 @@ __TODO__
         * Bugs
             * Resolve issue with missing match data for 2018
         * Refactoring
-            * Rename season summary tables to have "Summary" in the names
         * Improvements
         * Performance
             * Set up xdebug + cachegrind viewer on laptop
@@ -81,5 +80,33 @@ __TODO__
                         * Embed result in content
                     * How can we define the URL in terms of the player's name?
             * Team summary stats
+                * Results
+                    * Matches
+                        * Won / Lost / NR / Total
+                    * Batting
+                        * Total runs
+                        * Average per innings - is this PCC Par?
+                        * Average per wicket
+                        * Highest score / lowest score (in losing match)
+                        * Distribution of team scores - graph?
+                        * Average scores per batting position
+                        * 50s, 100s
+                        * Ducks, 4s, 6s
+                        * Partnerships?
+                    * Bowling
+                        * Total runs against
+                        * Total wickets taken / total wickets available
+                        * Average wickets per innings
+                        * Average runs per wicket
+                        * Highest score against / lowest score against
+                        * Distribution of scores against - graph?
+                        * Five fors
+                        * Total overs, maidens, wides, no balls
+                    * Fielding
+                        * Fielding catches
+                        * Run outs
+                        * Wk catches
+                        * Stumpings
+                * 
             * Excel export
         * New tests
