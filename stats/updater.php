@@ -199,6 +199,12 @@
                 $insert_update = db_create_insert_update($db);
                 $insert_update->bindValue(":UpdateTime", $current_datetime);
                 $insert_update->execute();
+
+                // Clear Hummingbird page cache so everyone sees the latest stats
+                log\info("");
+                log\info("Clearing Hummingbird page cache");
+                do_action('wphb_clear_page_cache');
+                log\info("Cache cleared");
             }
             else
             {
