@@ -7,9 +7,6 @@ __TODO__
                 * Desktop - including XDebug upgrade
                 * Laptop - including XDebug upgrade
     * 2019 season setup
-        * Stats
-            * When season starts:
-                * Update ploughmanscc.com/statistics link
         * Tour
             * Add 2019 details
     * Styling
@@ -50,7 +47,6 @@ __TODO__
         * Switch to class autoloading
     * Stats
         * Bugs
-            * Resolve issue with missing match data for 2018
         * Refactoring
         * Improvements
         * Performance
@@ -107,6 +103,6 @@ __TODO__
                         * Run outs
                         * Wk catches
                         * Stumpings
-                * 
+                *
             * Excel export
         * New tests
