@@ -112,15 +112,16 @@
                          p.PlayerId
                         ,COUNT(bp.BattingPerformanceId) AS Innings
                         ,SUM(CASE bp.HowOut
-                            WHEN "no" THEN 1
-                            WHEN "rh" THEN 1
+                            WHEN "not out" THEN 1
+                            WHEN "retired hurt" THEN 1
+                            WHEN "retired not out" THEN 1
                             ELSE 0 END) AS NotOuts
                         ,SUM(bp.Runs) AS Runs
-                        ,(CAST(SUM(bp.Runs) AS FLOAT) / (COUNT(bp.BattingPerformanceId) - SUM(CASE bp.HowOut WHEN "no" THEN 1 WHEN "rh" THEN 1 ELSE 0 END))) AS Average
+                        ,(CAST(SUM(bp.Runs) AS FLOAT) / (COUNT(bp.BattingPerformanceId) - SUM(CASE bp.HowOut WHEN "not out" THEN 1 WHEN "retired hurt" THEN 1 WHEN "retired not out" THEN 1 ELSE 0 END))) AS Average
                         ,((CAST(SUM(bp.Runs) AS FLOAT) / SUM(bp.Balls)) * 100.0) AS StrikeRate
                         ,SUM(CASE WHEN bp.Runs >= 50 AND bp.Runs < 100 THEN 1 ELSE 0 END) AS Fifties
                         ,SUM(CASE WHEN bp.Runs >= 100 THEN 1 ELSE 0 END) AS Hundreds
-                        ,SUM(CASE WHEN bp.Runs = 0 and bp.HowOut <> "no" THEN 1 ELSE 0 END) AS Ducks
+                        ,SUM(CASE WHEN bp.Runs = 0 and bp.HowOut <> "not out" and bp.HowOut <> "retired hurt" and bp.HowOut <> "retired not out" THEN 1 ELSE 0 END) AS Ducks
                         ,SUM(bp.Balls) as Balls
                         ,SUM(bp.Fours) as Fours
                         ,SUM(bp.Sixes) as Sixes
@@ -148,8 +149,9 @@
                          p.PlayerId as PlayerId
                         ,bp.Runs as HighScore
                         ,(CASE bp.HowOut
-                            WHEN "no" THEN 1
-                            WHEN "rh" THEN 1
+                            WHEN "not out" THEN 1
+                            WHEN "retired hurt" THEN 1
+                            WHEN "retired not out" THEN 1
                             ELSE 0 END) as HighScoreNotOut
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId

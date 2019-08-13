@@ -16,7 +16,7 @@
     // Modes of dismissal
     const DID_NOT_BAT = "did not bat";
     const CAUGHT = "ct";
-    const RUN_OUT = "ro";
+    const RUN_OUT = "run out";
     const STUMPED = "st";
 
     class MatchConsumer
