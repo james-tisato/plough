@@ -47,6 +47,7 @@ __TODO__
         * Switch to class autoloading
     * Stats
         * Bugs
+            * Nicko Dowell has two career stats entries - Nick and Nicko
         * Refactoring
         * Improvements
         * Performance
