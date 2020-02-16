@@ -1,14 +1,12 @@
 __TODO__
 * Website
     * Infrastructure
-        * Upgrades
-            * PHP 7.3
-                * Server
-                * Desktop - including XDebug upgrade
-                * Laptop - including XDebug upgrade
-    * 2019 season setup
-        * Tour
-            * Add 2019 details
+    * 2020 season setup
+        * Update stats script to fetch 2020 data
+        * Fixtures
+        * History update to reflect winning last year
+        * League table is in a new format - update script
+        * Tour - add 2020 details
     * Styling
         * Clean up custom CSS:
             * Change default table style so we don't need to specify centered text for every column
