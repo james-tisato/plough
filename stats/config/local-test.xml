@@ -1,7 +1,7 @@
 <StatsConfig>
     <!-- Seasons -->
     <Pair Key="CareerBaseSeason" Value="2017" />
-    <Pair Key="CurrentSeason" Value="2019" />
+    <Pair Key="CurrentSeason" Value="2020" />
 
     <!-- Database -->
     <Pair Key="ClearDb" Value="true" />
@@ -12,10 +12,11 @@
 
     <!-- Input -->
     <Pair Key="InputMapperName" Value="web" />
-    <Pair Key="InputMapperDir" Value="{stats_root}/dump" />
-    <!--<Pair Key="InputMapperDir" Value="{stats_root}/test/input/All-2018" />-->
     <!--<Pair Key="InputMapperDir" Value="{stats_root}/dump" />-->
-    <Pair Key="InputDumpDir" Value="{stats_root}/dump" />
+    <!--<Pair Key="InputMapperDir" Value="{stats_root}/test/input/All-2019" />-->
+    <!--<Pair Key="InputMapperDir" Value="{stats_root}/dump" />-->
+    <!--<Pair Key="InputDumpDir" Value="{stats_root}/dump" />-->
+    <!--<Pair Key="InputDumpDir" Value="{stats_root}/test/input/All-2019" />-->
 
     <!-- Output -->
     <Pair Key="OutputDir" Value="{stats_root}/output" />

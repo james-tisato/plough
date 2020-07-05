@@ -2,11 +2,15 @@ __TODO__
 * Website
     * Infrastructure
     * 2020 season setup
-        * Update stats script to fetch 2020 data
-        * Fixtures
+        * Update list of active players
+        * Use active player list to mark people as inactive at the start of the next season
+        * Add 2020 stats tables and pages to website
         * History update to reflect winning last year
+        * Tour - anything to clean up?
+        * Niraj match report
+    * 2021 season setup
         * League table is in a new format - update script
-        * Tour - add 2020 details
+        * Tour details
     * Styling
         * Clean up custom CSS:
             * Change default table style so we don't need to specify centered text for every column
@@ -45,7 +49,6 @@ __TODO__
         * Switch to class autoloading
     * Stats
         * Bugs
-            * Nicko Dowell has two career stats entries - Nick and Nicko
         * Refactoring
         * Improvements
         * Performance

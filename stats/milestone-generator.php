@@ -263,14 +263,8 @@
             )
         {
             // Calculate
-            $start_value = $start_data[$name];
-            if (is_null($start_value))
-                $start_value = 0;
-
-            $season_value = $season_data[$name];
-            if (is_null($season_value))
-                $season_value = 0;
-
+            $start_value = $start_data[$name] ?? 0;
+            $season_value = $season_data[$name] ?? 0;
             $current_value = $start_value + $season_value;
             $result = calculate_milestones($start_value, $current_value, $value_list);
 

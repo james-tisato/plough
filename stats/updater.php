@@ -116,9 +116,9 @@
             date_default_timezone_set("Europe/London");
             $current_datetime = date(DATETIME_FORMAT);
 
-            //log\info("Consuming league table for $current_season...");
-            //$this->_league_table_consumer->consume_league_table($current_season);
-            //log\info("");
+            log\info("Consuming league table for $current_season...");
+            $this->_league_table_consumer->consume_league_table($current_season);
+            log\info("");
 
             log\info("Career base data calculated up to $career_base_season");
             log\info("Current season is $current_season");

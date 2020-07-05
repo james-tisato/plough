@@ -53,7 +53,8 @@
 
         public function getLeagueTablePath($season)
         {
-            return "http://www.surreycricketleague.co.uk/index.php?option=com_content&view=article&id=81&Itemid=335";
+            //return "http://www.surreycricketleague.co.uk/index.php?option=com_content&view=article&id=81&Itemid=335";
+            return NULL;
         }
 
         private function getPlayCricketUrlPrefix($command)
