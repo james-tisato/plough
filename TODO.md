@@ -12,6 +12,7 @@ __TODO__
         * League table is in a new format - update script
         * Tour details
     * Styling
+        * Fix misaligned mobile menu entries
         * Clean up custom CSS:
             * Change default table style so we don't need to specify centered text for every column
             * Reduce number of table style sections (don't need one per distinct column count)
