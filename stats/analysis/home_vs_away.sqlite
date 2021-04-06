@@ -1,0 +1,14 @@
+select
+     ppv.Name
+    ,count(ppv.Name) as TotalGames
+    ,sum(case when m.IsPloughHome then 1 else 0 end) as HomeGames
+    ,sum(case when m.IsPloughHome then 0 else 1 end) as AwayGames
+    ,(sum(case when m.IsPloughHome then 1 else 0 end) - sum(case when m.IsPloughHome then 0 else 1 end)) HomeAwayDifferential
+    ,round((sum(case when m.IsPloughHome then 1 else 0 end) * 1.0 / (sum(case when m.IsPloughHome then 1 else 0 end) + sum(case when m.IsPloughHome then 0 else 1 end))) * 100, 0) as HomeGamePercentage
+from PlayerPerformanceView ppv
+inner join Match m on m.MatchId == ppv.MatchId
+where
+        m.Season = '2020'
+group by ppv.Name
+having TotalGames >= 3
+order by HomeAwayDifferential desc

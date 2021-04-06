@@ -1,18 +1,16 @@
 __TODO__
 * Website
     * Infrastructure
-    * 2020 season setup
+    * 2021 season setup
+        * 2021 stats page and tables
+        * League table is in a new format - update script
+        * Add keepers without dismissals to stats list, keepers matches only count games where they kept
         * Update list of active players
         * Use active player list to mark people as inactive at the start of the next season
-        * Add 2020 stats tables and pages to website
-        * History update to reflect winning last year
-        * Tour - anything to clean up?
+        * History update to reflect winning in 2019, 2020 season
+        * Tour - update to match Salisbury details
         * Niraj match report
-    * 2021 season setup
-        * League table is in a new format - update script
-        * Tour details
     * Styling
-        * Fix misaligned mobile menu entries
         * Clean up custom CSS:
             * Change default table style so we don't need to specify centered text for every column
             * Reduce number of table style sections (don't need one per distinct column count)
@@ -30,6 +28,7 @@ __TODO__
         * Fix 2017 page
             * Make table styles consistent
         * Add summary info to 2018 page
+        * Calculate career strike rates based on ball data we do have available
     * Photos
         * More photos for different categories
             * Bowling
@@ -50,6 +49,7 @@ __TODO__
         * Switch to class autoloading
     * Stats
         * Bugs
+            * Liam high score to 48*
         * Refactoring
         * Improvements
         * Performance
