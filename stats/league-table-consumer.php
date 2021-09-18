@@ -38,72 +38,74 @@
             if (!is_null($table_path))
             {
                 $table_str = file_get_contents($table_path);
-
-                if ($this->_config->dumpInputs())
+                if ($table_str)
                 {
-                    $dump_path = $this->_config->getInputDumpDataMapper()->getLeagueTablePath(
-                        $season
-                        );
-                    $dump_dir = dirname($dump_path);
-
-                    if (!file_exists($dump_dir))
-                        \plough\mkdirs($dump_dir);
-
-                    file_put_contents($dump_path, $table_str);
-                }
-
-                // Parse HTML to extract league table data
-                // Note that the HTML is usually malformed so we disable libxml error / warning
-                // generation to avoid repeatedly triggering the debugger's "stop on exception"
-                // behaviour during development.
-                $doc = new \DOMDocument();
-                \libxml_use_internal_errors(true);
-                @$doc->loadhtml($table_str);
-                \libxml_use_internal_errors(false);
-                $xpath = new \DOMXPath($doc);
-                $rows = $xpath->query('//article/table/tbody')->item(0)->getElementsByTagName('tr');
-
-                // Add each league table entry to the database
-                $db->exec('BEGIN');
-                $cell_map = array();
-                foreach ($rows as $idx => $row)
-                {
-                    $cells = $row->getElementsByTagName('td');
-                    if ($idx == 0)
+                    if ($this->_config->dumpInputs())
                     {
-                        // This is the header - map cell header names to indices
-                        foreach ($cells as $idx => $cell)
-                            $cell_map[$cell->textContent] = $idx;
+                        $dump_path = $this->_config->getInputDumpDataMapper()->getLeagueTablePath(
+                            $season
+                            );
+                        $dump_dir = dirname($dump_path);
+
+                        if (!file_exists($dump_dir))
+                            \plough\mkdirs($dump_dir);
+
+                        file_put_contents($dump_path, $table_str);
                     }
-                    else
+
+                    // Parse HTML to extract league table data
+                    // Note that the HTML is usually malformed so we disable libxml error / warning
+                    // generation to avoid repeatedly triggering the debugger's "stop on exception"
+                    // behaviour during development.
+                    $doc = new \DOMDocument();
+                    \libxml_use_internal_errors(true);
+                    @$doc->loadhtml($table_str);
+                    \libxml_use_internal_errors(false);
+                    $xpath = new \DOMXPath($doc);
+                    $rows = $xpath->query('//article/table/tbody')->item(0)->getElementsByTagName('tr');
+
+                    // Add each league table entry to the database
+                    $db->exec('BEGIN');
+                    $cell_map = array();
+                    foreach ($rows as $idx => $row)
                     {
-                        $club = $cells->item($cell_map["Club"])->textContent;
-                        $length = strlen($club);
-                        if ($club !== TABLE_SENTINEL)
+                        $cells = $row->getElementsByTagName('td');
+                        if ($idx == 0)
                         {
-                            $inserter->bindValue(":Season", $season);
-                            $inserter->bindValue(":Position", $idx);
-                            $inserter->bindValue(":Club", $club);
-                            $inserter->bindValue(":Abandoned", $cells->item($cell_map["A"])->textContent);
-                            $inserter->bindValue(":Played", $cells->item($cell_map["P"])->textContent);
-                            $inserter->bindValue(":Won", $cells->item($cell_map["W"])->textContent);
-                            $inserter->bindValue(":Lost", $cells->item($cell_map["L"])->textContent);
-                            $inserter->bindValue(":Tied", $cells->item($cell_map["T"])->textContent);
-                            $inserter->bindValue(":BonusPoints", $cells->item($cell_map["Bonus Points"])->textContent);
-                            $inserter->bindValue(":PenaltyPoints", $cells->item($cell_map["Penalty Points"])->textContent);
-                            $inserter->bindValue(":TotalPoints", $cells->item($cell_map["Total Points"])->textContent);
+                            // This is the header - map cell header names to indices
+                            foreach ($cells as $idx => $cell)
+                                $cell_map[$cell->textContent] = $idx;
+                        }
+                        else
+                        {
+                            $club = $cells->item($cell_map["Club"])->textContent;
+                            $length = strlen($club);
+                            if ($club !== TABLE_SENTINEL)
+                            {
+                                $inserter->bindValue(":Season", $season);
+                                $inserter->bindValue(":Position", $idx);
+                                $inserter->bindValue(":Club", $club);
+                                $inserter->bindValue(":Abandoned", $cells->item($cell_map["A"])->textContent);
+                                $inserter->bindValue(":Played", $cells->item($cell_map["P"])->textContent);
+                                $inserter->bindValue(":Won", $cells->item($cell_map["W"])->textContent);
+                                $inserter->bindValue(":Lost", $cells->item($cell_map["L"])->textContent);
+                                $inserter->bindValue(":Tied", $cells->item($cell_map["T"])->textContent);
+                                $inserter->bindValue(":BonusPoints", $cells->item($cell_map["Bonus Points"])->textContent);
+                                $inserter->bindValue(":PenaltyPoints", $cells->item($cell_map["Penalty Points"])->textContent);
+                                $inserter->bindValue(":TotalPoints", $cells->item($cell_map["Total Points"])->textContent);
 
-                            $average = $cells->item($cell_map["Avge"])->textContent;
-                            if ($average === TABLE_SENTINEL)
-                                $average = "-";
-                            $inserter->bindValue(":AveragePoints", $average);
+                                $average = $cells->item($cell_map["Avge"])->textContent;
+                                if ($average === TABLE_SENTINEL)
+                                    $average = "-";
+                                $inserter->bindValue(":AveragePoints", $average);
 
-                            $inserter->execute();
+                                $inserter->execute();
+                            }
                         }
                     }
-                }
 
-                $db->exec('COMMIT');
+                    $db->exec('COMMIT');
+                }
             }
         }
     }

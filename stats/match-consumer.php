@@ -169,26 +169,44 @@
                         $match_detail["match_date"]
                         );
                     $match_date_str = $match_date->format(DATE_FORMAT);
+                    $match_result = $match_detail["result"];
+                    $result_applied_to_team_id = $match_detail["result_applied_to"];
+                    $toss_won_by_team_id = $match_detail["toss_won_by_team_id"];
+                    $batted_first_team_id = $match_detail["batted_first"];
 
                     // Get team info
                     if ($match_detail["home_club_name"] == CLUB_NAME)
                     {
-                        $is_plough_match = 1;
-                        $is_plough_home = 1;
+                        $plough_club_id = $match_detail["home_club_id"];
                         $plough_team_id = $match_detail["home_team_id"];
+                        $plough_match = 1;
+                        $plough_home = 1;
                         $players = $match_detail["players"][0]["home_team"];
                     }
                     else if ($match_detail["away_club_name"] == CLUB_NAME)
                     {
-                        $is_plough_match = 1;
-                        $is_plough_home = 0;
+                        $plough_club_id = $match_detail["away_club_id"];
                         $plough_team_id = $match_detail["away_team_id"];
+                        $plough_match = 1;
+                        $plough_home = 0;
                         $players = $match_detail["players"][1]["away_team"];
                     }
                     else
                     {
-                        $is_plough_match = 0;
-                        $is_plough_home = 0;
+                        $plough_club_id = NULL;
+                        $plough_team_id = NULL;
+                        $plough_match = 0;
+                        $plough_home = NULL;
+                        $plough_won_match = NULL;
+                        $plough_won_toss = NULL;
+                        $plough_batted_first = NULL;
+                    }
+
+                    if ($plough_match)
+                    {
+                        $plough_won_match = ($match_result == 'W' && $result_applied_to_team_id == $plough_team_id) ? 1 : 0;
+                        $plough_won_toss = ($toss_won_by_team_id == $plough_team_id) ? 1 : 0;
+                        $plough_batted_first = ($batted_first_team_id == $plough_team_id) ? 1 : 0;
                     }
 
                     // Insert match
@@ -205,15 +223,20 @@
                     $insert_match->bindValue(":AwayClubName", $match_detail["away_club_name"]);
                     $insert_match->bindValue(":AwayTeamId", $match_detail["away_team_id"]);
                     $insert_match->bindValue(":AwayTeamName", $match_detail["away_team_name"]);
-                    $insert_match->bindValue(":IsPloughMatch", $is_plough_match);
-                    $insert_match->bindValue(":IsPloughHome", $is_plough_home);
-                    $insert_match->bindValue(":Result", $match_detail["result"]);
-                    $insert_match->bindValue(":ResultAppliedTo", $match_detail["result_applied_to"]);
-                    $insert_match->bindValue(":TossWonBy", $match_detail["toss_won_by_team_id"]);
-                    $insert_match->bindValue(":BattedFirst", $match_detail["batted_first"]);
+                    $insert_match->bindValue(":PloughClubId", $plough_club_id);
+                    $insert_match->bindValue(":PloughTeamId", $plough_team_id);
+                    $insert_match->bindValue(":PloughMatch", $plough_match);
+                    $insert_match->bindValue(":PloughHome", $plough_home);
+                    $insert_match->bindValue(":PloughWonMatch", $plough_won_match);
+                    $insert_match->bindValue(":PloughWonToss", $plough_won_toss);
+                    $insert_match->bindValue(":PloughBattedFirst", $plough_batted_first);
+                    $insert_match->bindValue(":Result", $match_result);
+                    $insert_match->bindValue(":ResultAppliedToTeamId", $result_applied_to_team_id);
+                    $insert_match->bindValue(":TossWonByTeamId", $toss_won_by_team_id);
+                    $insert_match->bindValue(":BattedFirstTeamId", $batted_first_team_id);
                     $match_id = db_insert_and_return_id($db, $insert_match);
 
-                    if ($is_plough_match)
+                    if ($plough_match)
                     {
                         $this->consume_player_performances(
                             $players, $match_id, $match_detail, $plough_team_id

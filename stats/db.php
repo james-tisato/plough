@@ -177,8 +177,13 @@
             AwayClubName TEXT,
             AwayTeamId INTEGER,
             AwayTeamName TEXT,
-            IsPloughMatch INTEGER,
-            IsPloughHome INTEGER,
+            PloughClubId INTEGER,
+            PloughTeamId INTEGER,
+            PloughMatch INTEGER,
+            PloughHome INTEGER,
+            PloughWonMatch INTEGER,
+            PloughWonToss INTEGER,
+            PloughBattedFirst INTEGER,
             Result TEXT,
             ResultAppliedToTeamId INTEGER,
             TossWonByTeamId INTEGER,
@@ -397,12 +402,14 @@
         return $db->prepare(
             'INSERT INTO Match (
 				PcMatchId, Status, Season, MatchDate, CompetitionType, HomeClubId, HomeClubName, HomeTeamId, HomeTeamName,
-                AwayClubId, AwayClubName, AwayTeamId, AwayTeamName, IsPloughMatch, IsPloughHome,
+                AwayClubId, AwayClubName, AwayTeamId, AwayTeamName, PloughClubId, PloughTeamId,
+                PloughMatch, PloughHome, PloughWonMatch, PloughWonToss, PloughBattedFirst,
                 Result, ResultAppliedToTeamId, TossWonByTeamId, BattedFirstTeamId
 				)
              VALUES (
 				 :PcMatchId, :Status, :Season, :MatchDate, :CompetitionType, :HomeClubId, :HomeClubName, :HomeTeamId, :HomeTeamName,
-                 :AwayClubId, :AwayClubName, :AwayTeamId, :AwayTeamName, :IsPloughMatch, :IsPloughHome,
+                 :AwayClubId, :AwayClubName, :AwayTeamId, :AwayTeamName, :PloughClubId, :PloughTeamId,
+                 :PloughMatch, :PloughHome, :PloughWonMatch, :PloughWonToss, :PloughBattedFirst,
                  :Result, :ResultAppliedToTeamId, :TossWonByTeamId, :BattedFirstTeamId
 			 	)'
             );

@@ -1,15 +1,13 @@
 __TODO__
 * Website
     * Infrastructure
-    * 2021 season setup
-        * 2021 stats page and tables
+    * 2022 season setup
         * League table is in a new format - update script
         * Add keepers without dismissals to stats list, keepers matches only count games where they kept
         * Update list of active players
         * Use active player list to mark people as inactive at the start of the next season
-        * History update to reflect winning in 2019, 2020 season
-        * Tour - update to match Salisbury details
-        * Niraj match report
+        * History update to reflect winning in 2019, 2020, 2021 season
+        * Tour 2022 details
     * Styling
         * Clean up custom CSS:
             * Change default table style so we don't need to specify centered text for every column
