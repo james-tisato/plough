@@ -154,7 +154,7 @@
                     // Keeping
                     $this->calculate_and_store(
                         $inserter, $player_id, $season, $start_data, $season_data,
-                        MS_TYPE_FIELDING, "KeepingCatches", $this->_msValuesKeepingCatches, MS_GAP_KEEPING_CATCHES, "keeping catches"
+                        MS_TYPE_KEEPING, "KeepingCatches", $this->_msValuesKeepingCatches, MS_GAP_KEEPING_CATCHES, "keeping catches"
                         );
                 }
             }
