@@ -149,7 +149,7 @@
                 {
                     log\info("        Skipping match because it is a future fixture...");
                 }
-                else if (str_contains($match_detail["match_notes"], "Excluded"))
+                else if (strpos($match_detail["match_notes"], "Excluded") !== false)
                 {
                     log\info("        Skipping match because it is marked as excluded from Plough stats...");
                 }
