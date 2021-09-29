@@ -2,6 +2,7 @@ __TODO__
 * Website
     * Infrastructure
     * 2022 season setup
+        * All 2021 test
         * League table is in a new format - update script
         * Add keepers without dismissals to stats list, keepers matches only count games where they kept
         * Update list of active players
