@@ -10,7 +10,6 @@ __TODO__
         * History update to reflect winning in 2019, 2020, 2021 season
         * Tour 2022 details
     * Styling
-        * What happened to the fonts?
         * Clean up custom CSS:
             * Change default table style so we don't need to specify centered text for every column
             * Reduce number of table style sections (don't need one per distinct column count)
