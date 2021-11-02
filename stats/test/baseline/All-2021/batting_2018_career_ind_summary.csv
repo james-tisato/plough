@@ -74,7 +74,7 @@ Player,Mat,Inns,NO,Runs,Ave,SR,HS,50s,100s,0s,4s,6s,Balls,Active,"2018 Career Mi
 "B Clark",25,22,4,339,18.83,-,78,2,0,6,13,0,-,N,
 "Sid Swaminathan",47,38,10,326,11.64,-,47,0,0,2,26,0,-,N,
 "S Raghavan",13,12,2,311,31.10,-,65,1,0,0,26,2,-,N,
-"Liam Gray",55,39,12,306,11.33,-,48,0,0,5,26,3,-,Y,"<span class='achieved-milestone'>50 matches</span>"
+"Liam Gray",55,39,12,306,11.33,-,48*,0,0,5,26,3,-,Y,"<span class='achieved-milestone'>50 matches</span>"
 "T Tearle",27,26,1,274,10.96,-,49,0,0,3,31,2,-,N,
 "Stu Campbell",10,9,3,273,45.50,84.52,65*,3,0,1,29,8,323,Y,
 "K McEvoy",33,32,6,263,10.12,-,23,0,0,3,28,0,-,N,

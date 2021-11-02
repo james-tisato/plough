@@ -1,6 +1,7 @@
 __TODO__
 * Website
     * Infrastructure
+        * Fix missing fonts
     * 2022 season setup
         * League table is in a new format - update script
         * Add keepers without dismissals to stats list, keepers matches only count games where they kept
@@ -12,10 +13,6 @@ __TODO__
         * Clean up custom CSS:
             * Change default table style so we don't need to specify centered text for every column
             * Reduce number of table style sections (don't need one per distinct column count)
-    * Fixtures
-        * Fix bad quotes in match reports
-            * 2017
-            * 2016
     * Live scores
         * Show "no live games today" text when appropriate
     * History
@@ -47,7 +44,6 @@ __TODO__
         * Switch to class autoloading
     * Stats
         * Bugs
-            * Liam high score to 48*
         * Refactoring
         * Improvements
         * Performance
