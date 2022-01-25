@@ -4,7 +4,6 @@ __TODO__
         * Fix missing fonts
     * 2022 season setup
         * League table is in a new format - update script
-        * Add keepers without dismissals to stats list, keepers matches only count games where they kept
         * Update list of active players
         * Use active player list to mark people as inactive at the start of the next season
         * History update to reflect winning in 2019, 2020, 2021 season
@@ -49,6 +48,7 @@ __TODO__
         * Performance
             * Set up xdebug + cachegrind viewer on laptop
         * New features
+            * Tour stats
             * Add static season summary support
             * Page per player
                 * What will the format be?

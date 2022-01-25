@@ -397,6 +397,17 @@
             $insert_fielding_perf = db_create_insert_fielding_performance($db);
 
             $player_to_fielding = array();
+            foreach ($player_perf_cache as $pc_player_id => $player_perf_id)
+            {
+                // Every player in the match gets a fielding performance, even if they didn't get any
+                // fielding stats, since they still fielded
+                $player_to_fielding[$pc_player_id] = array(
+                    "catches" => 0,
+                    "run_outs" => 0,
+                    "stumpings" => 0
+                    );
+            }
+
             foreach ($oppo_batting_perfs as $oppo_batting_perf_idx => $oppo_batting_perf)
             {
                 $pc_player_id = $oppo_batting_perf["fielder_id"];
@@ -404,15 +415,6 @@
 
                 if (!empty($pc_player_id) && $player_name != UNSURE_NAME)
                 {
-                    if (!array_key_exists($pc_player_id, $player_to_fielding))
-                    {
-                        $player_to_fielding[$pc_player_id] = array(
-                            "catches" => 0,
-                            "run_outs" => 0,
-                            "stumpings" => 0
-                            );
-                    }
-
                     $how_out = $oppo_batting_perf["how_out"];
                     if ($how_out == CAUGHT)
                         $player_to_fielding[$pc_player_id]["catches"]++;

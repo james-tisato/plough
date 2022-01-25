@@ -281,10 +281,11 @@
                 "Active", get_milestone_col_header($season)
                 );
 
+            $matches_field_name = $period_type == PERIOD_SEASON ? "MatchesFielding" : "Matches";
             $statement = $db->prepare(
                'SELECT
                       p.Name
-                     ,ms.Matches
+                     ,ms.' . $matches_field_name . '
                      ,fs.CatchesFielding
                      ,fs.RunOuts
                      ,fs.TotalFieldingWickets
@@ -320,10 +321,12 @@
                 "Active", get_milestone_col_header($season)
                 );
 
+            $matches_field_name = $period_type == PERIOD_SEASON ? "MatchesKeeping" : "Matches";
+            $filter_clause = $period_type == PERIOD_SEASON ? "ms.MatchesKeeping > 0" : "fs.TotalKeepingWickets > 0";
             $statement = $db->prepare(
                'SELECT
                       p.Name
-                     ,ms.Matches
+                     ,ms.' . $matches_field_name . '
                      ,fs.CatchesKeeping
                      ,fs.Stumpings
                      ,fs.TotalKeepingWickets
@@ -332,7 +335,7 @@
                 INNER JOIN ' . $table_name . ' fs on fs.PlayerId = p.PlayerId
                 INNER JOIN ' . $matches_table_name . ' ms on ms.PlayerId = p.PlayerId
                 WHERE
-                        fs.TotalKeepingWickets > 0
+                        ' . $filter_clause . '
                     AND fs.Season = :Season
                     AND ms.Season = :Season
                 ORDER by fs.TotalKeepingWickets DESC, fs.CatchesKeeping DESC, ms.Matches DESC, p.Name

@@ -74,13 +74,16 @@
     const MATCHES_SUMMARY_COLS = '
         Season INTEGER,
         Matches INTEGER,
+        MatchesCaptaining INTEGER,
+        MatchesFielding INTEGER,
+        MatchesKeeping INTEGER,
         ';
 
     const MATCHES_SUMMARY_INSERT = '(
-            PlayerId, Season, Matches
+            PlayerId, Season, Matches, MatchesCaptaining, MatchesFielding, MatchesKeeping
             )
         VALUES (
-            :PlayerId, :Season, :Matches
+            :PlayerId, :Season, :Matches, :MatchesCaptaining, :MatchesFielding, :MatchesKeeping
         )';
 
     const BATTING_SUMMARY_COLS = '

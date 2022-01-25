@@ -46,6 +46,9 @@
                     'SELECT
                          p.PlayerId
                         ,COUNT(pp.PlayerPerformanceId) AS Matches
+                        ,SUM(CASE WHEN pp.Captain = 1 THEN 1 ELSE 0 END) as MatchesCaptaining
+                        ,SUM(CASE WHEN pp.Wicketkeeper = 0 THEN 1 ELSE 0 END) as MatchesFielding
+                        ,SUM(CASE WHEN pp.Wicketkeeper = 1 THEN 1 ELSE 0 END) as MatchesKeeping
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
                     INNER JOIN Match m on m.MatchId = pp.MatchId

@@ -55,6 +55,9 @@
             {
                 $insert_career_matches_summary_base->bindValue(":PlayerId", $player_id);
                 $insert_career_matches_summary_base->bindValue(":Matches", $row[$idx["Mat"]]);
+                $insert_career_matches_summary_base->bindValue(":MatchesCaptaining", 0);
+                $insert_career_matches_summary_base->bindValue(":MatchesFielding", 0);
+                $insert_career_matches_summary_base->bindValue(":MatchesKeeping", 0);
             };
 
             $insert_career_matches_summary_base = db_create_insert_career_matches_summary_base($db);
@@ -69,6 +72,9 @@
             {
                 $career_summary = array();
                 $career_summary["Matches"] = $current_career["Matches"] + $season["Matches"];
+                $career_summary["MatchesCaptaining"] = $current_career["MatchesCaptaining"] + $season["MatchesCaptaining"];
+                $career_summary["MatchesFielding"] = $current_career["MatchesFielding"] + $season["MatchesFielding"];
+                $career_summary["MatchesKeeping"] = $current_career["MatchesKeeping"] + $season["MatchesKeeping"];
 
                 return $career_summary;
             };
