@@ -1,7 +1,6 @@
 __TODO__
 * Website
     * Infrastructure
-        * Fix missing fonts
     * 2022 season setup
         * League table is in a new format - update script
         * Update list of active players
@@ -19,9 +18,11 @@ __TODO__
     * Stats
         * Average sort doesn't work when people have no average
         * Best bowling sort doesn't work properly
-        * Fix 2017 page
-            * Make table styles consistent
-        * Add summary info to 2018 page
+            * Add copy of tablepress datatables sorting plugin to our plugin
+            * Add it to packaging
+            * Activate it during our plugin initialisation
+            * Write custom JS code to do sorting (how exactly do -pre, -asc, -desc work?)
+            * Activate plugin on bowling tables
         * Calculate career strike rates based on ball data we do have available
     * Photos
         * More photos for different categories
@@ -100,6 +101,4 @@ __TODO__
                         * Run outs
                         * Wk catches
                         * Stumpings
-                *
             * Excel export
-        * New tests

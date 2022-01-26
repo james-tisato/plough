@@ -724,6 +724,10 @@ body {
   background-color: #FFFBEC !important;
 }
 
+.row-highlight-division td {
+  background-color: #FFFBEC !important;
+}
+
 .row-highlight-tour td {
   background-color: #FFF3FE !important;
 }
