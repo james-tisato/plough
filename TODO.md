@@ -2,7 +2,7 @@ __TODO__
 * Website
     * Infrastructure
     * 2022 season setup
-        * League table is in a new format - update script
+        * League table is in a new format - update script. Also need to include Div 2 table!
         * Update list of active players
         * Use active player list to mark people as inactive at the start of the next season
         * History update to reflect winning in 2019, 2020, 2021 season
@@ -11,15 +11,9 @@ __TODO__
         * Clean up custom CSS:
             * Change default table style so we don't need to specify centered text for every column
             * Reduce number of table style sections (don't need one per distinct column count)
-    * Live scores
-        * Show "no live games today" text when appropriate
     * History
         * Auto-sizing of roll of honour table?
     * Stats
-        * Average sort doesn't work when people have no average
-        * Best bowling sort doesn't work properly
-            * Write custom JS code to do sorting (how exactly do -pre, -asc, -desc work?)
-            * Activate plugin on bowling tables
         * Calculate career strike rates based on ball data we do have available
     * Photos
         * More photos for different categories

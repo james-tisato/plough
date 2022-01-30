@@ -29,6 +29,6 @@ add_filter( 'tablepress_table_js_options', 'tablepress_enqueue_datatables_sortin
  */
 function tablepress_enqueue_datatables_sorting_plugins_js_plough( $js_options, $table_id, $render_options ) {
 	$js_url = plugins_url( "jquery.datatables.sorting-plugins-plough.js", __FILE__ );
-	wp_enqueue_script( 'tablepress-datatables-sorting-plugins-plough', $js_url, array( 'tablepress-datatables' ), '0.3', true );
+	wp_enqueue_script( 'tablepress-datatables-sorting-plugins-plough', $js_url, array( 'tablepress-datatables' ), '0.4', true );
 	return $js_options;
 }
