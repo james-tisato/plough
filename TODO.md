@@ -18,9 +18,6 @@ __TODO__
     * Stats
         * Average sort doesn't work when people have no average
         * Best bowling sort doesn't work properly
-            * Add copy of tablepress datatables sorting plugin to our plugin
-            * Add it to packaging
-            * Activate it during our plugin initialisation
             * Write custom JS code to do sorting (how exactly do -pre, -asc, -desc work?)
             * Activate plugin on bowling tables
         * Calculate career strike rates based on ball data we do have available

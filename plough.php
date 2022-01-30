@@ -2,7 +2,7 @@
 /*
 Plugin Name:	Plough
 Description:	Provides Plough-specific features like stats generation
-Version:		0.0.15
+Version:		0.0.16
 Author:			James Tisato
 */
 
@@ -10,6 +10,7 @@ use plough\log;
 
 require_once("logger.php");
 require_once("stats/init.php");
+require_once("tablepress/sorting_plugins.php");
 
 function init()
 {

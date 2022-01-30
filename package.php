@@ -55,6 +55,9 @@
             add_file($zip, "stats/static/career-stats-fielding-end-2017.csv");
             add_file($zip, "stats/static/career-stats-matches-end-2017.csv");
 
+            add_file($zip, "tablepress/jquery.datatables.sorting-plugins-plough.js");
+            add_file($zip, "tablepress/sorting_plugins.php");
+
 		    $zip->close();
 		}
 
