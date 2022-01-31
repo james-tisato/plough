@@ -350,6 +350,7 @@
         $db->query('CREATE TABLE LeagueTableEntry (
 			LeagueTableEntryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             Season INTEGER,
+            Division TEXT,
             Position INTEGER,
             Club TEXT,
             Abandoned INTEGER,
@@ -568,11 +569,11 @@
     {
         return $db->prepare(
             'INSERT INTO LeagueTableEntry (
-                Season, Position, Club, Abandoned, Played, Won, Lost, Tied,
+                Season, Division, Position, Club, Abandoned, Played, Won, Lost, Tied,
                 BonusPoints, PenaltyPoints, TotalPoints, AveragePoints
                 )
              VALUES (
-                 :Season, :Position, :Club, :Abandoned, :Played, :Won, :Lost, :Tied,
+                 :Season, :Division, :Position, :Club, :Abandoned, :Played, :Won, :Lost, :Tied,
                  :BonusPoints, :PenaltyPoints, :TotalPoints, :AveragePoints
                 )'
             );

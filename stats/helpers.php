@@ -106,4 +106,17 @@
         else
             return null;
     }
+
+    function get_league_divisions_for_season($season) {
+        if ($season <= 2018)
+            return array("2");
+        else if ($season == 2019)
+            return array("1");
+        else if ($season == 2020 || $season == 2021)
+            return array("prem");
+        else if ($season == 2022)
+            return array("prem", "2");
+        else
+            throw new \Exception("Unknown season {$season}");
+    }
 ?>

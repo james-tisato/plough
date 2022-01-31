@@ -107,8 +107,8 @@
 
         public function generate_other_csv_files($season)
         {
-            log\info("    League table for $season");
-            $this->generate_league_table_csv($season);
+            log\info("    League tables for $season");
+            $this->generate_league_table_csvs($season);
             log\info("    Last updated");
             $this->generate_last_updated_csv();
         }
@@ -140,7 +140,7 @@
             $this->generate_csv_output("last_updated", $table);
         }
 
-        private function generate_league_table_csv($season)
+        private function generate_league_table_csvs($season)
         {
             $db = $this->_db;
 
@@ -148,27 +148,33 @@
                 "Team", "A", "P", "W", "L", "T", "Bonus", "Penalty", "Total", "Average"
                 );
 
-            $statement = $db->prepare(
-               'SELECT
-                      Club
-                     ,Abandoned
-                     ,Played
-                     ,Won
-                     ,Lost
-                     ,Tied
-                     ,BonusPoints
-                     ,PenaltyPoints
-                     ,TotalPoints
-                     ,AveragePoints
-                FROM LeagueTableEntry
-                WHERE
-                        Season = :Season
-                ORDER BY Position
-                ');
-            $statement->bindValue(":Season", $season);
+            $divisions = get_league_divisions_for_season($season);
+            foreach ($divisions as $division)
+            {
+                $statement = $db->prepare(
+                   'SELECT
+                          Club
+                         ,Abandoned
+                         ,Played
+                         ,Won
+                         ,Lost
+                         ,Tied
+                         ,BonusPoints
+                         ,PenaltyPoints
+                         ,TotalPoints
+                         ,AveragePoints
+                    FROM LeagueTableEntry
+                    WHERE
+                            Season = :Season
+                        AND Division = :Division
+                    ORDER BY Position
+                    ');
+                $statement->bindValue(":Season", $season);
+                $statement->bindValue(":Division", $division);
 
-            $rows = get_formatted_rows_from_query($statement);
-            $this->generate_csv_output("league_table_$season", $rows, $header);
+                $rows = get_formatted_rows_from_query($statement);
+                $this->generate_csv_output("league_table_{$season}_div_{$division}", $rows, $header);
+            }
         }
 
         private function generate_batting_summary_csv($period_type, $season)

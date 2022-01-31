@@ -6,7 +6,7 @@
         public function getMatchesPath($season, $from_date);
         public function getMatchDetailPath($season, $pc_match_id);
 
-        public function getLeagueTablePath($season);
+        public function getLeagueTablePath($season, $division);
     }
 
     class FileDataMapper implements DataMapper
@@ -28,9 +28,9 @@
             return "$this->_root_path/$season/match_" . $pc_match_id . ".json";
         }
 
-        public function getLeagueTablePath($season)
+        public function getLeagueTablePath($season, $division)
         {
-            return "$this->_root_path/$season/league_table.html";
+            return "$this->_root_path/$season/league_table_div_$division.html";
         }
     }
 
@@ -51,7 +51,7 @@
             return $this->getPlayCricketUrlPrefix("match_detail") . "&match_id=" . $pc_match_id;
         }
 
-        public function getLeagueTablePath($season)
+        public function getLeagueTablePath($season, $division)
         {
             //return "http://www.surreycricketleague.co.uk/index.php?option=com_content&view=article&id=81&Itemid=335";
             return NULL;
