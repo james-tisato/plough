@@ -30,7 +30,8 @@
 
         public function getLeagueTablePath($season, $division)
         {
-            return "$this->_root_path/$season/league_table_div_$division.html";
+            $extension = $season < 2020 ? "html" : "json";
+            return "$this->_root_path/$season/league_table_div_$division.$extension";
         }
     }
 
@@ -39,6 +40,12 @@
         const URL_PREFIX = "http://play-cricket.com/api/v2/";
         const URL_SITE_ID = "8087";
         const URL_API_TOKEN = "cd3d9f47cef70496b9b3bfbab5231214";
+
+        const LEAGUE_TABLE_ID_MAP = array(
+            "prem" => 5659,
+            "1" => 5666,
+            "2" => 5669
+            );
 
         public function getMatchesPath($season, $from_date)
         {
@@ -53,8 +60,9 @@
 
         public function getLeagueTablePath($season, $division)
         {
-            //return "http://www.surreycricketleague.co.uk/index.php?option=com_content&view=article&id=81&Itemid=335";
-            return NULL;
+            $table_id = WebDataMapper::LEAGUE_TABLE_ID_MAP[$division];
+            return "https://surreycricketleague.co.uk/wp-admin/admin-ajax.php?action=wp_ajax_ninja_tables_public_action&" .
+                   "table_id=$table_id&target_action=get-all-data&default_sorting=old_first";
         }
 
         private function getPlayCricketUrlPrefix($command)

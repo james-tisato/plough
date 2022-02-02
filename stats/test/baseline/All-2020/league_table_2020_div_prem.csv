@@ -1,9 +1,11 @@
 Team,A,P,W,L,T,Bonus,Penalty,Total,Average
-"Ploughmans CC",1,13,11,2,-,16,0,236,18.15
-"Croydon CC A",-,14,11,3,-,24,0,244,17.43
-"Ewell CC 3rd XI",-,14,10,4,-,19,0,219,15.64
-"Sutton Challengers CC 3rd XI",1,13,7,6,-,41,7,174,13.38
-"Croydon Lions CC",-,14,6,8,-,58,0,178,12.71
-"Croydon CC B",-,13,4,9,-,53,0,133,10.23
-"Spencer CC Sharks",-,13,4,9,-,59,21,118,9.08
-"London Welsh CC",-,14,1,13,-,74,1,93,6.64
+Ploughmans,5,13,11,2,,16,236,236,18.15
+"Surrey Warriors A",5,13,9,4,,30,210,210,16.15
+"Surrey Warriors",4,14,10,4,,22,222,222,15.86
+"London Gymkhana",5,13,7,6,,33,173,173,13.31
+"Sutton Challengers",4,14,7,7,,45,184,184,13.14
+"St Lukes",6,12,5,7,,39,139,139,11.58
+"Bec Old Boys",5,13,5,8,,42,141,141,10.85
+Ottershaw,5,13,5,8,,42,137,137,10.54
+Wandsworth,5,13,4,9,,57,128,128,9.85
+"Balham & Tooting",6,12,2,10,,55,95,95,7.92
