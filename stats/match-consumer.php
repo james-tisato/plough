@@ -257,7 +257,7 @@
         {
             $db = $this->_db;
             $insert_player = db_create_insert_player($db);
-            $update_player = db_create_update_player($db);
+            $update_player = db_create_update_player_name($db);
             $insert_player_perf = db_create_insert_player_performance($db);
 
             // Player performance cache for this match
@@ -270,22 +270,21 @@
 
                 if ($player_name != UNSURE_NAME)
                 {
+                    // We don't set the Active flag for players here - it is done later
                     if (!array_key_exists($pc_player_id, $this->_player_cache))
                     {
                         // Player doesn't exist - insert
                         $insert_player->bindValue(":PcPlayerId", $pc_player_id);
                         $insert_player->bindValue(":Name", $player_name);
-                        $insert_player->bindValue(":Active", 1);
+                        $insert_player->bindValue(":Active", 0);
                         $player_id = db_insert_and_return_id($db, $insert_player);
                         $this->_player_cache[$pc_player_id] = $player_id;
                     }
                     else
                     {
-                        // Player exists - update player name and/or PC player id in case it has changed
-                        // Also mark as active because they have played a game this season
+                        // Player exists - update player name in case it has changed
                         $update_player->bindValue(":PcPlayerId", $pc_player_id);
                         $update_player->bindValue(":Name", $player_name);
-                        $update_player->bindValue(":Active", 1);
                         $update_player->execute();
                     }
 

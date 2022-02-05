@@ -439,7 +439,6 @@
             $players = get_players_by_name($db);
             $insert_player = db_create_insert_player($db);
 
-            $active_players = $this->load_active_players_map();
             $career_base_path =
                 $this->_config->getStaticDir() . "/" . $this->get_career_base_filename($summary_type);
 
@@ -459,9 +458,10 @@
                         $name = $row[$idx["Player"]];
                         if (!array_key_exists($name, $players))
                         {
+                            // We don't set the Active flag for players here - it is done later
                             $insert_player->bindValue(":PcPlayerId", NO_PC_PLAYER_ID);
                             $insert_player->bindValue(":Name", $name);
-                            $insert_player->bindValue(":Active", $active_players[$name]);
+                            $insert_player->bindValue(":Active", 0);
                             $player_id = db_insert_and_return_id($db, $insert_player);
                         }
                         else
@@ -482,34 +482,6 @@
             {
                 log\warning("      File not found");
             }
-        }
-
-        private function load_active_players_map()
-        {
-            $result = array();
-
-            $active_players_path = $this->_config->getStaticDir() . "/active-players-base.csv";
-            if (file_exists($active_players_path))
-            {
-                $base = fopen($active_players_path, "r");
-                while ($row = fgetcsv($base))
-                {
-                    if ($row[0] == "Player")
-                    {
-                        $idx = array_flip($row);
-                    }
-                    else
-                    {
-                        $name = $row[$idx["Player"]];
-                        $active_str = $row[$idx["Active"]];
-                        $active = ($active_str == "Y");
-
-                        $result[$name] = $active;
-                    }
-                }
-            }
-
-            return $result;
         }
 
         function get_career_base_filename($summary_type)

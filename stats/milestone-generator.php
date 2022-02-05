@@ -70,6 +70,7 @@
     class MilestoneGenerator
     {
         // Properties
+        private $_config;
         private $_db;
 
         // Milestone values
@@ -89,8 +90,9 @@
         private $_msValuesKeepingCatches;
 
         // Public methods
-        public function __construct(\SQLite3 $db)
+        public function __construct($config, \SQLite3 $db)
         {
+            $this->_config = $config;
             $this->_db = $db;
 
             // Build milestone value lists
@@ -113,47 +115,47 @@
             $inserter = db_create_insert_milestone($db);
             $players = get_players_by_name($db);
 
-            // Calculate relevant milestones for active players
+            // Calculate relevant milestones
             foreach ($players as $player_name => $player)
             {
-                if ($player["Active"])
+                // Players without a Play-Cricket ID haven't played since 2017 (at the latest)
+                // and definitely don't have any milestone data. We skip them here for efficiency.
+                if ($player["PcPlayerId"] != NO_PC_PLAYER_ID)
                 {
-                    $player_id = $player["PlayerId"];
-
                     // Fetch start / season data for fields of interest
                     // Assumes that this function is called immediately after the season
                     // summary is calculated for $season but before it is added to the
                     // career summary.
-                    $start_data = $this->get_milestone_data($player_id, PERIOD_CAREER, $season - 1);
-                    $season_data = $this->get_milestone_data($player_id, PERIOD_SEASON, $season);
+                    $start_data = $this->get_milestone_data($player, PERIOD_CAREER, $season - 1);
+                    $season_data = $this->get_milestone_data($player, PERIOD_SEASON, $season);
 
                     // General
                     $this->calculate_and_store(
-                        $inserter, $player_id, $season, $start_data, $season_data,
+                        $inserter, $player, $season, $start_data, $season_data,
                         MS_TYPE_GENERAL, "Matches", $this->_msValuesMatches, MS_GAP_MATCHES
                         );
 
                     // Batting
                     $this->calculate_and_store(
-                        $inserter, $player_id, $season, $start_data, $season_data,
+                        $inserter, $player, $season, $start_data, $season_data,
                         MS_TYPE_BATTING, "Runs", $this->_msValuesRuns, MS_GAP_RUNS
                         );
 
                     // Bowling
                     $this->calculate_and_store(
-                        $inserter, $player_id, $season, $start_data, $season_data,
+                        $inserter, $player, $season, $start_data, $season_data,
                         MS_TYPE_BOWLING, "Wickets", $this->_msValuesWickets, MS_GAP_WICKETS
                         );
 
                     // Fielding
                     $this->calculate_and_store(
-                        $inserter, $player_id, $season, $start_data, $season_data,
+                        $inserter, $player, $season, $start_data, $season_data,
                         MS_TYPE_FIELDING, "Catches", $this->_msValuesCatches, MS_GAP_CATCHES
                         );
 
                     // Keeping
                     $this->calculate_and_store(
-                        $inserter, $player_id, $season, $start_data, $season_data,
+                        $inserter, $player, $season, $start_data, $season_data,
                         MS_TYPE_KEEPING, "KeepingCatches", $this->_msValuesKeepingCatches, MS_GAP_KEEPING_CATCHES, "keeping catches"
                         );
                 }
@@ -224,7 +226,7 @@
             return $rows_with_milestones;
         }
 
-        private function get_milestone_data($player_id, $period_type, $season)
+        private function get_milestone_data($player, $period_type, $season)
         {
             $db = $this->_db;
 
@@ -253,13 +255,13 @@
                     AND f.Season = :Season
                 ORDER BY p.PlayerId
                 ');
-            $statement->bindValue(":PlayerId", $player_id);
+            $statement->bindValue(":PlayerId", $player["PlayerId"]);
             $statement->bindValue(":Season", $season);
             return $statement->execute()->fetchArray(SQLITE3_ASSOC);
         }
 
         private function calculate_and_store(
-            $inserter, $player_id, $season, $start_data, $season_data, $type, $name, $value_list, $max_gap_to_next, $name_for_desc = null
+            $inserter, $player, $season, $start_data, $season_data, $type, $name, $value_list, $max_gap_to_next, $name_for_desc = null
             )
         {
             // Calculate
@@ -269,7 +271,7 @@
             $result = calculate_milestones($start_value, $current_value, $value_list);
 
             // Store
-            $inserter->bindValue(":PlayerId", $player_id);
+            $inserter->bindValue(":PlayerId", $player["PlayerId"]);
             $inserter->bindValue(":Season", $season);
             $inserter->bindValue(":Type", $type);
             $name_to_use = (is_null($name_for_desc) ? $name : $name_for_desc);
@@ -280,12 +282,15 @@
                 $inserter->execute();
             }
 
-            $gap = $result->next - $current_value;
-            if ($gap <= $max_gap_to_next)
+            if ($season == $this->_config->getCurrentSeason() && $player["Active"])
             {
-                $inserter->bindValue(":State", MS_STATE_NEXT);
-                $inserter->bindValue(":Description", get_milestone_description($result->next, $name_to_use, $gap));
-                $inserter->execute();
+                $gap = $result->next - $current_value;
+                if ($gap <= $max_gap_to_next)
+                {
+                    $inserter->bindValue(":State", MS_STATE_NEXT);
+                    $inserter->bindValue(":Description", get_milestone_description($result->next, $name_to_use, $gap));
+                    $inserter->execute();
+                }
             }
         }
     }

@@ -34,6 +34,7 @@
             add_file($zip, "Psr/Log/LoggerInterface.php");
             add_file($zip, "Psr/Log/LogLevel.php");
 
+            add_file($zip, "stats/active-player-marker.php");
             add_file($zip, "stats/career-summary-generator.php");
             add_file($zip, "stats/config.php");
             add_file($zip, "stats/csv-generator.php");

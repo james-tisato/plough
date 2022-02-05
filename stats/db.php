@@ -438,10 +438,17 @@
             );
     }
 
-    function db_create_update_player($db)
+    function db_create_update_player_name($db)
     {
         return $db->prepare(
             'UPDATE Player SET Name = :Name WHERE PcPlayerId = :PcPlayerId'
+            );
+    }
+
+    function db_create_update_player_active($db)
+    {
+        return $db->prepare(
+            'UPDATE Player SET Active = :Active WHERE Name = :Name'
             );
     }
 

@@ -1,14 +1,12 @@
 Player,Mat,"Wk Ct",St,"Wk Total",Active,"2019 Career Milestones"
 "Tom Lockhart",153,69,6,75,Y,
-"Nicko Dowell",79,47,0,47,Y,"<span class='next-milestone'>50 keeping catches
-(3 needed)</span>"
+"Nicko Dowell",79,47,0,47,N,
 "Leon Parks",278,46,0,46,Y,
 "S Anaokar",129,40,0,40,N,
 "Patrick Gledhill",108,37,3,40,Y,
 "Chris Feeney",163,29,0,29,N,
-"Richard Buckley",205,22,4,26,Y,"<span class='next-milestone'>25 keeping catches
-(3 needed)</span>"
-"Freddie Mills",110,17,1,18,Y,
+"Richard Buckley",205,22,4,26,Y,
+"Freddie Mills",110,17,1,18,N,
 "Kesh Wanigasekara",23,10,6,16,Y,
 "R Richardson",30,15,0,15,N,
 "Chris Ovens",53,11,1,12,Y,
@@ -24,7 +22,7 @@ Player,Mat,"Wk Ct",St,"Wk Total",Active,"2019 Career Milestones"
 "Dyll Davies",261,2,0,2,N,
 "Adam Barraclough",80,2,0,2,Y,
 "Robert Keogh",52,2,0,2,Y,
-"Gareth Shaw",19,2,0,2,Y,
+"Gareth Shaw",19,2,0,2,N,
 "E Shelley",1,2,0,2,N,
 "G Jones",1,2,0,2,N,
 "T Oxenham",1,2,0,2,N,
@@ -35,8 +33,8 @@ Player,Mat,"Wk Ct",St,"Wk Total",Active,"2019 Career Milestones"
 "Tom James",17,1,0,1,N,
 "D Banger",14,1,0,1,N,
 "M Lachmann",14,1,0,1,N,
-"Dave Risley",8,1,0,1,Y,
+"Dave Risley",8,1,0,1,N,
 "F Jagger",5,1,0,1,N,
 "D Riley",3,1,0,1,N,
 "M Crew",1,1,0,1,N,
-"Rob Bentley",1,1,0,1,Y,
+"Rob Bentley",1,1,0,1,N,

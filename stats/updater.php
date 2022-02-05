@@ -5,6 +5,7 @@
     require_once(__DIR__ . "/../logger.php");
     require_once(__DIR__ . "/../utils.php");
 
+    require_once("active-player-marker.php");
     require_once("career-summary-generator.php");
     require_once("config.php");
     require_once("csv-generator.php");
@@ -96,8 +97,11 @@
             $this->_season_summary_generator = new SeasonSummaryGenerator(
                 $this->_db
                 );
+            $this->_active_player_marker = new ActivePlayerMarker(
+                $this->_config, $this->_db
+                );
             $this->_milestone_generator = new MilestoneGenerator(
-                $this->_db
+                $this->_config, $this->_db
                 );
             $this->_csv_generator = new CsvGenerator(
                 $this->_config, $this->_db, $this->_milestone_generator
@@ -159,6 +163,10 @@
                 log\info("");
                 log\info("Copying career base to career summary...");
                 $this->_career_summary_generator->copy_base_to_summary_tables();
+
+                log\info("");
+                log\info("Marking players as active...");
+                $this->_active_player_marker->mark_active_players();
 
                 log\info("");
                 log\info("Building summary tables...");

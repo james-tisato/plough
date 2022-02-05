@@ -92,7 +92,7 @@
             }
         }
 
-        public function extract_table_data($table_str)
+        private function extract_table_data($table_str)
         {
             $raw_rows = json_decode($table_str);
             $rows = array();
@@ -117,7 +117,7 @@
             return $rows;
         }
 
-        public function extract_pre_2020_table_data($table_str)
+        private function extract_pre_2020_table_data($table_str)
         {
             // Parse HTML to extract league table data
             // Note that the HTML is usually malformed so we disable libxml error / warning
