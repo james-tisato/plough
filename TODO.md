@@ -2,7 +2,6 @@ __TODO__
 * Website
     * Infrastructure
     * 2022 season setup
-        * 2022 stats tables
         * History update to reflect winning in 2019, 2020, 2021 season
         * Tour 2022 details
     * Styling
@@ -12,7 +11,6 @@ __TODO__
     * History
         * Auto-sizing of roll of honour table?
     * Stats
-        * Calculate career strike rates based on ball data we do have available
     * Photos
         * More photos for different categories
             * Bowling

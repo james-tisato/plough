@@ -68,7 +68,7 @@
         {
             $db = $this->_db;
 
-            $combine = function($current_career, $season)
+            $combine = function($career_summary_base, $current_career, $season)
             {
                 $career_summary = array();
                 $career_summary["Matches"] = $current_career["Matches"] + $season["Matches"];
@@ -130,7 +130,7 @@
         {
             $db = $this->_db;
 
-            $combine = function($current_career, $season)
+            $combine = function($career_summary_base, $current_career, $season)
             {
                 $career_summary = array();
                 $career_summary["Innings"] = $current_career["Innings"] + $season["Innings"];
@@ -141,16 +141,22 @@
                     $career_summary["Runs"], $career_summary["Innings"], $career_summary["NotOuts"]
                     );
 
-                if ($current_career["Balls"])
-                {
-                    $career_summary["Balls"] = $current_career["Balls"] + $season["Balls"];
-                    $career_summary["StrikeRate"] = get_batting_strike_rate($career_summary["Runs"], $career_summary["Balls"]);
-                }
+                // Calculate number of balls in career, starting from zero if we have historical career
+                // data that doesn't include a ball count
+                if (is_null($current_career["Balls"]))
+                    $current_career["Balls"] = 0;
+                $career_summary["Balls"] = $current_career["Balls"] + $season["Balls"];
+
+                // Determine the number of runs from which to calculate the strike rate. If we don't have any`
+                // ball count data in the career base for this player, we only have balls that have been faced
+                // in seasons since then => we must only include runs scored since then.
+                if (is_null($career_summary_base["Balls"]))
+                    $runs_for_strike_rate = $career_summary["Runs"] - $career_summary_base["Runs"];
                 else
-                {
-                    $career_summary["Balls"] = null;
-                    $career_summary["StrikeRate"] = null;
-                }
+                    $runs_for_strike_rate = $career_summary["Runs"];
+
+                // Finally calculate the strike rate
+                $career_summary["StrikeRate"] = get_batting_strike_rate($runs_for_strike_rate, $career_summary["Balls"]);
 
                 if ($current_career["HighScore"] > $season["HighScore"])
                 {
@@ -229,7 +235,7 @@
         {
             $db = $this->_db;
 
-            $combine = function($current_career, $season)
+            $combine = function($career_summary_base, $current_career, $season)
             {
                 $career_summary = array();
                 $collapsed_overs = collapse_overs(
@@ -311,7 +317,7 @@
         {
             $db = $this->_db;
 
-            $combine = function($current_career, $season)
+            $combine = function($career_summary_base, $current_career, $season)
             {
                 $career_summary = array();
                 $career_summary["CatchesFielding"] = $current_career["CatchesFielding"] + $season["CatchesFielding"];
@@ -370,6 +376,17 @@
             {
                 $player_id = $player["PlayerId"];
 
+                // Career base
+                $statement = $db->prepare(
+                    'SELECT
+                        *
+                     FROM Career' . $summary_type . 'SummaryBase
+                     WHERE
+                            PlayerId = :PlayerId
+                    ');
+                $statement->bindValue(":PlayerId", $player_id);
+                $career_summary_base = $statement->execute()->fetchArray(SQLITE3_ASSOC);
+
                 // Current career summary (i.e. most recent career summary entry)
                 $statement = $db->prepare(
                     'SELECT
@@ -402,7 +419,7 @@
                     if (!empty($season_summary))
                     {
                         // Sum current career and season
-                        $new_career = $combine_career_and_season($current_career, $season_summary);
+                        $new_career = $combine_career_and_season($career_summary_base, $current_career, $season_summary);
                         $new_career["PlayerId"] = $player_id;
                     }
                     else
