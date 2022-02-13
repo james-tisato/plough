@@ -225,6 +225,17 @@
             FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId) ON DELETE CASCADE
             )');
 
+        $db->query('CREATE TABLE BattingPartnership (
+            BattingPartnershipId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            BattingPerformanceIdOut INTEGER,
+            BattingPerformanceIdIn INTEGER,
+            Wicket INTEGER,
+            Runs INTEGER,
+            NotOut INTEGER,
+            FOREIGN KEY(BattingPerformanceIdOut) REFERENCES BattingPerformance(BattingPerformanceId) ON DELETE CASCADE,
+            FOREIGN KEY(BattingPerformanceIdIn) REFERENCES BattingPerformance(BattingPerformanceId) ON DELETE CASCADE
+            )');
+
         $db->query('CREATE TABLE BowlingPerformance (
             BowlingPerformanceId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             PlayerPerformanceId INTEGER,
@@ -473,6 +484,18 @@
              VALUES (
 				 :PlayerPerformanceId, :PlayerId, :Position, :HowOut, :Runs, :Balls, :Fours, :Sixes
 			 	)'
+            );
+    }
+
+    function db_create_insert_batting_partnership($db)
+    {
+        return $db->prepare(
+            'INSERT INTO BattingPartnership (
+                BattingPerformanceIdOut, BattingPerformanceIdIn, Wicket, Runs, NotOut
+                )
+             VALUES (
+                 :BattingPerformanceIdOut, :BattingPerformanceIdIn, :Wicket, :Runs, :NotOut
+                )'
             );
     }
 

@@ -2,7 +2,6 @@ __TODO__
 * Website
     * Infrastructure
     * 2022 season setup
-        * History update to reflect winning in 2019, 2020, 2021 season
         * Tour 2022 details
     * Styling
         * Clean up custom CSS:
@@ -22,13 +21,10 @@ __TODO__
         * Update photo gallery
 * Plugin
     * Infrastructure
-        * Some kind of mock plugin runner that will kick the tires of the plugin init code?
-        * Update period - can we do regular after the weekend but then not much during the week?
         * Logging
             * Start using levels properly
             * Add custom exception handler?
             * Can we do the same for warnings?
-        * Switch to class autoloading
     * Stats
         * Bugs
         * Refactoring

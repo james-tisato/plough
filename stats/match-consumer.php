@@ -18,6 +18,7 @@
     const CAUGHT = "ct";
     const RUN_OUT = "run out";
     const STUMPED = "st";
+    const NOT_OUT = "not out";
 
     class MatchConsumer
     {
@@ -306,7 +307,9 @@
                 {
                     // Plough batting
                     $batting_perfs = $inning["bat"];
-                    $this->consume_batting_performances($batting_perfs, $player_perf_cache);
+                    $batting_perf_cache = $this->consume_batting_performances($batting_perfs, $player_perf_cache);
+
+                    $this->consume_batting_partnerships($inning, $batting_perf_cache);
                 }
                 else
                 {
@@ -325,6 +328,7 @@
         {
             $db = $this->_db;
             $insert_batting_perf = db_create_insert_batting_performance($db);
+            $batting_perf_cache = array();
 
             foreach ($batting_perfs as $batting_perf_idx => $batting_perf)
             {
@@ -347,9 +351,83 @@
                         $insert_batting_perf->bindValue(":Balls", $batting_perf["balls"]);
                         $insert_batting_perf->bindValue(":Fours", $batting_perf["fours"]);
                         $insert_batting_perf->bindValue(":Sixes", $batting_perf["sixes"]);
-                        $insert_batting_perf->execute();
+                        $batting_perf_id = db_insert_and_return_id($db, $insert_batting_perf);
+                        $batting_perf_cache[$pc_player_id] = $batting_perf_id;
                     }
                 }
+            }
+
+            return $batting_perf_cache;
+        }
+
+        private function consume_batting_partnerships($inning, $batting_perf_cache)
+        {
+            $db = $this->_db;
+            $insert_batting_partnership = db_create_insert_batting_partnership($db);
+
+            $total_wickets = $inning["wickets"];
+            $total_runs = $inning["runs"];
+            $batting_perfs = $inning["bat"];
+            $batting_fow = $inning["fow"];
+
+            if ($total_wickets < 10)
+            {
+                // Find not out batsmen
+                $not_out_batting_perfs = array();
+                foreach($batting_perfs as $batting_perf)
+                {
+                    if ($batting_perf["how_out"] === NOT_OUT)
+                    {
+                        array_push($not_out_batting_perfs, $batting_perf);
+                        if (count($not_out_batting_perfs) === 2)
+                            break;
+                    }
+                }
+
+                if (count($not_out_batting_perfs) == 2)
+                {
+                    // Insert final not out partnership as another FOW entry to make the
+                    // loop below easier
+                    $final_fow = array(
+                        "batsman_out_id" => $not_out_batting_perfs[0]["batsman_id"],
+                        "batsman_out_name" => $not_out_batting_perfs[0]["batsman_name"],
+                        "batsman_in_id" => $not_out_batting_perfs[1]["batsman_id"],
+                        "batsman_in_name" => $not_out_batting_perfs[1]["batsman_name"],
+                        "wickets" => $total_wickets + 1,
+                        "runs" => $total_runs
+                    );
+                    array_push($batting_fow, $final_fow);
+                }
+            }
+
+            $last_runs = 0;
+            foreach ($batting_fow as $fow)
+            {
+                $pc_player_id_out = $fow["batsman_out_id"];
+                $pc_player_name_out = $fow["batsman_out_name"];
+                $pc_player_id_in = $fow["batsman_in_id"];
+                $pc_player_name_in = $fow["batsman_in_name"];
+                $runs_at_wicket = $fow["runs"];
+
+                if (($last_runs === 0 || !empty($last_runs)) && !empty($runs_at_wicket) &&
+                    !empty($pc_player_id_out) && $pc_player_name_out != UNSURE_NAME &&
+                    !empty($pc_player_id_in) && $pc_player_name_in != UNSURE_NAME)
+                {
+                    $batting_perf_id_out = $batting_perf_cache[$pc_player_id_out];
+                    $batting_perf_id_in = $batting_perf_cache[$pc_player_id_in];
+                    $wicket = $fow["wickets"];
+                    $partnership_runs = $runs_at_wicket - $last_runs;
+                    $not_out = $wicket > $total_wickets;
+
+                    $insert_batting_partnership->bindValue(":BattingPerformanceIdOut", $batting_perf_id_out);
+                    $insert_batting_partnership->bindValue(":BattingPerformanceIdIn", $batting_perf_id_in);
+                    $insert_batting_partnership->bindValue(":Wicket", $wicket);
+                    $insert_batting_partnership->bindValue(":Runs", $partnership_runs);
+                    $insert_batting_partnership->bindValue(":NotOut", $not_out);
+                    $insert_batting_partnership->execute();
+                }
+
+                $last_runs = $runs_at_wicket;
             }
         }
 
