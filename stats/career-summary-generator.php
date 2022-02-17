@@ -114,6 +114,7 @@
                 $insert_career_batting_summary_base->bindValue(":StrikeRate", $strike_rate);
                 $insert_career_batting_summary_base->bindValue(":HighScore", $high_score);
                 $insert_career_batting_summary_base->bindValue(":HighScoreNotOut", $high_score_not_out);
+                $insert_career_batting_summary_base->bindValue(":HighScoreMatchId", NULL);
                 $insert_career_batting_summary_base->bindValue(":Fifties", $row[$idx["50s"]]);
                 $insert_career_batting_summary_base->bindValue(":Hundreds", $row[$idx["100s"]]);
                 $insert_career_batting_summary_base->bindValue(":Ducks", $row[$idx["0s"]]);
@@ -162,16 +163,22 @@
                 {
                     $career_summary["HighScore"] = $current_career["HighScore"];
                     $career_summary["HighScoreNotOut"] = $current_career["HighScoreNotOut"];
+                    $career_summary["HighScoreMatchId"] = $current_career["HighScoreMatchId"];
                 }
                 else if ($season["HighScore"] > $current_career["HighScore"])
                 {
                     $career_summary["HighScore"] = $season["HighScore"];
                     $career_summary["HighScoreNotOut"] = $season["HighScoreNotOut"];
+                    $career_summary["HighScoreMatchId"] = $season["HighScoreMatchId"];
                 }
                 else
                 {
                     $career_summary["HighScore"] = $season["HighScore"];
                     $career_summary["HighScoreNotOut"] = max($current_career["HighScoreNotOut"], $season["HighScoreNotOut"]);
+                    if ($current_career["HighScoreNotOut"] && !$season["HighScoreNotOut"])
+                        $career_summary["HighScoreMatchId"] = $current_career["HighScoreMatchId"];
+                    else
+                        $career_summary["HighScoreMatchId"] = $season["HighScoreMatchId"];
                 }
 
                 $career_summary["Fifties"] = $current_career["Fifties"] + $season["Fifties"];
@@ -222,6 +229,7 @@
                 $insert_career_bowling_summary_base->bindValue(":StrikeRate", $strike_rate);
                 $insert_career_bowling_summary_base->bindValue(":BestBowlingWickets", $row[$idx["Best wkts"]]);
                 $insert_career_bowling_summary_base->bindValue(":BestBowlingRuns", $row[$idx["Best runs"]]);
+                $insert_career_bowling_summary_base->bindValue(":BestBowlingMatchId", NULL);
                 $insert_career_bowling_summary_base->bindValue(":FiveFors", $row[$idx["5wi"]]);
                 $insert_career_bowling_summary_base->bindValue(":Wides", $row[$idx["Wides"]]);
                 $insert_career_bowling_summary_base->bindValue(":NoBalls", $row[$idx["NBs"]]);
@@ -259,16 +267,27 @@
                 {
                     $career_summary["BestBowlingWickets"] = $current_career["BestBowlingWickets"];
                     $career_summary["BestBowlingRuns"] = $current_career["BestBowlingRuns"];
+                    $career_summary["BestBowlingMatchId"] = $current_career["BestBowlingMatchId"];
                 }
                 else if ($season["BestBowlingWickets"] > $current_career["BestBowlingWickets"])
                 {
                     $career_summary["BestBowlingWickets"] = $season["BestBowlingWickets"];
                     $career_summary["BestBowlingRuns"] = $season["BestBowlingRuns"];
+                    $career_summary["BestBowlingMatchId"] = $season["BestBowlingMatchId"];
                 }
                 else
                 {
                     $career_summary["BestBowlingWickets"] = $season["BestBowlingWickets"];
-                    $career_summary["BestBowlingRuns"] = min($current_career["BestBowlingRuns"], $season["BestBowlingRuns"]);
+                    if ($current_career["BestBowlingRuns"] < $season["BestBowlingRuns"])
+                    {
+                        $career_summary["BestBowlingRuns"] = $current_career["BestBowlingRuns"];
+                        $career_summary["BestBowlingMatchId"] = $current_career["BestBowlingMatchId"];
+                    }
+                    else
+                    {
+                        $career_summary["BestBowlingRuns"] = $season["BestBowlingRuns"];
+                        $career_summary["BestBowlingMatchId"] = $season["BestBowlingMatchId"];
+                    }
                 }
 
                 $career_summary["FiveFors"] = $current_career["FiveFors"] + $season["FiveFors"];
@@ -500,6 +519,100 @@
                 log\warning("      File not found");
             }
         }
+
+        // private function load_career_partnerships()
+        // {
+        //     $db = $this->_db;
+        //     $players = get_players_by_name($db);
+        //     $insert_batting_partnership = db_create_insert_batting_partnership($db);
+        //     $insert_player = db_create_insert_player($db);
+        //
+        //     $partnerships_path =
+        //         $this->_config->getStaticDir() . "/" . $this->get_career_base_filename("partnerships");
+        //
+        //     if (file_exists($partnerships_path))
+        //     {
+        //         $db->exec('BEGIN');
+        //
+        //         $base = fopen($partnerships_path, "r");
+        //         while ($row = fgetcsv($base))
+        //         {
+        //             if ($row[0] == "Wicket")
+        //             {
+        //                 $idx = array_flip($row);
+        //             }
+        //             else
+        //             {
+        //                 // Insert match
+        //                 $insert_match = db_create_insert_match($db);
+        //                 $insert_match->bindValue(":PcMatchId", $pc_match_id);
+        //                 $insert_match->bindValue(":Season", );
+        //                 $insert_match->bindValue(":MatchDate", );
+        //                 $insert_match->bindValue(":CompetitionType", );
+        //                 $insert_match->bindValue(":PloughTeamName", $plough_team_name);
+        //                 $insert_match->bindValue(":PloughMatch", $plough_match);
+        //                 $insert_match->bindValue(":PloughHome", $plough_home);
+        //                 $insert_match->bindValue(":PloughWonMatch", $plough_won_match);
+        //                 $insert_match->bindValue(":PloughWonToss", $plough_won_toss);
+        //                 $insert_match->bindValue(":PloughBattedFirst", $plough_batted_first);
+        //                 $insert_match->bindValue(":OppoClubId", $oppo_club_id);
+        //                 $insert_match->bindValue(":OppoClubName", $oppo_club_name);
+        //                 $insert_match->bindValue(":OppoTeamId", $oppo_team_id);
+        //                 $insert_match->bindValue(":OppoTeamName", $oppo_team_name);
+        //                 $insert_match->bindValue(":Result", $match_result);
+        //                 $insert_match->bindValue(":ResultAppliedToTeamId", $result_applied_to_team_id);
+        //                 $insert_match->bindValue(":TossWonByTeamId", $toss_won_by_team_id);
+        //                 $insert_match->bindValue(":BattedFirstTeamId", $batted_first_team_id);
+        //                 $match_id = db_insert_and_return_id($db, $insert_match);
+        //
+        //                 // Insert batting performances
+        //                 $insert_batting_perf = db_create_insert_batting_performance($db);
+        //                 $insert_batting_perf->bindValue(":PlayerPerformanceId", );
+        //                 $insert_batting_perf->bindValue(":PlayerId", );
+        //                 $insert_batting_perf->bindValue(":Position", );
+        //                 $insert_batting_perf->bindValue(":HowOut", );
+        //                 $insert_batting_perf->bindValue(":Runs", );
+        //                 $batting_perf_id = db_insert_and_return_id($db, $insert_batting_perf);
+        //
+        //                 // Insert partnership
+        //                 $runs = intval(str_replace("*", "", $row[$idx["Runs"]]));
+        //                 $not_out = strpos($row[$idx["Runs"]], "*") !== false;
+        //                 $insert_batting_partnership->bindValue(":BattingPerformanceIdOut", );
+        //                 $insert_batting_partnership->bindValue(":BattingPerformanceIdIn", );
+        //                 $insert_batting_partnership->bindValue(":Wicket", $row[$idx["Wicket"]]);
+        //                 $insert_batting_partnership->bindValue(":Runs", $runs);
+        //                 $insert_batting_partnership->bindValue(":NotOut", $not_out);
+        //                 $insert_batting_partnership->execute();
+        //
+        //
+        //                 $name = $row[$idx["Player"]];
+        //                 if (!array_key_exists($name, $players))
+        //                 {
+        //                     // We don't set the Active flag for players here - it is done later
+        //                     $insert_player->bindValue(":PcPlayerId", NO_PC_PLAYER_ID);
+        //                     $insert_player->bindValue(":Name", $name);
+        //                     $insert_player->bindValue(":Active", 0);
+        //                     $player_id = db_insert_and_return_id($db, $insert_player);
+        //                 }
+        //                 else
+        //                 {
+        //                     $player_id = $players[$name]["PlayerId"];
+        //                 }
+        //
+        //                 $insert_career_summary_base->bindValue(":Season", $career_base_season);
+        //                 $bind_row_to_insert($row, $idx, $player_id, $insert_career_summary_base);
+        //                 $insert_career_summary_base->execute();
+        //             }
+        //         }
+        //
+        //         $db->exec('COMMIT');
+        //         fclose($base);
+        //     }
+        //     else
+        //     {
+        //         log\warning("      File not found");
+        //     }
+        // }
 
         function get_career_base_filename($summary_type)
         {

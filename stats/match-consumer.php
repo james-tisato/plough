@@ -8,7 +8,6 @@
     require_once("helpers.php");
 
     // Constants
-    const CLUB_NAME = "Ploughmans CC";
     const DELETED = "Deleted";
     const PC_DATE_FORMAT = "d/m/Y";
     const UNSURE_NAME = "Unsure";
@@ -184,27 +183,42 @@
                     {
                         $plough_club_id = $match_detail["home_club_id"];
                         $plough_team_id = $match_detail["home_team_id"];
+                        $plough_team_name = $match_detail["home_team_name"];
                         $plough_match = 1;
                         $plough_home = 1;
                         $players = $match_detail["players"][0]["home_team"];
+                        $oppo_club_id = $match_detail["away_club_id"];
+                        $oppo_club_name = $match_detail["away_club_name"];
+                        $oppo_team_id = $match_detail["away_team_id"];
+                        $oppo_team_name = $match_detail["away_team_name"];
                     }
                     else if ($match_detail["away_club_name"] == CLUB_NAME)
                     {
                         $plough_club_id = $match_detail["away_club_id"];
                         $plough_team_id = $match_detail["away_team_id"];
+                        $plough_team_name = $match_detail["away_team_name"];
                         $plough_match = 1;
                         $plough_home = 0;
                         $players = $match_detail["players"][1]["away_team"];
+                        $oppo_club_id = $match_detail["home_club_id"];
+                        $oppo_club_name = $match_detail["home_club_name"];
+                        $oppo_team_id = $match_detail["home_team_id"];
+                        $oppo_team_name = $match_detail["home_team_name"];
                     }
                     else
                     {
                         $plough_club_id = NULL;
                         $plough_team_id = NULL;
+                        $plough_team_name = NULL;
                         $plough_match = 0;
                         $plough_home = NULL;
                         $plough_won_match = NULL;
                         $plough_won_toss = NULL;
                         $plough_batted_first = NULL;
+                        $oppo_club_id = NULL;
+                        $oppo_club_name = NULL;
+                        $oppo_team_id = NULL;
+                        $oppo_team_name = NULL;
                     }
 
                     if ($plough_match)
@@ -230,11 +244,16 @@
                     $insert_match->bindValue(":AwayTeamName", $match_detail["away_team_name"]);
                     $insert_match->bindValue(":PloughClubId", $plough_club_id);
                     $insert_match->bindValue(":PloughTeamId", $plough_team_id);
+                    $insert_match->bindValue(":PloughTeamName", $plough_team_name);
                     $insert_match->bindValue(":PloughMatch", $plough_match);
                     $insert_match->bindValue(":PloughHome", $plough_home);
                     $insert_match->bindValue(":PloughWonMatch", $plough_won_match);
                     $insert_match->bindValue(":PloughWonToss", $plough_won_toss);
                     $insert_match->bindValue(":PloughBattedFirst", $plough_batted_first);
+                    $insert_match->bindValue(":OppoClubId", $oppo_club_id);
+                    $insert_match->bindValue(":OppoClubName", $oppo_club_name);
+                    $insert_match->bindValue(":OppoTeamId", $oppo_team_id);
+                    $insert_match->bindValue(":OppoTeamName", $oppo_team_name);
                     $insert_match->bindValue(":Result", $match_result);
                     $insert_match->bindValue(":ResultAppliedToTeamId", $result_applied_to_team_id);
                     $insert_match->bindValue(":TossWonByTeamId", $toss_won_by_team_id);

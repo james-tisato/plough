@@ -50,12 +50,12 @@
         // Seasons
         public function getCareerBaseSeason()
         {
-            return $this->getParam(KEY_CAREER_BASE_SEASON);
+            return intval($this->getParam(KEY_CAREER_BASE_SEASON));
         }
 
         public function getCurrentSeason()
         {
-            return $this->getParam(KEY_CURRENT_SEASON);
+            return intval($this->getParam(KEY_CURRENT_SEASON));
         }
 
         // Database

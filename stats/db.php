@@ -95,6 +95,7 @@
         StrikeRate REAL,
         HighScore INTEGER,
         HighScoreNotOut INTEGER,
+        HighScoreMatchId INTEGER,
         Fifties INTEGER,
         Hundreds INTEGER,
         Ducks INTEGER,
@@ -105,11 +106,13 @@
 
     CONST BATTING_SUMMARY_INSERT = '(
             PlayerId, Season, Innings, NotOuts, Runs, Average, StrikeRate,
-            HighScore, HighScoreNotOut, Fifties, Hundreds, Ducks, Balls, Fours, Sixes
+            HighScore, HighScoreNotOut, HighScoreMatchId,
+            Fifties, Hundreds, Ducks, Balls, Fours, Sixes
             )
          VALUES (
              :PlayerId, :Season, :Innings, :NotOuts, :Runs, :Average, :StrikeRate,
-             :HighScore, :HighScoreNotOut, :Fifties, :Hundreds, :Ducks, :Balls, :Fours, :Sixes
+             :HighScore, :HighScoreNotOut, :HighScoreMatchId,
+             :Fifties, :Hundreds, :Ducks, :Balls, :Fours, :Sixes
              )';
 
     const BOWLING_SUMMARY_COLS = '
@@ -124,6 +127,7 @@
         StrikeRate REAL,
         BestBowlingWickets INTEGER,
         BestBowlingRuns INTEGER,
+        BestBowlingMatchId INTEGER,
         FiveFors INTEGER,
         Wides INTEGER,
         NoBalls INTEGER,
@@ -131,11 +135,13 @@
 
     const BOWLING_SUMMARY_INSERT = '(
             PlayerId, Season, CompletedOvers, PartialBalls, Maidens, Runs, Wickets, Average,
-            EconomyRate, StrikeRate, BestBowlingWickets, BestBowlingRuns, FiveFors, Wides, NoBalls
+            EconomyRate, StrikeRate, BestBowlingWickets, BestBowlingRuns, BestBowlingMatchId,
+            FiveFors, Wides, NoBalls
             )
          VALUES (
              :PlayerId, :Season, :CompletedOvers, :PartialBalls, :Maidens, :Runs, :Wickets, :Average,
-             :EconomyRate, :StrikeRate, :BestBowlingWickets, :BestBowlingRuns, :FiveFors, :Wides, :NoBalls
+             :EconomyRate, :StrikeRate, :BestBowlingWickets, :BestBowlingRuns, :BestBowlingMatchId,
+             :FiveFors, :Wides, :NoBalls
              )';
 
     const FIELDING_SUMMARY_COLS = '
@@ -182,11 +188,16 @@
             AwayTeamName TEXT,
             PloughClubId INTEGER,
             PloughTeamId INTEGER,
+            PloughTeamName TEXT,
             PloughMatch INTEGER,
             PloughHome INTEGER,
             PloughWonMatch INTEGER,
             PloughWonToss INTEGER,
             PloughBattedFirst INTEGER,
+            OppoClubId INTEGER,
+            OppoClubName TEXT,
+            OppoTeamId INTEGER,
+            OppoTeamName TEXT,
             Result TEXT,
             ResultAppliedToTeamId INTEGER,
             TossWonByTeamId INTEGER,
@@ -289,42 +300,48 @@
 			SeasonBattingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			PlayerId INTEGER,'
 			. BATTING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
+            FOREIGN KEY(HighScoreMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
 			)');
 
         $db->query('CREATE TABLE CareerBattingSummaryBase (
 			CareerBattingSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			PlayerId INTEGER, '
 			. BATTING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
+            FOREIGN KEY(HighScoreMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
 			)');
 
         $db->query('CREATE TABLE CareerBattingSummary (
 			CareerBattingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			PlayerId INTEGER, '
 			. BATTING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
+            FOREIGN KEY(HighScoreMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
 			)');
 
 		$db->query('CREATE TABLE SeasonBowlingSummary (
 			SeasonBowlingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			PlayerId INTEGER,'
 			. BOWLING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
+            FOREIGN KEY(BestBowlingMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
 			)');
 
         $db->query('CREATE TABLE CareerBowlingSummaryBase (
 			CareerBowlingSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			PlayerId INTEGER,'
 			. BOWLING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
+            FOREIGN KEY(BestBowlingMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
 			)');
 
         $db->query('CREATE TABLE CareerBowlingSummary (
 			CareerBowlingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 			PlayerId INTEGER,'
 			. BOWLING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
+            FOREIGN KEY(BestBowlingMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
 			)');
 
 		$db->query('CREATE TABLE SeasonFieldingSummary (
@@ -417,14 +434,16 @@
         return $db->prepare(
             'INSERT INTO Match (
 				PcMatchId, Status, Season, MatchDate, CompetitionType, HomeClubId, HomeClubName, HomeTeamId, HomeTeamName,
-                AwayClubId, AwayClubName, AwayTeamId, AwayTeamName, PloughClubId, PloughTeamId,
+                AwayClubId, AwayClubName, AwayTeamId, AwayTeamName, PloughClubId, PloughTeamId, PloughTeamName,
                 PloughMatch, PloughHome, PloughWonMatch, PloughWonToss, PloughBattedFirst,
+                OppoClubId, OppoClubName, OppoTeamId, OppoTeamName,
                 Result, ResultAppliedToTeamId, TossWonByTeamId, BattedFirstTeamId
 				)
              VALUES (
 				 :PcMatchId, :Status, :Season, :MatchDate, :CompetitionType, :HomeClubId, :HomeClubName, :HomeTeamId, :HomeTeamName,
-                 :AwayClubId, :AwayClubName, :AwayTeamId, :AwayTeamName, :PloughClubId, :PloughTeamId,
+                 :AwayClubId, :AwayClubName, :AwayTeamId, :AwayTeamName, :PloughClubId, :PloughTeamId, :PloughTeamName,
                  :PloughMatch, :PloughHome, :PloughWonMatch, :PloughWonToss, :PloughBattedFirst,
+                 :OppoClubId, :OppoClubName, :OppoTeamId, :OppoTeamName,
                  :Result, :ResultAppliedToTeamId, :TossWonByTeamId, :BattedFirstTeamId
 			 	)'
             );

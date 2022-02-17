@@ -91,6 +91,8 @@
             $this->generate_fielding_summary_csv(PERIOD_SEASON, $season);
             log\info("    Keeping");
             $this->generate_keeping_summary_csv(PERIOD_SEASON, $season);
+            log\info("    Partnerships");
+            $this->generate_partnership_csvs(PERIOD_SEASON, $season);
         }
 
         public function generate_career_csv_files($season)
@@ -103,6 +105,8 @@
             $this->generate_fielding_summary_csv(PERIOD_CAREER, $season);
             log\info("    Keeping");
             $this->generate_keeping_summary_csv(PERIOD_CAREER, $season);
+            log\info("    Partnerships");
+            $this->generate_partnership_csvs(PERIOD_CAREER, $season);
         }
 
         public function generate_other_csv_files($season)
@@ -200,7 +204,13 @@
                      ,bs.Runs
                      ,bs.Average
                      ,bs.StrikeRate
-                     ,(CAST(bs.HighScore AS TEXT) || CASE bs.HighScoreNotOut WHEN 1 THEN \'*\' ELSE \'\' END) as HighScore
+                     ,CASE
+                        WHEN bs.HighScoreMatchId IS NOT NULL THEN
+                            "<a href=https://ploughmans.play-cricket.com/website/results/" || m.PcMatchId || ">"
+                            || CAST(bs.HighScore AS TEXT) || (CASE bs.HighScoreNotOut WHEN 1 THEN \'*\' ELSE \'\' END)
+                        ELSE
+                            CAST(bs.HighScore AS TEXT) || (CASE bs.HighScoreNotOut WHEN 1 THEN \'*\' ELSE \'\' END)
+                      END AS HighScore
                      ,bs.Fifties
                      ,bs.Hundreds
                      ,bs.Ducks
@@ -211,6 +221,7 @@
                 FROM Player p
                 INNER JOIN ' . $table_name . ' bs on bs.PlayerId = p.PlayerId
                 INNER JOIN ' . $matches_table_name . ' ms on ms.PlayerId = p.PlayerId
+                LEFT JOIN Match m on m.MatchId = bs.HighScoreMatchId
                 WHERE
                         bs.Innings > 0
                     AND bs.Season = :Season
@@ -251,7 +262,13 @@
                      ,bs.Average
                      ,bs.EconomyRate
                      ,bs.StrikeRate
-                     ,(CAST(bs.BestBowlingWickets AS TEXT) || \'/\' || CAST(bs.BestBowlingRuns AS TEXT)) as BestBowling
+                     ,CASE
+                        WHEN bs.BestBowlingMatchId IS NOT NULL THEN
+                            "<a href=https://ploughmans.play-cricket.com/website/results/" || m.PcMatchId || ">"
+                            || CAST(bs.BestBowlingWickets AS TEXT) || \'/\' || CAST(bs.BestBowlingRuns AS TEXT) || "</a>"
+                        ELSE
+                            CAST(bs.BestBowlingWickets AS TEXT) || \'/\' || CAST(bs.BestBowlingRuns AS TEXT)
+                      END AS BestBowling
                      ,bs.FiveFors
                      ,bs.Wides
                      ,bs.NoBalls
@@ -259,6 +276,7 @@
                 FROM Player p
                 INNER JOIN ' . $table_name . ' bs on bs.PlayerId = p.PlayerId
                 INNER JOIN ' . $matches_table_name . ' ms on ms.PlayerId = p.PlayerId
+                LEFT JOIN Match m on m.MatchId = bs.BestBowlingMatchId
                 WHERE
                         (bs.CompletedOvers > 0 OR bs.PartialBalls > 0)
                     AND bs.Season = :Season
@@ -353,6 +371,98 @@
                 $season, $rows, [ MS_TYPE_KEEPING ]
                 );
             $this->generate_csv_output($output_name, $rows_with_milestones, $header);
+        }
+
+        private function generate_partnership_csvs($period_type, $season)
+        {
+            $header = array(
+                "Wicket", "Runs", "Batsman 1", "Score", "Batsman 2", "Score",
+                "Opposition", "Team", "Type", "Date"
+                );
+
+            $output_prefix = "batting_partnerships_" . $season . "_" . ($period_type === PERIOD_CAREER ? "career_" : "");
+
+            // Top partnerships for any wicket
+            $num_all_wickets = $period_type === PERIOD_CAREER ? 50 : 25;
+            $this->generate_csv_output($output_prefix . "all", $this->get_partnership_rows($period_type, $season, NULL, $num_all_wickets), $header);
+
+            $best_per_wicket_rows = array();
+            $per_wicket_rows = array();
+            $num_per_wicket = $period_type === PERIOD_CAREER ? 20 : 10;
+            foreach (range(1, 10) as $wicket)
+            {
+                // Get rows for top X for this wicket and append to overall per-wicket list
+                $rows_this_wicket = $this->get_partnership_rows($period_type, $season, $wicket, $num_per_wicket);
+                $per_wicket_rows = array_merge($per_wicket_rows, $rows_this_wicket);
+
+                // Get best partnership(s) for each wicket
+                if (count($rows_this_wicket) > 0)
+                {
+                    $best_runs = $rows_this_wicket[0][1];
+                    foreach ($rows_this_wicket as $row)
+                    {
+                        $runs_this_row = $row[1];
+                        if ($runs_this_row === $best_runs)
+                            array_push($best_per_wicket_rows, $row);
+                        else
+                            break;
+                    }
+                }
+            }
+
+            $this->generate_csv_output($output_prefix . "wickets", $per_wicket_rows, $header);
+            $this->generate_csv_output($output_prefix . "best", $best_per_wicket_rows, $header);
+        }
+
+        private function get_partnership_rows($period_type, $season, $wicket, $top_n)
+        {
+            $db = $this->_db;
+
+            $wicket_clause = is_null($wicket) ? "" : "AND part.Wicket = " . $wicket;
+            $season_clause = $period_type == PERIOD_CAREER ? "AND m.Season <= " . $season : "AND m.Season = " . $season;
+            $limit_clause = is_null($top_n) ? "" : "LIMIT " . $top_n;
+            $statement = $db->prepare(
+                'SELECT
+                     CASE part.Wicket
+                         WHEN 1 THEN "1st"
+                         WHEN 2 THEN "2nd"
+                         WHEN 3 THEN "3rd"
+                         ELSE (CAST(part.Wicket AS TEXT) || "th")
+                     END
+                    ,"<a href=https://ploughmans.play-cricket.com/website/results/" || m.PcMatchId || ">"
+                        || (CAST(part.Runs AS TEXT) || CASE part.NotOut WHEN 1 THEN "*" ELSE "" END) || "</a>"
+                    ,CASE WHEN bpi.Position < bpo.Position THEN pi.Name ELSE po.Name END
+                    ,CASE
+                        WHEN bpi.Position < bpo.Position THEN
+                            CAST(bpi.Runs AS TEXT) || (CASE bpi.HowOut WHEN "not out" THEN "*" WHEN "retired hurt" THEN "*" WHEN "retired not out" THEN "*" ELSE "" END)
+                        ELSE
+                            CAST(bpo.Runs AS TEXT) || (CASE bpo.HowOut WHEN "not out" THEN "*" WHEN "retired hurt" THEN "*" WHEN "retired not out" THEN "*" ELSE "" END)
+                    END
+                    ,CASE WHEN bpi.Position < bpo.Position THEN po.Name ELSE pi.Name END
+                    ,CASE
+                        WHEN bpi.Position < bpo.Position THEN
+                            CAST(bpo.Runs AS TEXT) || (CASE bpo.HowOut WHEN "not out" THEN "*" WHEN "retired hurt" THEN "*" WHEN "retired not out" THEN "*" ELSE "" END)
+                        ELSE
+                            CAST(bpi.Runs AS TEXT) || (CASE bpi.HowOut WHEN "not out" THEN "*" WHEN "retired hurt" THEN "*" WHEN "retired not out" THEN "*" ELSE "" END)
+                    END
+                    ,CASE m.OppoClubName WHEN "" THEN m.OppoTeamName ELSE m.OppoClubName END
+                    ,m.PloughTeamName
+                    ,m.CompetitionType
+                    ,STRFTIME("%d-%m-%Y", m.MatchDate)
+                FROM BattingPartnership part
+                INNER JOIN BattingPerformance bpo ON bpo.BattingPerformanceId = part.BattingPerformanceIdOut
+                INNER JOIN Player po ON po.PlayerId = bpo.PlayerId
+                INNER JOIN BattingPerformance bpi ON bpi.BattingPerformanceId = part.BattingPerformanceIdIn
+                INNER JOIN Player pi ON pi.PlayerId = bpi.PlayerId
+                INNER JOIN PlayerPerformance ppo ON ppo.PlayerPerformanceId = bpo.PlayerPerformanceId
+                INNER JOIN Match m ON m.MatchId = ppo.MatchId
+                WHERE 1=1
+                    ' . $wicket_clause . '
+                    ' . $season_clause . '
+                ORDER BY part.Runs DESC, part.NotOut DESC, m.MatchDate ASC
+                ' . $limit_clause . '
+                ');
+                return get_formatted_rows_from_query($statement);
         }
 
         // Private helpers

@@ -5,6 +5,7 @@
 
     // Constants
     const NO_PC_PLAYER_ID = -1;
+    const CLUB_NAME = "Ploughmans CC";
 
     const DATE_FORMAT = "Y-m-d";
     const DATETIME_FORMAT = "Y-m-d H:i:s";

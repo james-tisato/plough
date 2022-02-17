@@ -10,6 +10,15 @@ __TODO__
     * History
         * Auto-sizing of roll of honour table?
     * Stats
+        * Partnerships
+            * Repeat for other years
+            * Add career base partnerships
+                * Historical data from Play Cricket
+                * Load base in career summary generator
+                * CSV generator shouldn't add links to scorecards if match id is missing
+            * Update career record partnership table to source from new one
+            * Add link to career partnership details page
+            * Add auto-import for all partnership tables
     * Photos
         * More photos for different categories
             * Bowling

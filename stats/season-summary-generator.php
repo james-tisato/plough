@@ -156,6 +156,7 @@
                             WHEN "retired hurt" THEN 1
                             WHEN "retired not out" THEN 1
                             ELSE 0 END) as HighScoreNotOut
+                        ,m.MatchId as HighScoreMatchId
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
                     INNER JOIN Match m on m.MatchId = pp.MatchId
@@ -282,6 +283,7 @@
                          p.PlayerId as player_id
                         ,bp.Wickets as BestBowlingWickets
                         ,bp.Runs as BestBowlingRuns
+                        ,m.MatchId as BestBowlingMatchId
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
                     INNER JOIN Match m on m.MatchId = pp.MatchId

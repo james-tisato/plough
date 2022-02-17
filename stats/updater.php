@@ -228,9 +228,12 @@
                 log\info("  Season $season");
                 $this->_csv_generator->generate_season_csv_files($season);
 
-                log\info("");
-                log\info("  Career to end of $season");
-                $this->_csv_generator->generate_career_csv_files($season);
+                if ($season === $current_season)
+                {
+                    log\info("");
+                    log\info("  Career to end of $season");
+                    $this->_csv_generator->generate_career_csv_files($season);
+                }
             }
 
             log\info("");

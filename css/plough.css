@@ -666,6 +666,20 @@ body {
     max-width: 1000px;
 }
 
+.stats-table-batting-partnerships {
+    max-width: 1000px;
+    white-space: nowrap;
+}
+
+.stats-table-batting-partnerships th, .stats-table-batting-partnerships td {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.stats-table-batting-partnerships .column-1 {
+    text-align: center;
+}
+
 .stats-table-bowling {
     max-width: 1000px;
 }
