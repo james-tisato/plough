@@ -398,10 +398,10 @@
                 // Get best partnership(s) for each wicket
                 if (count($rows_this_wicket) > 0)
                 {
-                    $best_runs = $rows_this_wicket[0][1];
+                    $best_runs = strip_link_html($rows_this_wicket[0][1]);
                     foreach ($rows_this_wicket as $row)
                     {
-                        $runs_this_row = $row[1];
+                        $runs_this_row = strip_link_html($row[1]);
                         if ($runs_this_row === $best_runs)
                             array_push($best_per_wicket_rows, $row);
                         else
@@ -429,8 +429,13 @@
                          WHEN 3 THEN "3rd"
                          ELSE (CAST(part.Wicket AS TEXT) || "th")
                      END
-                    ,"<a href=https://ploughmans.play-cricket.com/website/results/" || m.PcMatchId || ">"
-                        || (CAST(part.Runs AS TEXT) || CASE part.NotOut WHEN 1 THEN "*" ELSE "" END) || "</a>"
+                    ,CASE
+                        WHEN m.PcMatchId IS NOT NULL THEN
+                            "<a href=https://ploughmans.play-cricket.com/website/results/" || m.PcMatchId || ">"
+                            || (CAST(part.Runs AS TEXT) || CASE part.NotOut WHEN 1 THEN "*" ELSE "" END) || "</a>"
+                        ELSE
+                            CAST(part.Runs AS TEXT) || CASE part.NotOut WHEN 1 THEN "*" ELSE "" END
+                    END
                     ,CASE WHEN bpi.Position < bpo.Position THEN pi.Name ELSE po.Name END
                     ,CASE
                         WHEN bpi.Position < bpo.Position THEN

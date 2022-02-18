@@ -147,6 +147,7 @@
                 log\info("Clearing existing summary tables...");
                 $this->_season_summary_generator->clear_summary_tables();
                 $this->_career_summary_generator->clear_summary_tables();
+                $this->_career_summary_generator->clear_career_partnerships();
                 $this->_milestone_generator->clear_milestones();
 
                 log\info("");
@@ -159,6 +160,8 @@
                 $this->_career_summary_generator->load_bowling_career_summary_base();
                 log\info("  Fielding");
                 $this->_career_summary_generator->load_fielding_career_summary_base();
+                log\info("  Partnerships");
+                $this->_career_summary_generator->load_career_partnerships();
 
                 log\info("");
                 log\info("Copying career base to career summary...");

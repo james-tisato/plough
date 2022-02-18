@@ -9,7 +9,6 @@
 
     // Constants
     const DELETED = "Deleted";
-    const PC_DATE_FORMAT = "d/m/Y";
     const UNSURE_NAME = "Unsure";
 
     // Modes of dismissal

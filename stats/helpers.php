@@ -10,10 +10,21 @@
     const DATE_FORMAT = "Y-m-d";
     const DATETIME_FORMAT = "Y-m-d H:i:s";
     const DATETIME_FRIENDLY_FORMAT = "h:i A, D j M Y";
+    const EXCEL_DATE_FORMAT = "d/m/y";
+    const PC_DATE_FORMAT = "d/m/Y";
 
     // Stats period types
     const PERIOD_CAREER = 1;
     const PERIOD_SEASON = 2;
+
+    function strip_link_html($item)
+    {
+        $matches = array();
+        if (preg_match("/<a.*>(.*?)<\/a>/", $item, $matches))
+            return $matches[1];
+        else
+            return $item;
+    }
 
     // DB helpers
     function get_last_update_datetime($db)

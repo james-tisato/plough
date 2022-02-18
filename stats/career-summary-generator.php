@@ -37,6 +37,18 @@
             db_truncate_table($db, "CareerFieldingSummaryBase");
         }
 
+        public function clear_career_partnerships()
+        {
+            // Clearing the historical matches containing the partnerships is enough
+            // to clear the partnerships and all intermediate data using the
+            // delete cascades
+            $db = $this->_db;
+            $statement = $db->prepare(
+                'DELETE FROM Match WHERE Season <= ' . $this->_config->getCareerBaseSeason()
+                );
+            $statement->execute();
+        }
+
         public function copy_base_to_summary_tables()
         {
             $db = $this->_db;
@@ -473,7 +485,6 @@
             $db = $this->_db;
             $career_base_season = $this->_config->getCareerBaseSeason();
             $players = get_players_by_name($db);
-            $insert_player = db_create_insert_player($db);
 
             $career_base_path =
                 $this->_config->getStaticDir() . "/" . $this->get_career_base_filename($summary_type);
@@ -492,19 +503,7 @@
                     else
                     {
                         $name = $row[$idx["Player"]];
-                        if (!array_key_exists($name, $players))
-                        {
-                            // We don't set the Active flag for players here - it is done later
-                            $insert_player->bindValue(":PcPlayerId", NO_PC_PLAYER_ID);
-                            $insert_player->bindValue(":Name", $name);
-                            $insert_player->bindValue(":Active", 0);
-                            $player_id = db_insert_and_return_id($db, $insert_player);
-                        }
-                        else
-                        {
-                            $player_id = $players[$name]["PlayerId"];
-                        }
-
+                        $player_id = $this->create_or_get_player_id($name, $players);
                         $insert_career_summary_base->bindValue(":Season", $career_base_season);
                         $bind_row_to_insert($row, $idx, $player_id, $insert_career_summary_base);
                         $insert_career_summary_base->execute();
@@ -520,104 +519,117 @@
             }
         }
 
-        // private function load_career_partnerships()
-        // {
-        //     $db = $this->_db;
-        //     $players = get_players_by_name($db);
-        //     $insert_batting_partnership = db_create_insert_batting_partnership($db);
-        //     $insert_player = db_create_insert_player($db);
-        //
-        //     $partnerships_path =
-        //         $this->_config->getStaticDir() . "/" . $this->get_career_base_filename("partnerships");
-        //
-        //     if (file_exists($partnerships_path))
-        //     {
-        //         $db->exec('BEGIN');
-        //
-        //         $base = fopen($partnerships_path, "r");
-        //         while ($row = fgetcsv($base))
-        //         {
-        //             if ($row[0] == "Wicket")
-        //             {
-        //                 $idx = array_flip($row);
-        //             }
-        //             else
-        //             {
-        //                 // Insert match
-        //                 $insert_match = db_create_insert_match($db);
-        //                 $insert_match->bindValue(":PcMatchId", $pc_match_id);
-        //                 $insert_match->bindValue(":Season", );
-        //                 $insert_match->bindValue(":MatchDate", );
-        //                 $insert_match->bindValue(":CompetitionType", );
-        //                 $insert_match->bindValue(":PloughTeamName", $plough_team_name);
-        //                 $insert_match->bindValue(":PloughMatch", $plough_match);
-        //                 $insert_match->bindValue(":PloughHome", $plough_home);
-        //                 $insert_match->bindValue(":PloughWonMatch", $plough_won_match);
-        //                 $insert_match->bindValue(":PloughWonToss", $plough_won_toss);
-        //                 $insert_match->bindValue(":PloughBattedFirst", $plough_batted_first);
-        //                 $insert_match->bindValue(":OppoClubId", $oppo_club_id);
-        //                 $insert_match->bindValue(":OppoClubName", $oppo_club_name);
-        //                 $insert_match->bindValue(":OppoTeamId", $oppo_team_id);
-        //                 $insert_match->bindValue(":OppoTeamName", $oppo_team_name);
-        //                 $insert_match->bindValue(":Result", $match_result);
-        //                 $insert_match->bindValue(":ResultAppliedToTeamId", $result_applied_to_team_id);
-        //                 $insert_match->bindValue(":TossWonByTeamId", $toss_won_by_team_id);
-        //                 $insert_match->bindValue(":BattedFirstTeamId", $batted_first_team_id);
-        //                 $match_id = db_insert_and_return_id($db, $insert_match);
-        //
-        //                 // Insert batting performances
-        //                 $insert_batting_perf = db_create_insert_batting_performance($db);
-        //                 $insert_batting_perf->bindValue(":PlayerPerformanceId", );
-        //                 $insert_batting_perf->bindValue(":PlayerId", );
-        //                 $insert_batting_perf->bindValue(":Position", );
-        //                 $insert_batting_perf->bindValue(":HowOut", );
-        //                 $insert_batting_perf->bindValue(":Runs", );
-        //                 $batting_perf_id = db_insert_and_return_id($db, $insert_batting_perf);
-        //
-        //                 // Insert partnership
-        //                 $runs = intval(str_replace("*", "", $row[$idx["Runs"]]));
-        //                 $not_out = strpos($row[$idx["Runs"]], "*") !== false;
-        //                 $insert_batting_partnership->bindValue(":BattingPerformanceIdOut", );
-        //                 $insert_batting_partnership->bindValue(":BattingPerformanceIdIn", );
-        //                 $insert_batting_partnership->bindValue(":Wicket", $row[$idx["Wicket"]]);
-        //                 $insert_batting_partnership->bindValue(":Runs", $runs);
-        //                 $insert_batting_partnership->bindValue(":NotOut", $not_out);
-        //                 $insert_batting_partnership->execute();
-        //
-        //
-        //                 $name = $row[$idx["Player"]];
-        //                 if (!array_key_exists($name, $players))
-        //                 {
-        //                     // We don't set the Active flag for players here - it is done later
-        //                     $insert_player->bindValue(":PcPlayerId", NO_PC_PLAYER_ID);
-        //                     $insert_player->bindValue(":Name", $name);
-        //                     $insert_player->bindValue(":Active", 0);
-        //                     $player_id = db_insert_and_return_id($db, $insert_player);
-        //                 }
-        //                 else
-        //                 {
-        //                     $player_id = $players[$name]["PlayerId"];
-        //                 }
-        //
-        //                 $insert_career_summary_base->bindValue(":Season", $career_base_season);
-        //                 $bind_row_to_insert($row, $idx, $player_id, $insert_career_summary_base);
-        //                 $insert_career_summary_base->execute();
-        //             }
-        //         }
-        //
-        //         $db->exec('COMMIT');
-        //         fclose($base);
-        //     }
-        //     else
-        //     {
-        //         log\warning("      File not found");
-        //     }
-        // }
+        public function load_career_partnerships()
+        {
+            $db = $this->_db;
+            $players = get_players_by_name($db);
+            $partnerships_path =
+                $this->_config->getStaticDir() . "/" . $this->get_career_base_filename("partnerships");
 
-        function get_career_base_filename($summary_type)
+            if (file_exists($partnerships_path))
+            {
+                $db->exec('BEGIN');
+
+                $base = fopen($partnerships_path, "r");
+                while ($row = fgetcsv($base))
+                {
+                    if ($row[0] == "Wicket")
+                    {
+                        $idx = array_flip($row);
+                    }
+                    else
+                    {
+                        // Insert match
+                        $pc_match_id = $row[$idx["PcMatchId"]] === "" ? NULL : intval($row[$idx["PcMatchId"]]);
+                        $match_date = date_create_from_format(EXCEL_DATE_FORMAT, $row[$idx["Date"]]);
+                        $match_date_str = $match_date->format(DATE_FORMAT);
+                        $insert_match = db_create_insert_match($db);
+                        $insert_match->bindValue(":PcMatchId", $pc_match_id);
+                        $insert_match->bindValue(":Season", intval($match_date->format('Y')));
+                        $insert_match->bindValue(":MatchDate", $match_date_str);
+                        $insert_match->bindValue(":CompetitionType", $row[$idx["Type"]]);
+                        $insert_match->bindValue(":PloughTeamName", $row[$idx["Team"]]);
+                        $insert_match->bindValue(":PloughMatch", true);
+                        $insert_match->bindValue(":OppoClubName", $row[$idx["Opposition"]]);
+                        $match_id = db_insert_and_return_id($db, $insert_match);
+
+                        // Insert players and performances
+                        $batting_perf_id_out = NULL;
+                        $batting_perf_id_in = NULL;
+                        $performance_out = array($row[$idx["Batsman Out"]], $row[$idx["Score Out"]], intval($row[$idx["Position Out"]]), true);
+                        $performance_in = array($row[$idx["Batsman In"]], $row[$idx["Score In"]], intval($row[$idx["Position In"]]), false);
+                        foreach (array($performance_out, $performance_in) as $performance)
+                        {
+                            list($name, $score, $position, $out) = $performance;
+                            $player_id = $this->create_or_get_player_id($name, $players);
+
+                            // Player performance
+                            $insert_player_perf = db_create_insert_player_performance($db);
+                            $insert_player_perf->bindValue(":MatchId", $match_id);
+                            $insert_player_perf->bindValue(":PlayerId", $player_id);
+                            $player_perf_id = db_insert_and_return_id($db, $insert_player_perf);
+
+                            // Batting performance
+                            $how_out = strpos($score, "*") !== false ? "not out" : "bowled";
+                            $runs = intval(str_replace("*", "", $score));
+                            $insert_batting_perf = db_create_insert_batting_performance($db);
+                            $insert_batting_perf->bindValue(":PlayerPerformanceId", $player_perf_id);
+                            $insert_batting_perf->bindValue(":PlayerId", $player_id);
+                            $insert_batting_perf->bindValue(":Position", $position);
+                            $insert_batting_perf->bindValue(":HowOut", $how_out);
+                            $insert_batting_perf->bindValue(":Runs", $runs);
+                            $batting_perf_id = db_insert_and_return_id($db, $insert_batting_perf);
+
+                            if ($out)
+                                $batting_perf_id_out = $batting_perf_id;
+                            else
+                                $batting_perf_id_in = $batting_perf_id;
+                        }
+
+                        // Insert partnership
+                        $insert_batting_partnership = db_create_insert_batting_partnership($db);
+                        $runs = intval(str_replace("*", "", $row[$idx["Runs"]]));
+                        $not_out = strpos($row[$idx["Runs"]], "*") !== false;
+                        $insert_batting_partnership->bindValue(":BattingPerformanceIdOut", $batting_perf_id_out);
+                        $insert_batting_partnership->bindValue(":BattingPerformanceIdIn", $batting_perf_id_in);
+                        $insert_batting_partnership->bindValue(":Wicket", $row[$idx["Wicket"]]);
+                        $insert_batting_partnership->bindValue(":Runs", $runs);
+                        $insert_batting_partnership->bindValue(":NotOut", $not_out);
+                        $insert_batting_partnership->execute();
+                    }
+                }
+
+                $db->exec('COMMIT');
+                fclose($base);
+            }
+            else
+            {
+                log\warning("      File not found");
+            }
+        }
+
+        private function get_career_base_filename($summary_type)
         {
             return "career-stats-" . strtolower($summary_type) .
                    "-end-" . ($this->_config->getCareerBaseSeason()) . ".csv";
+        }
+
+        private function create_or_get_player_id($name, &$players)
+        {
+            $db = $this->_db;
+
+            if (!array_key_exists($name, $players))
+            {
+                // We don't set the Active flag for players here - it is done later
+                $insert_player = db_create_insert_player($db);
+                $insert_player->bindValue(":PcPlayerId", NO_PC_PLAYER_ID);
+                $insert_player->bindValue(":Name", $name);
+                $insert_player->bindValue(":Active", 0);
+                $player_id = db_insert_and_return_id($db, $insert_player);
+                $players[$name] = $db->query("SELECT * FROM Player WHERE PlayerId = " . $player_id)->fetchArray(SQLITE3_ASSOC);
+            }
+
+            return $players[$name]["PlayerId"];
         }
     }
 ?>
