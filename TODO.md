@@ -10,11 +10,6 @@ __TODO__
     * History
         * Auto-sizing of roll of honour table?
     * Stats
-        * Partnerships
-            * Repeat for other years
-            * Update career record partnership table to source from new one
-            * Add link to career partnership details page
-            * Add auto-import for all partnership tables
     * Photos
         * More photos for different categories
             * Bowling
