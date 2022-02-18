@@ -12,8 +12,6 @@ __TODO__
     * Stats
         * Partnerships
             * Repeat for other years
-            * Add career base partnerships
-                * Historical data from Play Cricket
             * Update career record partnership table to source from new one
             * Add link to career partnership details page
             * Add auto-import for all partnership tables
