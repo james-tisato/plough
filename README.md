@@ -55,6 +55,9 @@ The plugin is packaged for deployment to the Wordpress site using [package.php](
 ## PHP environment
 The version of PHP that the plugin runs on in production is managed by SiteGround where the site is hosted. Currently it uses PHP 7.4.
 
+## Continuous integration
+There is a plan to set up automated testing and packaging on circleci at some point in the future. Currently tests are run locally whenever changes are made, and packaging is done locally as well. Plugin deployment is done via the WP Admin UI.
+
 ## Other Notes
 ### SSL certificates
 - On Macbook, downloaded latest cacert.pem from https://curl.se/docs/caextract.html and put it in /usr/local/php5/ssl/cert.pem
