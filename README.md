@@ -14,7 +14,7 @@ This repo primarily provides a Wordpress plugin that automatically generates the
     * Match detail consumption: [stats/match-consumer.php](stats/match-consumer.php)
 5. The static career stats for the club, which were calculated outside Play-Cricket up till the end of 2017, are loaded into the DB:
     * Career summary generator: [stats/career-summary-generator.php](stats/career-summary-generator.php) - see "load base" functions
-    * Static
+    * Static career summary base data: [stats/static](stats/static)
 6. For each season since 2017, a season summary is calculated for each player (using the consumed scorecard data for that season) and stored in the DB:
     * Season summary generator: [stats/season-summary-generator.php](stats/season-summary-generator.php)
 7. As each set of season summaries are completed, they are added to the current career summaries for each player to give a new set of career stats up to that point in time:
@@ -42,10 +42,19 @@ The SQLite DB can be wiped and rebuilt from scratch at any point. We persist it 
 * [default](stats/config/default.xml) - the configuration used in production on the Wordpress deployment
 * [local-test](stats/config/local-test.xml) - the configuration used when running the updater locally with [stats/local-update.php](stats/local-update.php)
 
+The configs allow you to choose between sourcing match data from the web or from file (`InputMapperName`). Match data can also be fetched from the web and dumped to file (`InputDumpDir`) and then used as the input for the next run by setting `InputMapperName` to `file` and `InputMapperDir` to the dump directory.
+
 ## Testing
+[stats/test.php](stats/test.php) runs a suite of regression tests defined in [stats/test/input](stats/test/input). Each test runs the updater against a set of dumped input data (captured at some point in the past), generates the output CSVs and compares them to a set of baseline output CSVs. Tests fail if the CSV results are not identical.
+
+Individual tests can be run with `php test.php <test-name>`, whereas `php test.php` runs the full suite.
 
 ## Packaging
+The plugin is packaged for deployment to the Wordpress site using [package.php](package.php) - `php package.php`. The resultant plugin zip can be found in the `dist` directory.
 
-## Notes
+## PHP environment
+The version of PHP that the plugin runs on in production is managed by SiteGround where the site is hosted. Currently it uses PHP 7.4.
+
+## Other Notes
 ### SSL certificates
 - On Macbook, downloaded latest cacert.pem from https://curl.se/docs/caextract.html and put it in /usr/local/php5/ssl/cert.pem
