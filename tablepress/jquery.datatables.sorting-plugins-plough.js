@@ -26,16 +26,16 @@ function extract_bowling_figures(figures) {
 
 jQuery.extend( jQuery.fn.dataTableExt.oSort, {
     /**
-	 * Average
-	 */
-	'average-pre': function ( a ) {
+     * Average
+     */
+    'average-pre': function ( a ) {
         if (a === "-") {
             return NO_AVERAGE;
         }
         else {
             return parseFloat(a);
         }
-	},
+    },
 
     /**
      * Batting score
@@ -62,9 +62,9 @@ jQuery.extend( jQuery.fn.dataTableExt.oSort, {
      },
 
     /**
-	 * Bowling figures
-	 */
-	'bowling-figures-asc': function ( a, b ) {
+     * Bowling figures
+     */
+    'bowling-figures-asc': function ( a, b ) {
         const [aWickets, aRuns] = extract_bowling_figures(a);
         const [bWickets, bRuns] = extract_bowling_figures(b);
         if (aWickets === bWickets) {
@@ -73,8 +73,8 @@ jQuery.extend( jQuery.fn.dataTableExt.oSort, {
         else {
             return aWickets - bWickets;
         }
-	},
-	'bowling-figures-desc': function ( a, b ) {
+    },
+    'bowling-figures-desc': function ( a, b ) {
         const [aWickets, aRuns] = extract_bowling_figures(a);
         const [bWickets, bRuns] = extract_bowling_figures(b);
         if (aWickets === bWickets) {
@@ -83,5 +83,5 @@ jQuery.extend( jQuery.fn.dataTableExt.oSort, {
         else {
             return bWickets - aWickets;
         }
-	}
+    }
 } );

@@ -1,5 +1,5 @@
 <?php
-	namespace plough\stats;
+    namespace plough\stats;
     use plough\log;
 
     require_once(__DIR__ . "/../logger.php");

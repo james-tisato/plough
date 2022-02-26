@@ -8,7 +8,7 @@
     <Pair Key="DbDir" Value="{stats_root}/test/database/Basic" />
 
     <!-- Static -->
-	<Pair Key="StaticDir" Value="{stats_root}/test/static/Basic" />
+    <Pair Key="StaticDir" Value="{stats_root}/test/static/Basic" />
 
     <!-- Input -->
     <Pair Key="InputMapperName" Value="file" />

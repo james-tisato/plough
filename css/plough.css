@@ -30,19 +30,19 @@ h6 {
 }
 
 body {
-	font-size: 14px;
+    font-size: 14px;
     font-family: 'Roboto Slab', serif;
     color: #666666;
-	line-height: 20px;
-	text-align: justify;
+    line-height: 20px;
+    text-align: justify;
 }
 
 /*----------------------------------Body Copy Styles-------------------------*/
 @media only screen and (min-width: 1440px) {
-	.row-width-1440px {
-		max-width: 80% !important;
-		margin: 0 auto;
-	}
+    .row-width-1440px {
+        max-width: 80% !important;
+        margin: 0 auto;
+    }
 }
 
 /*----------------------------------Mob Menu---------------------------------*/
@@ -58,9 +58,9 @@ body {
     }
 
     .navbar-nav>li>a {
-		margin-top: 20px !important;
+        margin-top: 20px !important;
         margin-bottom: 20px !important;
-	}
+    }
 
     .navbar-nav>li>.sub-menu {
         margin-top: 0px;
@@ -73,68 +73,68 @@ body {
 }
 
 .navbar.affix {
-	padding-bottom: 5px;
-	padding-top: 5px;
+    padding-bottom: 5px;
+    padding-top: 5px;
 }
 
 /*  Old mobile settings
 @media only screen and (max-width: 768px) {
-	.header_logo {
-		max-width: 70% !important;
-	}
+    .header_logo {
+        max-width: 70% !important;
+    }
 }
 
 @media only screen and (max-width: 768px) {
-	.brand {
-		margin: 0 0 0 15px !important;
-	}
+    .brand {
+        margin: 0 0 0 15px !important;
+    }
 }
 
 @media only screen and (max-width: 768px) {
-	ul {
-		margin-bottom: 0 !important;
-	}
+    ul {
+        margin-bottom: 0 !important;
+    }
 }
 */
 
 /*----------------------------------Submenu----------------------------------*/
 @media screen and (max-width: 768px) {
-	.menu-main-menu li ul {
-		display: block;
-	}
+    .menu-main-menu li ul {
+        display: block;
+    }
 }
 
 /*----------------------------------Social Buttons--------------------------*/
 .social-buttons-row {
-	width: 100%;
-	text-align: center;
+    width: 100%;
+    text-align: center;
 }
 
 .social-buttons {
-	display: inline;
+    display: inline;
 }
 
 .vc_btn3.vc_btn3-size-md.vc_btn3-icon-left:not(.vc_btn3-o-empty) {
-	margin: 10px;
+    margin: 10px;
 }
 
 /*----------------------------------Statistics Buttons-----------------------*/
 .vc_btn3.vc_btn3-color-sky, .vc_btn3.vc_btn3-color-sky.vc_btn3-style-flat {
-	background-color: #25aae1;
-	color: #fff;
+    background-color: #25aae1;
+    color: #fff;
 }
 
 /*----------------------------------Contact----------------------------------*/
 .contact p {
-	color: #fff;
+    color: #fff;
 }
 
 .contact h2 {
-	color: #fff;
+    color: #fff;
 }
 
 .contact h4 {
-	color: #fff;
+    color: #fff;
     font-weight: normal;
 }
 
@@ -146,13 +146,13 @@ body {
 
 .main-blog {
      background-image: url(http://ploughmanscc.com/wp-content/uploads/2018/10/ball2.jpg) !important;
-	 background-position: left !important;
-	 background-repeat: no-repeat !important;
-	 background-size: cover !important;
+     background-position: left !important;
+     background-repeat: no-repeat !important;
+     background-size: cover !important;
 }
 
 .listing-item .title {
-	font-size: 20px;
+    font-size: 20px;
 }
 
 .listing-item {
@@ -163,66 +163,66 @@ body {
 
 /*----------------------------------Slider----------------------------------*/
 /*.tp-splitted {
-	text-shadow: 0 0 0 #ece8c5, 0 0 60px #ece8c5, 0 0 0 #ece8c5;
+    text-shadow: 0 0 0 #ece8c5, 0 0 60px #ece8c5, 0 0 0 #ece8c5;
 }*/
 
 /*----------------------------------Gallery---------------------------------*/
 .bwg_slideshow_dots_thumbnails_0 {
-	display: none;
+    display: none;
 }
 
 .bwg_slideshow_dots_thumbnails_1 {
-	display: none;
+    display: none;
 }
 
 .bwg_slideshow_dots_thumbnails_2 {
-	display: none;
+    display: none;
 }
 
 .bwg_slideshow_dots_thumbnails_3 {
-	display: none;
+    display: none;
 }
 
 /*----------------------------------Popups----------------------------------*/
 .pum-content p {
-	font-size: 14px !important;
+    font-size: 14px !important;
 }
 
 .pum-trigger {
-	color: #25aae1;
-	text-decoration: underline;
+    color: #25aae1;
+    text-decoration: underline;
 }
 
 .pum-trigger:hover {
-	color: #25aae1;
-	text-decoration: none;
+    color: #25aae1;
+    text-decoration: none;
 }
 
 .pum-title {
-	padding-right: 50px;
+    padding-right: 50px;
 }
 
 /*----------------------------------Footer----------------------------------*/
 .footer-top {
-	display: none;
+    display: none;
 }
 
 /*----------------------------------Tables----------------------------------*/
 .tablepress .sorting::after {
-	text-align: left;
+    text-align: left;
 }
 
 .tablepress tbody td, .tablepress tfoot th {
-	border: 1px solid #ddd;
+    border: 1px solid #ddd;
 }
 
 .tablepress tbody tr:first-child td {
-	border-top: 1px solid #ddd;
+    border-top: 1px solid #ddd;
 }
 
 .tablepress td, .tablepress th {
-	font-size: 14px;
-	padding: 2px;
+    font-size: 14px;
+    padding: 2px;
     text-align: center;
     vertical-align: middle !important;
 }
@@ -234,136 +234,136 @@ body {
 }
 
 .tables {
-	display: block !important;
-	overflow-x: auto !important;
+    display: block !important;
+    overflow-x: auto !important;
 }
 
 .panel-body-title {
-	display: none;
+    display: none;
 }
 
 .panel-body {
-	border: none;
-	margin-top: 0;
-	padding: 15px;
+    border: none;
+    margin-top: 0;
+    padding: 15px;
 }
 
 .panel {
-	background-color: #fff;
-	border: none !important;
-	border-radius: 0 !important;
-	box-shadow: none !important;
-	margin-bottom: 20px;
+    background-color: #fff;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin-bottom: 20px;
 }
 
 .vc_custom_1478099370997 {
-	margin-top: 0 !important;
+    margin-top: 0 !important;
 }
 
 /*----------------------------------2 Col----------------------------------*/
 .Stats-2col-widths .column-1 {
-	width: 50% !important;
+    width: 50% !important;
 }
 
 .Stats-2col-widths .column-2 {
-	width: 50% !important;
+    width: 50% !important;
 }
 
 /*----------------------------------3 Col----------------------------------*/
 .Stats-col-widths .column-1 {
-	width: 45% !important;
+    width: 45% !important;
 }
 
 .Stats-col-widths .column-2 {
-	width: 10% !important;
+    width: 10% !important;
 }
 
 .Stats-col-widths .column-3 {
-	width: 45% !important;
+    width: 45% !important;
 }
 
 /*----------------------------------5 Col----------------------------------*/
 .tables .column-1 {
-	width: 20% !important;
+    width: 20% !important;
 }
 
 .tables .column-2 {
-	width: 30% !important;
+    width: 30% !important;
 }
 
 .tables .column-3 {
-	width: 15% !important;
+    width: 15% !important;
 }
 
 .tables .column-4 {
-	width: 15% !important;
+    width: 15% !important;
 }
 
 .tables .column-5 {
-	width: 20% !important;
+    width: 20% !important;
 }
 
 /*----------------------------------7 col----------------------------------*/
 .Stats-7-col-widths .column-1 {
-	white-space: nowrap;
+    white-space: nowrap;
 }
 
 .Stats-7-col-widths .column-2 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-7-col-widths .column-3 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-7-col-widths .column-4 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-7-col-widths .column-5 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-7-col-widths .column-6 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-7-col-widths .column-7 {
-	text-align: center;
+    text-align: center;
 }
 
 /*----------------------------------8 col----------------------------------*/
 .Stats-8-col-widths .column-0 {
-	width: 14% !important;
-	white-space: nowrap;
+    width: 14% !important;
+    white-space: nowrap;
 }
 
 .Stats-8-col-widths .column-1 {
-	width: 14% !important;
+    width: 14% !important;
 }
 
 .Stats-8-col-widths .column-2 {
-	width: 14% !important;
+    width: 14% !important;
 }
 
 .Stats-8-col-widths .column-3 {
-	width: 14% !important;
+    width: 14% !important;
 }
 
 .Stats-8-col-widths .column-4 {
-	width: 14% !important;
+    width: 14% !important;
 }
 
 .Stats-8-col-widths .column-5 {
-	width: 14% !important;
+    width: 14% !important;
 }
 
 .Stats-8-col-widths .column-6 {
-	width: 14% !important;
+    width: 14% !important;
 }
 
 .Stats-8-col-widths .column-7 {
-	width: 14% !important;
+    width: 14% !important;
 }
 
 /*----------------------------------Roll of honour - 10 col----------------*/
@@ -372,288 +372,288 @@ body {
 }
 
 .roll-of-honour .column-1 {
-	width: 5% !important;
-	white-space: nowrap;
+    width: 5% !important;
+    white-space: nowrap;
 }
 
 .roll-of-honour .column-2 {
-	width: 10.5% !important;
+    width: 10.5% !important;
 }
 
 .roll-of-honour .column-3 {
-	width: 10.5% !important;
+    width: 10.5% !important;
 }
 
 .roll-of-honour .column-4 {
-	width: 10.5% !important;
+    width: 10.5% !important;
 }
 
 .roll-of-honour .column-5 {
-	width: 10.5% !important;
+    width: 10.5% !important;
 }
 
 .roll-of-honour .column-6 {
-	width: 10.5% !important;
+    width: 10.5% !important;
 }
 
 .roll-of-honour .column-7 {
-	width: 10.5% !important;
+    width: 10.5% !important;
 }
 
 .roll-of-honour .column-8 {
-	width: 10.5% !important;
+    width: 10.5% !important;
 }
 
 .roll-of-honour .column-9 {
-	width: 10.5% !important;
+    width: 10.5% !important;
 }
 
 .roll-of-honour .column-10 {
-	width: 10.5% !important;
+    width: 10.5% !important;
 }
 
 /*----------------------------------11 col----------------------------------*/
 .Stats-11-col-widths .column-1 {
-	white-space: nowrap;
-  	text-align: center;
+    white-space: nowrap;
+      text-align: center;
 }
 
 .Stats-11-col-widths .column-2 {
-	white-space: nowrap;
-  	text-align: center;
+    white-space: nowrap;
+      text-align: center;
 }
 
 .Stats-11-col-widths .column-3 {
-	white-space: nowrap;
-  	text-align: center;
+    white-space: nowrap;
+      text-align: center;
 }
 
 .Stats-11-col-widths .column-4 {
-	white-space: nowrap;
-  	text-align: center;
+    white-space: nowrap;
+      text-align: center;
 }
 
 .Stats-11-col-widths .column-5 {
-	white-space: nowrap;
-  	text-align: center;
+    white-space: nowrap;
+      text-align: center;
 }
 
 .Stats-11-col-widths .column-6 {
-	white-space: nowrap;
-  	text-align: center;
+    white-space: nowrap;
+      text-align: center;
 }
 
 .Stats-11-col-widths .column-7 {
-	white-space: nowrap;
-  	text-align: center;
+    white-space: nowrap;
+      text-align: center;
 }
 
 .Stats-11-col-widths .column-8 {
-	white-space: nowrap;
-  	text-align: center;
+    white-space: nowrap;
+      text-align: center;
 }
 
 .Stats-11-col-widths .column-9 {
-	white-space: nowrap;
-  	text-align: center;
+    white-space: nowrap;
+      text-align: center;
 }
 
 .Stats-11-col-widths .column-10 {
-	white-space: nowrap;
-  	text-align: center;
+    white-space: nowrap;
+      text-align: center;
 }
 
 .Stats-11-col-widths .column-11 {
-	white-space: nowrap;
-  	text-align: center;
+    white-space: nowrap;
+      text-align: center;
 }
 
 /*----------------------------------14 col----------------------------------*/
 .Stats-14-col-widths .column-1 {
-	white-space: nowrap;
+    white-space: nowrap;
 }
 
 .Stats-14-col-widths .column-2 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-14-col-widths .column-3 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-14-col-widths .column-4 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-14-col-widths .column-5 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-14-col-widths .column-6 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-14-col-widths .column-7 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-14-col-widths .column-8 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-14-col-widths .column-9 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-14-col-widths .column-10 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-14-col-widths .column-11 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-14-col-widths .column-12 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-14-col-widths .column-13 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-14-col-widths .column-14 {
-	text-align: center;
+    text-align: center;
 }
 
 /*----------------------------------15 col----------------------------------*/
 .Stats-15-col-widths .column-1 {
-	white-space: nowrap;
+    white-space: nowrap;
 }
 
 .Stats-15-col-widths .column-2 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-15-col-widths .column-3 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-15-col-widths .column-4 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-15-col-widths .column-5 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-15-col-widths .column-6 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-15-col-widths .column-7 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-15-col-widths .column-8 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-15-col-widths .column-9 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-15-col-widths .column-10 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-15-col-widths .column-11 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-15-col-widths .column-12 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-15-col-widths .column-13 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-15-col-widths .column-14 {
-	text-align: center;
+    text-align: center;
 }
 
 .Stats-15-col-widths .column-15 {
-	text-align: center;
+    text-align: center;
 }
 
 /*----------------------------------16 col----------------------------------*/
 .Stats-16-col-widths .column-0 {
-	width: 6.25% !important;
-	white-space: nowrap;
+    width: 6.25% !important;
+    white-space: nowrap;
 }
 
 .Stats-16-col-widths .column-1 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-2 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-3 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-4 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-5 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-6 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-7 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-8 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-9 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-10 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-11 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-12 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-13 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-14 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-15 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 .Stats-16-col-widths .column-16 {
-	width: 6.25% !important;
+    width: 6.25% !important;
 }
 
 /*----------------------------------Stats ----------------*/
@@ -697,21 +697,21 @@ body {
 }
 
 .achieved-milestone {
-	color: #41ae76;
+    color: #41ae76;
 }
 
 .next-milestone {
- 	color: #fc8d59;
+     color: #fc8d59;
 }
 
 .stats-table-last-updated {
-	max-width: 500px;
-  	color: #263a91;
+    max-width: 500px;
+      color: #263a91;
 }
 
 .stats-table-last-updated .column-1 {
-	font-weight: bold;
-  	color: #25aae1;
+    font-weight: bold;
+      color: #25aae1;
 }
 
 .tablepress-id-stats-last-updated,
@@ -720,7 +720,7 @@ body {
 .tablepress-id-stats-last-updated tbody td,
 .tablepress-id-stats-last-updated thead th,
 .tablepress-id-stats-last-updated tfoot th {
-	border: none !important;
+    border: none !important;
 }
 
 /*---------------------------------- Fixtures ----------------*/

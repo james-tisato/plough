@@ -2,7 +2,7 @@ __TODO__
 * Website
     * Infrastructure
     * 2022 season setup
-        * Tour 2022 details
+        * Activate 2022 stats page
     * Styling
         * Clean up custom CSS:
             * Change default table style so we don't need to specify centered text for every column

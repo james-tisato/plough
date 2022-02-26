@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name:	Plough
-Description:	Provides Plough-specific features like stats generation
-Version:		0.0.20
-Author:			James Tisato
+Plugin Name:    Plough
+Description:    Provides Plough-specific features like stats generation
+Version:        0.0.20
+Author:         James Tisato
 */
 
 use plough\log;
@@ -21,14 +21,14 @@ function init()
 function plough_activate()
 {
     log\info("Activating Plough plugin");
-	plough\stats\activate();
+    plough\stats\activate();
 }
 
 
 function plough_deactivate()
 {
     log\info("Deactivating Plough plugin");
-	plough\stats\deactivate();
+    plough\stats\deactivate();
 }
 
 register_activation_hook(__FILE__, "plough_activate");

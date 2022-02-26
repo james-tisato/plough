@@ -1,16 +1,16 @@
 <?php
-	namespace plough\stats;
+    namespace plough\stats;
     function db_insert_and_return_id($db, $insert_statement)
     {
         $insert_statement->execute();
         return $db->querySingle('SELECT last_insert_rowid()');
     }
 
-	function db_bind_values_from_row($insert_statement, $row)
-	{
-		foreach($row as $key => $value)
-			$insert_statement->bindValue(":$key", $value);
-	}
+    function db_bind_values_from_row($insert_statement, $row)
+    {
+        foreach($row as $key => $value)
+            $insert_statement->bindValue(":$key", $value);
+    }
 
     function db_truncate_table($db, $table_name)
     {
@@ -157,11 +157,11 @@
     const FIELDING_SUMMARY_INSERT = '(
             PlayerId, Season, CatchesFielding, RunOuts, TotalFieldingWickets,
             CatchesKeeping, Stumpings, TotalKeepingWickets
-			)
+            )
         VALUES (
             :PlayerId, :Season, :CatchesFielding, :RunOuts, :TotalFieldingWickets,
-			:CatchesKeeping, :Stumpings, :TotalKeepingWickets
-		    )';
+            :CatchesKeeping, :Stumpings, :TotalKeepingWickets
+            )';
 
     function db_create_schema($db)
     {
@@ -221,7 +221,7 @@
             FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId) ON DELETE CASCADE
             )');
 
-		// Raw performances
+        // Raw performances
         $db->query('CREATE TABLE BattingPerformance (
             BattingPerformanceId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             PlayerPerformanceId INTEGER,
@@ -274,109 +274,109 @@
             FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId) ON DELETE CASCADE
             )');
 
-		// Performance summaries
+        // Performance summaries
         $db->query('CREATE TABLE SeasonMatchesSummary (
-			SeasonMatchesSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER,'
-			. MATCHES_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
-			)');
+            SeasonMatchesSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            PlayerId INTEGER,'
+            . MATCHES_SUMMARY_COLS .
+            'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+            )');
 
         $db->query('CREATE TABLE CareerMatchesSummaryBase (
-			CareerMatchesSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER, '
-			. MATCHES_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
-			)');
+            CareerMatchesSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            PlayerId INTEGER, '
+            . MATCHES_SUMMARY_COLS .
+            'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+            )');
 
         $db->query('CREATE TABLE CareerMatchesSummary (
-			CareerMatchesSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER, '
-			. MATCHES_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
-			)');
+            CareerMatchesSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            PlayerId INTEGER, '
+            . MATCHES_SUMMARY_COLS .
+            'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+            )');
 
-		$db->query('CREATE TABLE SeasonBattingSummary (
-			SeasonBattingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER,'
-			. BATTING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
+        $db->query('CREATE TABLE SeasonBattingSummary (
+            SeasonBattingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            PlayerId INTEGER,'
+            . BATTING_SUMMARY_COLS .
+            'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
             FOREIGN KEY(HighScoreMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
-			)');
+            )');
 
         $db->query('CREATE TABLE CareerBattingSummaryBase (
-			CareerBattingSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER, '
-			. BATTING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
+            CareerBattingSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            PlayerId INTEGER, '
+            . BATTING_SUMMARY_COLS .
+            'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
             FOREIGN KEY(HighScoreMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
-			)');
+            )');
 
         $db->query('CREATE TABLE CareerBattingSummary (
-			CareerBattingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER, '
-			. BATTING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
+            CareerBattingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            PlayerId INTEGER, '
+            . BATTING_SUMMARY_COLS .
+            'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
             FOREIGN KEY(HighScoreMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
-			)');
+            )');
 
-		$db->query('CREATE TABLE SeasonBowlingSummary (
-			SeasonBowlingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER,'
-			. BOWLING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
+        $db->query('CREATE TABLE SeasonBowlingSummary (
+            SeasonBowlingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            PlayerId INTEGER,'
+            . BOWLING_SUMMARY_COLS .
+            'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
             FOREIGN KEY(BestBowlingMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
-			)');
+            )');
 
         $db->query('CREATE TABLE CareerBowlingSummaryBase (
-			CareerBowlingSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER,'
-			. BOWLING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
+            CareerBowlingSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            PlayerId INTEGER,'
+            . BOWLING_SUMMARY_COLS .
+            'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
             FOREIGN KEY(BestBowlingMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
-			)');
+            )');
 
         $db->query('CREATE TABLE CareerBowlingSummary (
-			CareerBowlingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER,'
-			. BOWLING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
+            CareerBowlingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            PlayerId INTEGER,'
+            . BOWLING_SUMMARY_COLS .
+            'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
             FOREIGN KEY(BestBowlingMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
-			)');
+            )');
 
-		$db->query('CREATE TABLE SeasonFieldingSummary (
-			SeasonFieldingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER,'
-			. FIELDING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
-			)');
+        $db->query('CREATE TABLE SeasonFieldingSummary (
+            SeasonFieldingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            PlayerId INTEGER,'
+            . FIELDING_SUMMARY_COLS .
+            'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+            )');
 
         $db->query('CREATE TABLE CareerFieldingSummaryBase (
-			CareerFieldingSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER,'
-			. FIELDING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
-			)');
+            CareerFieldingSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            PlayerId INTEGER,'
+            . FIELDING_SUMMARY_COLS .
+            'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+            )');
 
         $db->query('CREATE TABLE CareerFieldingSummary (
-			CareerFieldingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER,'
-			. FIELDING_SUMMARY_COLS .
-			'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
-			)');
+            CareerFieldingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            PlayerId INTEGER,'
+            . FIELDING_SUMMARY_COLS .
+            'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+            )');
 
         $db->query('CREATE TABLE Milestone (
-			MilestoneId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-			PlayerId INTEGER,
+            MilestoneId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            PlayerId INTEGER,
             Season INTEGER,
             State TEXT,
             Type TEXT,
             Description TEXT,
-			FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
-			)');
+            FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
+            )');
 
         $db->query('CREATE TABLE LeagueTableEntry (
-			LeagueTableEntryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            LeagueTableEntryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             Season INTEGER,
             Division TEXT,
             Position INTEGER,
@@ -390,7 +390,7 @@
             PenaltyPoints INTEGER,
             TotalPoints INTEGER,
             AveragePoints REAL
-			)');
+            )');
 
         // Views
         db_create_player_view($db, "PlayerPerformance");
@@ -421,11 +421,11 @@
     {
         return $db->prepare(
             'INSERT INTO DbUpdate (
-				UpdateTime
-				)
+                UpdateTime
+                )
              VALUES (
-				 :UpdateTime
-			 	)'
+                 :UpdateTime
+                 )'
             );
     }
 
@@ -433,19 +433,19 @@
     {
         return $db->prepare(
             'INSERT INTO Match (
-				PcMatchId, Status, Season, MatchDate, CompetitionType, HomeClubId, HomeClubName, HomeTeamId, HomeTeamName,
+                PcMatchId, Status, Season, MatchDate, CompetitionType, HomeClubId, HomeClubName, HomeTeamId, HomeTeamName,
                 AwayClubId, AwayClubName, AwayTeamId, AwayTeamName, PloughClubId, PloughTeamId, PloughTeamName,
                 PloughMatch, PloughHome, PloughWonMatch, PloughWonToss, PloughBattedFirst,
                 OppoClubId, OppoClubName, OppoTeamId, OppoTeamName,
                 Result, ResultAppliedToTeamId, TossWonByTeamId, BattedFirstTeamId
-				)
+                )
              VALUES (
-				 :PcMatchId, :Status, :Season, :MatchDate, :CompetitionType, :HomeClubId, :HomeClubName, :HomeTeamId, :HomeTeamName,
+                 :PcMatchId, :Status, :Season, :MatchDate, :CompetitionType, :HomeClubId, :HomeClubName, :HomeTeamId, :HomeTeamName,
                  :AwayClubId, :AwayClubName, :AwayTeamId, :AwayTeamName, :PloughClubId, :PloughTeamId, :PloughTeamName,
                  :PloughMatch, :PloughHome, :PloughWonMatch, :PloughWonToss, :PloughBattedFirst,
                  :OppoClubId, :OppoClubName, :OppoTeamId, :OppoTeamName,
                  :Result, :ResultAppliedToTeamId, :TossWonByTeamId, :BattedFirstTeamId
-			 	)'
+                 )'
             );
     }
 
@@ -460,11 +460,11 @@
     {
         return $db->prepare(
             'INSERT INTO Player (
-				PcPlayerId, Name, Active
-				)
+                PcPlayerId, Name, Active
+                )
              VALUES (
-				 :PcPlayerId, :Name, :Active
-			 	)'
+                 :PcPlayerId, :Name, :Active
+                 )'
             );
     }
 
@@ -486,11 +486,11 @@
     {
         return $db->prepare(
             'INSERT INTO PlayerPerformance (
-				MatchId, PlayerId, Captain, Wicketkeeper
-				)
+                MatchId, PlayerId, Captain, Wicketkeeper
+                )
              VALUES (
-				 :MatchId, :PlayerId, :Captain, :Wicketkeeper
-			 	)'
+                 :MatchId, :PlayerId, :Captain, :Wicketkeeper
+                 )'
             );
     }
 
@@ -498,11 +498,11 @@
     {
         return $db->prepare(
             'INSERT INTO BattingPerformance (
-				PlayerPerformanceId, PlayerId, Position, HowOut, Runs, Balls, Fours, Sixes
-				)
+                PlayerPerformanceId, PlayerId, Position, HowOut, Runs, Balls, Fours, Sixes
+                )
              VALUES (
-				 :PlayerPerformanceId, :PlayerId, :Position, :HowOut, :Runs, :Balls, :Fours, :Sixes
-			 	)'
+                 :PlayerPerformanceId, :PlayerId, :Position, :HowOut, :Runs, :Balls, :Fours, :Sixes
+                 )'
             );
     }
 
@@ -522,11 +522,11 @@
     {
         return $db->prepare(
             'INSERT INTO BowlingPerformance (
-				PlayerPerformanceId, PlayerId, Position, CompletedOvers, PartialBalls, Maidens, Runs, Wickets, Wides, NoBalls
-				)
+                PlayerPerformanceId, PlayerId, Position, CompletedOvers, PartialBalls, Maidens, Runs, Wickets, Wides, NoBalls
+                )
              VALUES (
-				 :PlayerPerformanceId, :PlayerId, :Position, :CompletedOvers, :PartialBalls, :Maidens, :Runs, :Wickets, :Wides, :NoBalls
-			 	)'
+                 :PlayerPerformanceId, :PlayerId, :Position, :CompletedOvers, :PartialBalls, :Maidens, :Runs, :Wickets, :Wides, :NoBalls
+                 )'
             );
     }
 
@@ -534,11 +534,11 @@
     {
         return $db->prepare(
             'INSERT INTO FieldingPerformance (
-				PlayerPerformanceId, PlayerId, Catches, RunOuts, Stumpings
-				)
+                PlayerPerformanceId, PlayerId, Catches, RunOuts, Stumpings
+                )
              VALUES (
-				 :PlayerPerformanceId, :PlayerId, :Catches, :RunOuts, :Stumpings
-			 	)'
+                 :PlayerPerformanceId, :PlayerId, :Catches, :RunOuts, :Stumpings
+                 )'
             );
     }
 
