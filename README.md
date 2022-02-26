@@ -39,8 +39,8 @@ The SQLite DB can be wiped and rebuilt from scratch at any point. We persist it 
 
 ## Configuration
 [stats/config](stats/config) contains a couple of configuration files to control operation of the updater:
-    * [default](stats/config/default.xml) - the configuration used in production on the Wordpress deployment
-    * [local-test](stats/config/local-test.xml) - the configuration used when running the updater locally with [stats/local-update.php]
+* [default](stats/config/default.xml) - the configuration used in production on the Wordpress deployment
+* [local-test](stats/config/local-test.xml) - the configuration used when running the updater locally with [stats/local-update.php](stats/local-update.php)
 
 ## Testing
 
