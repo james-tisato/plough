@@ -3,7 +3,7 @@ h1 {
     font-size: 34px;
     font-family: 'Roboto Slab', serif;
     font-weight: 700;
-    padding-top: 100px;
+    padding-top: 50px;
 }
 
 h2 {
@@ -35,6 +35,12 @@ body {
     color: #666666;
     line-height: 20px;
     text-align: justify;
+}
+
+/* Override the default theme ul behaviour that removes all bullets and indenting */
+.default-list ul {
+    list-style: revert;
+    padding-left: revert;
 }
 
 /*----------------------------------Body Copy Styles-------------------------*/
