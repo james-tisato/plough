@@ -167,6 +167,24 @@ body {
     margin-bottom: 40px;
 }
 
+.post-entry h1, .post-entry h2, .post-entry h3, .post-entry h4, .post-entry h5, .post-entry h6 {
+    text-align: left;
+}
+
+.post-entry h2 {
+    padding-top: 20px;
+}
+
+.post-entry ul:not([class]) li {
+    padding-left: 1em;
+    text-align: left;
+}
+
+.content ol:not([class]) li {
+    padding-left: 1em;
+    text-align: left;
+}
+
 /*----------------------------------Slider----------------------------------*/
 /*.tp-splitted {
     text-shadow: 0 0 0 #ece8c5, 0 0 60px #ece8c5, 0 0 0 #ece8c5;
