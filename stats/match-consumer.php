@@ -423,21 +423,22 @@
                 }
 
                 $last_runs = 0;
+                $last_wicket = 0;
                 foreach ($batting_fow as $fow)
                 {
                     $pc_player_id_out = $fow["batsman_out_id"];
                     $pc_player_name_out = $fow["batsman_out_name"];
                     $pc_player_id_in = $fow["batsman_in_id"];
                     $pc_player_name_in = $fow["batsman_in_name"];
-                    $runs_at_wicket = empty($fow["runs"]) ? null : intval($fow["runs"]);
+                    $wicket = intval($fow["wickets"]);
+                    $runs_at_wicket = $fow["runs"] == "" ? null : intval($fow["runs"]);
 
-                    if (!is_null($last_runs) && !is_null($runs_at_wicket) &&
+                    if (!is_null($last_runs) && !is_null($runs_at_wicket) && //($wicket == $last_wicket + 1) &&
                         !empty($pc_player_id_out) && $pc_player_name_out != UNSURE_NAME &&
                         !empty($pc_player_id_in) && $pc_player_name_in != UNSURE_NAME)
                     {
                         $batting_perf_id_out = $batting_perf_cache[$pc_player_id_out];
                         $batting_perf_id_in = $batting_perf_cache[$pc_player_id_in];
-                        $wicket = intval($fow["wickets"]);
                         $partnership_runs = $runs_at_wicket - $last_runs;
                         $not_out = $wicket > $total_wickets;
 
@@ -450,6 +451,7 @@
                     }
 
                     $last_runs = $runs_at_wicket;
+                    $last_wicket = $wicket;
                 }
             }
         }
