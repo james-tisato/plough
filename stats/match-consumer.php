@@ -433,7 +433,7 @@
                     $wicket = intval($fow["wickets"]);
                     $runs_at_wicket = $fow["runs"] == "" ? null : intval($fow["runs"]);
 
-                    if (!is_null($last_runs) && !is_null($runs_at_wicket) && //($wicket == $last_wicket + 1) &&
+                    if (!is_null($last_runs) && !is_null($runs_at_wicket) && ($wicket == $last_wicket + 1) &&
                         !empty($pc_player_id_out) && $pc_player_name_out != UNSURE_NAME &&
                         !empty($pc_player_id_in) && $pc_player_name_in != UNSURE_NAME)
                     {
