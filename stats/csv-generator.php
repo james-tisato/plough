@@ -477,10 +477,10 @@
             $out = fopen("$output_dir/$output_name.csv", "w");
 
             if ($header)
-                \plough\fputcsv_eol($out, $header);
+                fputcsv($out, $header);
 
             foreach ($rows as $row)
-                \plough\fputcsv_eol($out, $row);
+                fputcsv($out, $row);
 
             fclose($out);
         }
