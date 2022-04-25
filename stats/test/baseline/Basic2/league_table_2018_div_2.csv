@@ -1,9 +1,9 @@
-Team,A,P,W,L,T,Bonus,Penalty,Total,Average
-"Ploughmans CC",1,13,11,2,-,16,0,236,18.15
-"Croydon CC A",-,14,11,3,-,24,0,244,17.43
-"Ewell CC 3rd XI",-,14,10,4,-,19,0,219,15.64
-"Sutton Challengers CC 3rd XI",1,13,7,6,-,41,7,174,13.38
-"Croydon Lions CC",-,14,6,8,-,58,0,178,12.71
-"Croydon CC B",-,13,4,9,-,53,0,133,10.23
-"Spencer CC Sharks",-,13,4,9,-,59,21,118,9.08
-"London Welsh CC",-,14,1,13,-,74,1,93,6.64
+Team,P,A,W,L,T,Bonus,Penalty,Total,Average
+"Ploughmans CC",13,1,11,2,-,16,0,236,18.15
+"Croydon CC A",14,-,11,3,-,24,0,244,17.43
+"Ewell CC 3rd XI",14,-,10,4,-,19,0,219,15.64
+"Sutton Challengers CC 3rd XI",13,1,7,6,-,41,7,174,13.38
+"Croydon Lions CC",14,-,6,8,-,58,0,178,12.71
+"Croydon CC B",13,-,4,9,-,53,0,133,10.23
+"Spencer CC Sharks",13,-,4,9,-,59,21,118,9.08
+"London Welsh CC",14,-,1,13,-,74,1,93,6.64

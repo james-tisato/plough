@@ -149,7 +149,7 @@
             $db = $this->_db;
 
             $header = array(
-                "Team", "A", "P", "W", "L", "T", "Bonus", "Penalty", "Total", "Average"
+                "Team", "P", "A", "W", "L", "T", "Bonus", "Penalty", "Total", "Average"
                 );
 
             $divisions = get_league_divisions_for_season($season);
@@ -158,8 +158,8 @@
                 $statement = $db->prepare(
                    'SELECT
                           Club
-                         ,Abandoned
                          ,Played
+                         ,Abandoned
                          ,Won
                          ,Lost
                          ,Tied

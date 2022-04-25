@@ -94,22 +94,30 @@
 
         private function extract_table_data($table_str)
         {
-            $raw_rows = json_decode($table_str);
+            $table = json_decode($table_str, true)["league_table"][0];
+
+            // Build mapping from heading name to column number
+            $header_to_column = array();
+            $headings = $table["headings"];
+            foreach($headings as $column => $header)
+                $header_to_column[$header] = $column;
+
+            // Build table rows
             $rows = array();
+            $raw_rows = $table["values"];
             foreach ($raw_rows as $raw_row)
             {
-                $entry = $raw_row->value;
                 $row = array(
-                    "Club" => $entry->club,
-                    "A" => $entry->a,
-                    "P" => $entry->p,
-                    "W" => $entry->w,
-                    "L" => $entry->l,
-                    "T" => $entry->t,
-                    "Bonus Points" => $entry->bonuspoints,
-                    "Penalty Points" => $entry->totalpoints,
-                    "Total Points" => $entry->totalpoints,
-                    "Avge" => $entry->avge
+                    "Club" => $raw_row[$header_to_column["Team"]],
+                    "A" => $raw_row[$header_to_column["a"]],
+                    "P" => $raw_row[$header_to_column["p"]],
+                    "W" => $raw_row[$header_to_column["w"]] + $raw_row[$header_to_column["wcn"]],
+                    "L" => $raw_row[$header_to_column["l"]] + $raw_row[$header_to_column["lcn"]],
+                    "T" => $raw_row[$header_to_column["t"]],
+                    "Bonus Points" => $raw_row[$header_to_column["BatP"]] + $raw_row[$header_to_column["BowlP"]],
+                    "Penalty Points" => $raw_row[$header_to_column["Pen"]],
+                    "Total Points" => $raw_row[$header_to_column["Pts"]],
+                    "Avge" => $raw_row[$header_to_column["Ave"]]
                     );
                 array_push($rows, $row);
             }

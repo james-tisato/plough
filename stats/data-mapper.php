@@ -41,10 +41,12 @@
         const URL_SITE_ID = "8087";
         const URL_API_TOKEN = "cd3d9f47cef70496b9b3bfbab5231214";
 
-        const LEAGUE_TABLE_ID_MAP = array(
-            "prem" => 5659,
-            "1" => 5666,
-            "2" => 5669
+        // These need to be updated each season by looking on Play-Cricket at the
+        // league tables for the new season
+        const LEAGUE_TABLE_DIVISON_ID_MAP = array(
+            "prem" => 102305,
+            "1" => 102306,
+            "2" => 102307
             );
 
         public function getMatchesPath($season, $from_date)
@@ -60,9 +62,8 @@
 
         public function getLeagueTablePath($season, $division)
         {
-            $table_id = WebDataMapper::LEAGUE_TABLE_ID_MAP[$division];
-            return "https://surreycricketleague.co.uk/wp-admin/admin-ajax.php?action=wp_ajax_ninja_tables_public_action&" .
-                   "table_id=$table_id&target_action=get-all-data&default_sorting=old_first";
+            $table_id = WebDataMapper::LEAGUE_TABLE_DIVISON_ID_MAP[$division];
+            return $this->getPlayCricketUrlPrefix("league_table") . "&division_id=" . $table_id;
         }
 
         private function getPlayCricketUrlPrefix($command)
