@@ -13,6 +13,17 @@
         $zip->addFile($file_path, "plough/" . $file_path);
     }
 
+    function add_dir($zip, $dir_path) {
+        $nodes = glob($dir_path . '/*');
+        foreach ($nodes as $node)
+        {
+            if (is_dir($node))
+                add_dir($zip, $node);
+            else if (is_file($node))
+                add_file($zip, $node);
+        }
+    }
+
     function create_zip()
     {
         echo PHP_EOL;
@@ -59,6 +70,8 @@
 
             add_file($zip, "tablepress/jquery.datatables.sorting-plugins-plough.js");
             add_file($zip, "tablepress/sorting_plugins.php");
+
+            add_dir($zip, "vendor");
 
             $zip->close();
         }

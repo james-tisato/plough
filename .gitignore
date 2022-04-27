@@ -10,3 +10,4 @@ stats/test/result
 dist
 logs
 ~*.xlsx
+vendor

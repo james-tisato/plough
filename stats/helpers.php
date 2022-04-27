@@ -3,6 +3,8 @@
 
     require_once("db.php");
 
+    require_once(__DIR__ . '/../vendor/autoload.php');
+
     // Constants
     const NO_PC_PLAYER_ID = -1;
     const CLUB_NAME = "Ploughmans CC";
