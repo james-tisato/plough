@@ -115,14 +115,6 @@
             $this->generate_league_table_csvs($season);
             log\info("    Last updated");
             $this->generate_last_updated_csv();
-
-            // $books = [
-            //     ['ISBN', 'title', 'author', 'publisher', 'ctry' ],
-            //     [618260307, 'The Hobbit', 'J. R. R. Tolkien', 'Houghton Mifflin', 'USA'],
-            //     [908606664, 'Slinky Malinki', 'Lynley Dodd', 'Mallinson Rendel', 'NZ']
-            // ];
-            // $xlsx = \Shuchkin\SimpleXLSXGen::fromArray($books);
-            // $xlsx->saveAs('books.xlsx');
         }
 
         // Private generators
