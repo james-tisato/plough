@@ -84,13 +84,13 @@
         public function generate_season_csv_files($season)
         {
             log\info("    Batting");
-            $this->generate_batting_summary_csv(PERIOD_SEASON, $season);
+            $this->generate_batting_summary_csvs(PERIOD_SEASON, $season);
             log\info("    Bowling");
-            $this->generate_bowling_summary_csv(PERIOD_SEASON, $season);
+            $this->generate_bowling_summary_csvs(PERIOD_SEASON, $season);
             log\info("    Fielding");
-            $this->generate_fielding_summary_csv(PERIOD_SEASON, $season);
+            $this->generate_fielding_summary_csvs(PERIOD_SEASON, $season);
             log\info("    Keeping");
-            $this->generate_keeping_summary_csv(PERIOD_SEASON, $season);
+            $this->generate_keeping_summary_csvs(PERIOD_SEASON, $season);
             log\info("    Partnerships");
             $this->generate_partnership_csvs(PERIOD_SEASON, $season);
         }
@@ -98,13 +98,13 @@
         public function generate_career_csv_files($season)
         {
             log\info("    Batting");
-            $this->generate_batting_summary_csv(PERIOD_CAREER, $season);
+            $this->generate_batting_summary_csvs(PERIOD_CAREER, $season);
             log\info("    Bowling");
-            $this->generate_bowling_summary_csv(PERIOD_CAREER, $season);
+            $this->generate_bowling_summary_csvs(PERIOD_CAREER, $season);
             log\info("    Fielding");
-            $this->generate_fielding_summary_csv(PERIOD_CAREER, $season);
+            $this->generate_fielding_summary_csvs(PERIOD_CAREER, $season);
             log\info("    Keeping");
-            $this->generate_keeping_summary_csv(PERIOD_CAREER, $season);
+            $this->generate_keeping_summary_csvs(PERIOD_CAREER, $season);
             log\info("    Partnerships");
             $this->generate_partnership_csvs(PERIOD_CAREER, $season);
         }
@@ -181,7 +181,7 @@
             }
         }
 
-        private function generate_batting_summary_csv($period_type, $season)
+        private function generate_batting_summary_csvs($period_type, $season)
         {
             $db = $this->_db;
 
@@ -189,6 +189,7 @@
                 $period_type, "Batting", $season
                 );
 
+            // Summary
             $header = array(
                 "Player", "Mat", "Inns", "NO", "Runs", "Ave", "SR", "HS",
                 "50s", "100s", "0s", "4s", "6s", "Balls",
@@ -207,7 +208,7 @@
                      ,CASE
                         WHEN bs.HighScoreMatchId IS NOT NULL THEN
                             "<a href=https://ploughmans.play-cricket.com/website/results/" || m.PcMatchId || ">"
-                            || CAST(bs.HighScore AS TEXT) || (CASE bs.HighScoreNotOut WHEN 1 THEN \'*\' ELSE \'\' END)
+                            || CAST(bs.HighScore AS TEXT) || (CASE bs.HighScoreNotOut WHEN 1 THEN \'*\' ELSE \'\' END) || "</a>"
                         ELSE
                             CAST(bs.HighScore AS TEXT) || (CASE bs.HighScoreNotOut WHEN 1 THEN \'*\' ELSE \'\' END)
                       END AS HighScore
@@ -235,9 +236,50 @@
                 $season, $rows, [ MS_TYPE_GENERAL, MS_TYPE_BATTING ]
                 );
             $this->generate_csv_output($output_name, $rows_with_milestones, $header);
+
+            // Fifties and hundreds
+            $header = array(
+                "Player", "Pos", "Score", "Balls", "SR", "Fours", "Sixes",
+                "Opposition", "Team", "Type", "Date"
+                );
+
+            $season_clause = $period_type == PERIOD_SEASON ? "AND m.Season = " . $season : "AND m.Season > " . $this->_config->getCareerBaseSeason();
+            $runs_clauses = array(
+                "50s" => "bp.Runs >= 50 AND bp.Runs < 100",
+                "100s" => "bp.Runs >= 100"
+                );
+            foreach($runs_clauses as $runs_type => $runs_clause)
+            {
+                $statement = $db->prepare(
+                    'SELECT
+                         p.Name
+                        ,bp.Position
+                        ,"<a href=https://ploughmans.play-cricket.com/website/results/" || m.PcMatchId || ">"
+                            || CAST(bp.Runs AS TEXT) || (CASE WHEN bp.HowOut = "not out" || bp.HowOut = "retired hurt" || bp.HowOut = "retired not out" THEN \'*\' ELSE \'\' END) || "</a>"
+                        ,bp.Balls
+                        ,((CAST(bp.Runs AS FLOAT) / bp.Balls) * 100.0) AS StrikeRate
+                        ,bp.Fours
+                        ,bp.Sixes
+                        ,m.OppoClubName
+                        ,m.PloughTeamName
+                        ,m.CompetitionType
+                        ,STRFTIME("%d-%m-%Y", m.MatchDate)
+                    FROM BattingPerformance bp
+                    INNER JOIN PlayerPerformance pp on pp.PlayerPerformanceId = bp.PlayerPerformanceId
+                    INNER JOIN Match m on m.MatchId = pp.MatchId
+                    INNER JOIN Player p on p.PlayerId = bp.PlayerId
+                    WHERE
+                        ' . $runs_clause . '
+                        ' . $season_clause . '
+                    ORDER BY bp.Runs DESC, bp.Balls, p.Name
+                    ');
+
+                $rows = get_formatted_rows_from_query($statement);
+                $this->generate_csv_output($output_name . "_" . $runs_type, $rows, $header);
+            }
         }
 
-        private function generate_bowling_summary_csv($period_type, $season)
+        private function generate_bowling_summary_csvs($period_type, $season)
         {
             $db = $this->_db;
 
@@ -245,6 +287,7 @@
                 $period_type, "Bowling", $season
                 );
 
+            // Summary
             $header = array(
                 "Player", "Mat", "Overs", "Mdns", "Runs", "Wkts", "Ave",
                 "Econ", "SR", "Best", "5wi", "Wides", "NBs",
@@ -290,9 +333,45 @@
                 $season, $rows, [ MS_TYPE_GENERAL, MS_TYPE_BOWLING ]
                 );
             $this->generate_csv_output($output_name, $rows_with_milestones, $header);
+
+            // Five-fors
+            $header = array(
+                "Player", "Figures", "Overs", "Maidens", "Runs", "Wickets", "Economy", "SR",
+                "Opposition", "Team", "Type", "Date"
+                );
+
+            $season_clause = $period_type == PERIOD_SEASON ? "AND m.Season = " . $season : "AND m.Season > " . $this->_config->getCareerBaseSeason();
+            $statement = $db->prepare(
+                'SELECT
+                     p.Name
+                    ,"<a href=https://ploughmans.play-cricket.com/website/results/" || m.PcMatchId || ">"
+                        || CAST(bp.Wickets AS TEXT) || "/" || CAST(bp.Runs AS TEXT) || "</a>"
+                    ,bp.CompletedOvers || (CASE WHEN bp.PartialBalls > 0 THEN "." || bp.PartialBalls ELSE "" END)
+                    ,bp.Maidens
+                    ,bp.Runs
+                    ,bp.Wickets
+                    ,(bp.Runs / ((bp.CompletedOvers * 6 + bp.PartialBalls) / 6.0)) AS EconomyRate
+                    ,(CAST((bp.CompletedOvers * 6 + bp.PartialBalls) AS FLOAT) / bp.Wickets) AS StrikeRate
+                    ,m.OppoClubName
+                    ,m.PloughTeamName
+                    ,m.MatchDate
+                    ,m.CompetitionType
+                    ,STRFTIME("%d-%m-%Y", m.MatchDate)
+                FROM BowlingPerformance bp
+                INNER JOIN PlayerPerformance pp on pp.PlayerPerformanceId = bp.PlayerPerformanceId
+                INNER JOIN Match m on m.MatchId = pp.MatchId
+                INNER JOIN Player p on p.PlayerId = bp.PlayerId
+                WHERE
+                    bp.Wickets >= 5
+                    ' . $season_clause . '
+                ORDER BY bp.Wickets DESC, bp.Runs, p.Name
+                ');
+
+                $rows = get_formatted_rows_from_query($statement);
+                $this->generate_csv_output($output_name . "_5fors", $rows, $header);
         }
 
-        private function generate_fielding_summary_csv($period_type, $season)
+        private function generate_fielding_summary_csvs($period_type, $season)
         {
             $db = $this->_db;
 
@@ -332,7 +411,7 @@
             $this->generate_csv_output($output_name, $rows_with_milestones, $header);
         }
 
-        private function generate_keeping_summary_csv($period_type, $season)
+        private function generate_keeping_summary_csvs($period_type, $season)
         {
             $db = $this->_db;
 

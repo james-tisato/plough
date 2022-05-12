@@ -284,6 +284,10 @@ body {
     margin-top: 0 !important;
 }
 
+.dt-buttons {
+    margin-bottom: 0.5em;
+}
+
 /*----------------------------------2 Col----------------------------------*/
 .Stats-2col-widths .column-1 {
     width: 50% !important;

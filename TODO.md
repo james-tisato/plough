@@ -25,6 +25,8 @@ __TODO__
             * Can we do the same for warnings?
     * Stats
         * Bugs
+            * Warnings in some tests with new PHP 7.4 version
+            * Duplicate batting performance entries being created when loading career partnerships?
         * Refactoring
         * Improvements
         * Performance
@@ -82,4 +84,3 @@ __TODO__
                         * Run outs
                         * Wk catches
                         * Stumpings
-            * Excel export
