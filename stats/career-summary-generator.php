@@ -160,10 +160,10 @@
                     $current_career["Balls"] = 0;
                 $career_summary["Balls"] = $current_career["Balls"] + $season["Balls"];
 
-                // Determine the number of runs from which to calculate the strike rate. If we don't have any`
+                // Determine the number of runs from which to calculate the strike rate. If we don't have any
                 // ball count data in the career base for this player, we only have balls that have been faced
                 // in seasons since then => we must only include runs scored since then.
-                if (is_null($career_summary_base["Balls"]))
+                if ($career_summary_base && is_null($career_summary_base["Balls"]))
                     $runs_for_strike_rate = $career_summary["Runs"] - $career_summary_base["Runs"];
                 else
                     $runs_for_strike_rate = $career_summary["Runs"];
