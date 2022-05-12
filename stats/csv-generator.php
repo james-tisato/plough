@@ -239,7 +239,7 @@
 
             // Fifties and hundreds
             $header = array(
-                "Player", "Pos", "Score", "Balls", "SR", "Fours", "Sixes",
+                "Player", "Pos", "Runs", "Balls", "SR", "4s", "6s",
                 "Opposition", "Team", "Type", "Date"
                 );
 
@@ -260,7 +260,7 @@
                         ,((CAST(bp.Runs AS FLOAT) / bp.Balls) * 100.0) AS StrikeRate
                         ,bp.Fours
                         ,bp.Sixes
-                        ,m.OppoClubName
+                        ,CASE m.OppoClubName WHEN "" THEN m.OppoTeamName ELSE m.OppoClubName END
                         ,m.PloughTeamName
                         ,m.CompetitionType
                         ,STRFTIME("%d-%m-%Y", m.MatchDate)
@@ -352,9 +352,8 @@
                     ,bp.Wickets
                     ,(bp.Runs / ((bp.CompletedOvers * 6 + bp.PartialBalls) / 6.0)) AS EconomyRate
                     ,(CAST((bp.CompletedOvers * 6 + bp.PartialBalls) AS FLOAT) / bp.Wickets) AS StrikeRate
-                    ,m.OppoClubName
+                    ,CASE m.OppoClubName WHEN "" THEN m.OppoTeamName ELSE m.OppoClubName END
                     ,m.PloughTeamName
-                    ,m.MatchDate
                     ,m.CompetitionType
                     ,STRFTIME("%d-%m-%Y", m.MatchDate)
                 FROM BowlingPerformance bp

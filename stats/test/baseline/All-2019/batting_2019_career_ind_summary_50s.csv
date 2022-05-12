@@ -1,4 +1,4 @@
-Player,Pos,Score,Balls,SR,Fours,Sixes,Opposition,Team,Type,Date
+Player,Pos,Runs,Balls,SR,4s,6s,Opposition,Team,Type,Date
 "Tom Lonnen",6,"<a href=https://ploughmans.play-cricket.com/website/results/3698274>97</a>",74,131.08,12,4,"Southbank CC","Friendly XI",Friendly,22-07-2018
 "Paul Hynes",4,"<a href=https://ploughmans.play-cricket.com/website/results/3859799>93</a>",62,150.00,12,3,"Wimbledon Corinthians CC","1st XI",League,31-08-2019
 "Chris Ovens",3,"<a href=https://ploughmans.play-cricket.com/website/results/3670663>92</a>",112,82.14,8,2,"Earlswood Strollers CC","Friendly XI",Friendly,06-05-2018
@@ -9,7 +9,7 @@ Player,Pos,Score,Balls,SR,Fours,Sixes,Opposition,Team,Type,Date
 "Duray Pretorius",5,"<a href=https://ploughmans.play-cricket.com/website/results/3704473>85</a>",85,100.00,7,0,"Energy Exiles CC","Friendly XI",Friendly,19-08-2018
 "Stu Campbell",2,"<a href=https://ploughmans.play-cricket.com/website/results/3859787>85</a>",103,82.52,11,0,"Ottershaw CC","1st XI",League,24-08-2019
 "Dan Thomas",6,"<a href=https://ploughmans.play-cricket.com/website/results/3325337>84</a>",38,221.05,10,6,"Spencer CC, Surrey","1st XI",League,16-06-2018
-"Steve Tsonas",6,"<a href=https://ploughmans.play-cricket.com/website/results/4050491>84</a>",70,120.00,10,1,,"Friendly XI",Friendly,19-05-2019
+"Steve Tsonas",6,"<a href=https://ploughmans.play-cricket.com/website/results/4050491>84</a>",70,120.00,10,1,"Members End CC","Friendly XI",Friendly,19-05-2019
 "Kurt McCarthy",1,"<a href=https://ploughmans.play-cricket.com/website/results/3670451>83</a>",77,107.79,9,3,"Twickenham CC","Friendly XI",Friendly,05-05-2018
 "Logan Cassin",4,"<a href=https://ploughmans.play-cricket.com/website/results/3859804>81</a>",44,184.09,10,5,"Wimbledon Village CC","1st XI",League,07-09-2019
 "Adam Barraclough",2,"<a href=https://ploughmans.play-cricket.com/website/results/4044107>81</a>",96,84.38,15,0,"Twickenham CC","Friendly XI",Friendly,05-05-2019
@@ -26,7 +26,7 @@ Player,Pos,Score,Balls,SR,Fours,Sixes,Opposition,Team,Type,Date
 "James Tisato",5,"<a href=https://ploughmans.play-cricket.com/website/results/4048621>70</a>",70,100.00,10,1,"Old Suttonians CC, Surrey","Friendly XI",Friendly,12-05-2019
 "Freddie Mills",6,"<a href=https://ploughmans.play-cricket.com/website/results/3704473>68</a>",66,103.03,11,0,"Energy Exiles CC","Friendly XI",Friendly,19-08-2018
 "Chris Lilford",7,"<a href=https://ploughmans.play-cricket.com/website/results/3859767>67</a>",72,93.06,8,1,"Raynes Park Former Pupils CC","1st XI",League,03-08-2019
-"Kesh Wanigasekara",7,"<a href=https://ploughmans.play-cricket.com/website/results/4074439>66</a>",50,132.00,8,4,,"Friendly XI",Friendly,04-08-2019
+"Kesh Wanigasekara",7,"<a href=https://ploughmans.play-cricket.com/website/results/4074439>66</a>",50,132.00,8,4,"Clapham In CC","Friendly XI",Friendly,04-08-2019
 "Stu Campbell",7,"<a href=https://ploughmans.play-cricket.com/website/results/3677829>65</a>",46,141.30,6,3,"Gully Cricketers CC","Friendly XI",Friendly,20-05-2018
 "Chris Lilford",4,"<a href=https://ploughmans.play-cricket.com/website/results/4063386>65</a>",65,100.00,8,0,"Islands Vale CC","Friendly XI",Friendly,30-06-2019
 "Adam Barraclough",4,"<a href=https://ploughmans.play-cricket.com/website/results/3859767>64</a>",81,79.01,5,1,"Raynes Park Former Pupils CC","1st XI",League,03-08-2019
@@ -42,11 +42,11 @@ Player,Pos,Score,Balls,SR,Fours,Sixes,Opposition,Team,Type,Date
 "Tom Lonnen",2,"<a href=https://ploughmans.play-cricket.com/website/results/3325263>59</a>",81,72.84,7,2,"London Welsh CC","1st XI",League,25-08-2018
 "Freddie Mills",5,"<a href=https://ploughmans.play-cricket.com/website/results/3859731>58</a>",39,148.72,10,1,"Croydon CC, Surrey","1st XI",League,15-06-2019
 "Matt Spencer",5,"<a href=https://ploughmans.play-cricket.com/website/results/3696142>58</a>",61,95.08,8,1,"Southbank CC","Friendly XI",Friendly,15-07-2018
-"Steve Britto",4,"<a href=https://ploughmans.play-cricket.com/website/results/3688746>58</a>",74,78.38,8,1,,"Friendly XI",Friendly,17-06-2018
+"Steve Britto",4,"<a href=https://ploughmans.play-cricket.com/website/results/3688746>58</a>",74,78.38,8,1,"Members End","Friendly XI",Friendly,17-06-2018
 "Steve Tsonas",3,"<a href=https://ploughmans.play-cricket.com/website/results/3859756>58</a>",88,65.91,8,1,"Surrey Warriors CC","1st XI",League,20-07-2019
 "Tom Lonnen",2,"<a href=https://ploughmans.play-cricket.com/website/results/3680032>57</a>",59,96.61,6,3,"Wimbledon United CC","Friendly XI",Friendly,27-05-2018
 "Steve Britto",1,"<a href=https://ploughmans.play-cricket.com/website/results/3325337>57</a>",65,87.69,9,1,"Spencer CC, Surrey","1st XI",League,16-06-2018
-"Tom Lockhart",5,"<a href=https://ploughmans.play-cricket.com/website/results/4044108>57</a>",66,86.36,8,1,,"Friendly XI",Friendly,05-05-2019
+"Tom Lockhart",5,"<a href=https://ploughmans.play-cricket.com/website/results/4044108>57</a>",66,86.36,8,1,"Pimlico Strollers","Friendly XI",Friendly,05-05-2019
 "Logan Cassin",6,"<a href=https://ploughmans.play-cricket.com/website/results/3859357>56</a>",42,133.33,6,2,"Spelthorne Sports CC","1st XI",League,11-05-2019
 "Duray Pretorius",5,"<a href=https://ploughmans.play-cricket.com/website/results/3670451>55</a>",35,157.14,3,5,"Twickenham CC","Friendly XI",Friendly,05-05-2018
 "Chris Ovens",3,"<a href=https://ploughmans.play-cricket.com/website/results/3859411>55</a>",56,98.21,8,0,"Commonwealth Offices CC","1st XI",League,25-05-2019
@@ -58,7 +58,7 @@ Player,Pos,Score,Balls,SR,Fours,Sixes,Opposition,Team,Type,Date
 "Stu Campbell",3,"<a href=https://ploughmans.play-cricket.com/website/results/3325463>51</a>",72,70.83,4,2,"Ewell CC","1st XI",League,01-09-2018
 "Tom Lonnen",7,"<a href=https://ploughmans.play-cricket.com/website/results/4104805>50</a>",26,192.31,2,3,"Morden CC","Friendly XI",Friendly,15-09-2019
 "Gareth Sutton",9,"<a href=https://ploughmans.play-cricket.com/website/results/4059406>50</a>",50,100.00,6,2,"Northfields CC","Friendly XI",Friendly,16-06-2019
-"Stu Campbell",1,"<a href=https://ploughmans.play-cricket.com/website/results/4050491>50</a>",60,83.33,5,0,,"Friendly XI",Friendly,19-05-2019
+"Stu Campbell",1,"<a href=https://ploughmans.play-cricket.com/website/results/4050491>50</a>",60,83.33,5,0,"Members End CC","Friendly XI",Friendly,19-05-2019
 "Chris Silvapulle",8,"<a href=https://ploughmans.play-cricket.com/website/results/3698274>50</a>",62,80.65,6,0,"Southbank CC","Friendly XI",Friendly,22-07-2018
 "Steve Britto",1,"<a href=https://ploughmans.play-cricket.com/website/results/3699709>50</a>",63,79.37,7,0,"Peshwa XI CC","Friendly XI",Friendly,28-07-2018
 "Nick Ridgway",2,"<a href=https://ploughmans.play-cricket.com/website/results/4076967>50</a>",67,74.63,7,0,"Putney CC","Friendly XI",Friendly,18-08-2019

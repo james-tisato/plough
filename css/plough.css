@@ -694,6 +694,15 @@ body {
     max-width: 1000px;
 }
 
+.stats-table-batting-innings {
+    white-space: nowrap;
+}
+
+.stats-table-batting-innings th, .stats-table-batting-innings td {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
 .stats-table-batting-partnerships {
     max-width: 1000px;
     white-space: nowrap;
@@ -710,6 +719,15 @@ body {
 
 .stats-table-bowling {
     max-width: 1000px;
+}
+
+.stats-table-bowling-innings {
+    white-space: nowrap;
+}
+
+.stats-table-bowling-innings th, .stats-table-bowling-innings td {
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .stats-table-fielding {
@@ -739,7 +757,7 @@ body {
 
 .stats-table-last-updated .column-1 {
     font-weight: bold;
-      color: #25aae1;
+    color: #25aae1;
 }
 
 .tablepress-id-stats-last-updated,

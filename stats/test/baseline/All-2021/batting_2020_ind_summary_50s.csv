@@ -1,4 +1,4 @@
-Player,Pos,Score,Balls,SR,Fours,Sixes,Opposition,Team,Type,Date
+Player,Pos,Runs,Balls,SR,4s,6s,Opposition,Team,Type,Date
 "Fred Gumpert",1,"<a href=https://ploughmans.play-cricket.com/website/results/4521877>96</a>",109,88.07,10,0,"Streatham & Marlborough CC","Friendly XI",Friendly,20-09-2020
 "Logan Cassin",2,"<a href=https://ploughmans.play-cricket.com/website/results/4453743>95</a>",77,123.38,11,4,"Spencer CC, Surrey","1st XI",League,15-08-2020
 "Suri Poleboina",3,"<a href=https://ploughmans.play-cricket.com/website/results/4513935>92</a>",79,116.46,12,0,"Banstead CC","Friendly XI",Friendly,06-09-2020
@@ -9,7 +9,7 @@ Player,Pos,Score,Balls,SR,Fours,Sixes,Opposition,Team,Type,Date
 "Wayne Walters",3,"<a href=https://ploughmans.play-cricket.com/website/results/4502873>84</a>",84,100.00,9,4,"Dulwich CC","Friendly XI",Friendly,15-08-2020
 "Logan Cassin",2,"<a href=https://ploughmans.play-cricket.com/website/results/4505241>84</a>",89,94.38,9,3,"Southbank CC","Friendly XI",Friendly,23-08-2020
 "Steve Britto",2,"<a href=https://ploughmans.play-cricket.com/website/results/4248406>81</a>",93,87.10,9,0,"Ottershaw CC","1st XI",League,25-07-2020
-"Tom Lonnen",4,"<a href=https://ploughmans.play-cricket.com/website/results/4490874>80</a>",99,80.81,9,4,,"Friendly XI",Friendly,02-08-2020
+"Tom Lonnen",4,"<a href=https://ploughmans.play-cricket.com/website/results/4490874>80</a>",99,80.81,9,4,"Clapham In CC","Friendly XI",Friendly,02-08-2020
 "Adeel Riaz",2,"<a href=https://ploughmans.play-cricket.com/website/results/4521875>77</a>",103,74.76,10,0,"Watford Town CC","Friendly XI",Friendly,19-09-2020
 "Matt Hickson",2,"<a href=https://ploughmans.play-cricket.com/website/results/4248383>76</a>",86,88.37,8,3,"London Gymkhana CC","1st XI",League,18-07-2020
 "James Tisato",6,"<a href=https://ploughmans.play-cricket.com/website/results/4528870>73</a>",64,114.06,9,2,"Southbank CC","Friendly XI",Friendly,27-09-2020
@@ -20,7 +20,7 @@ Player,Pos,Score,Balls,SR,Fours,Sixes,Opposition,Team,Type,Date
 "Iskander Eaton",1,"<a href=https://ploughmans.play-cricket.com/website/results/4504959>65</a>",75,86.67,7,0,"Merton CC","Friendly XI",Friendly,23-08-2020
 "Paul Hynes",6,"<a href=https://ploughmans.play-cricket.com/website/results/4461176>63</a>",56,112.50,9,0,"Putney CC","Friendly XI",Friendly,19-07-2020
 "Hector Barnicoat-Hood",2,"<a href=https://ploughmans.play-cricket.com/website/results/4483065>63</a>",60,105.00,10,2,"Actonians CC","Friendly XI",Friendly,26-07-2020
-"Niraj Tailor",6,"<a href=https://ploughmans.play-cricket.com/website/results/4516111>62</a>",66,93.94,6,0,,"Friendly XI",Friendly,06-09-2020
+"Niraj Tailor",6,"<a href=https://ploughmans.play-cricket.com/website/results/4516111>62</a>",66,93.94,6,0,"Spartans CC","Friendly XI",Friendly,06-09-2020
 "Iskander Eaton",1,"<a href=https://ploughmans.play-cricket.com/website/results/4327006>62</a>",73,84.93,9,0,"Byfleet CC","Friendly XI",Friendly,26-07-2020
 "Grant Wolledge",4,"<a href=https://ploughmans.play-cricket.com/website/results/4504959>62</a>",76,81.58,8,0,"Merton CC","Friendly XI",Friendly,23-08-2020
 "Iskander Eaton",2,"<a href=https://ploughmans.play-cricket.com/website/results/4514990>61</a>",63,96.83,9,0,"Bec Old Boys CC","1st XI",League,12-09-2020
