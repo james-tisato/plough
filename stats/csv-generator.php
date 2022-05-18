@@ -336,7 +336,7 @@
 
             // Five-fors
             $header = array(
-                "Player", "Figures", "Overs", "Maidens", "Runs", "Wickets", "Economy", "SR",
+                "Player", "Figures", "Overs", "Mdns", "Runs", "Wkts", "Econ", "SR",
                 "Opposition", "Team", "Type", "Date"
                 );
 
