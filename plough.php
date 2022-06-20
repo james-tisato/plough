@@ -20,6 +20,7 @@ function init()
 
 function plough_activate()
 {
+    log\init();
     log\info("Activating Plough plugin");
     plough\stats\activate();
 }
@@ -27,6 +28,7 @@ function plough_activate()
 
 function plough_deactivate()
 {
+    log\init();
     log\info("Deactivating Plough plugin");
     plough\stats\deactivate();
 }

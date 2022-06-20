@@ -20,6 +20,7 @@
     class Updater
     {
         // Properties
+        private $_initialised;
         private $_config;
         private $_db;
 
@@ -33,8 +34,15 @@
         // Public methods
         public function __construct(Config $config)
         {
+            $this->_initialised = false;
             $this->_config = $config;
 
+            // The rest of the initialisation is done lazily to avoid setting up the 
+            // database connection every time the plugin is loaded
+        }
+
+        private function init()
+        {
             // Config
             $db_dir = $this->_config->getDbDir();
             if (!file_exists($db_dir))
@@ -106,10 +114,15 @@
             $this->_csv_generator = new CsvGenerator(
                 $this->_config, $this->_db, $this->_milestone_generator
                 );
+
+            $this->_initialised = true;
         }
 
         public function update_stats()
         {
+            if (!$this->_initialised)
+                $this->init();
+
             log\info("");
             $db = $this->_db;
             $career_base_season = $this->_config->getCareerBaseSeason();
