@@ -25,9 +25,6 @@ __TODO__
             * Can we do the same for warnings?
     * Stats
         * Bugs
-            * Fix bowling 5-fors headings to match main bowling table
-            * Add per-season 50s / 100s / 5-fors tables
-            * Duplicate batting performance entries being created when loading career partnerships?
         * Refactoring
         * Improvements
         * Performance

@@ -530,6 +530,8 @@
             {
                 $db->exec('BEGIN');
 
+                $match_cache = array();
+                $perf_cache = array();
                 $base = fopen($partnerships_path, "r");
                 while ($row = fgetcsv($base))
                 {
@@ -539,21 +541,31 @@
                     }
                     else
                     {
-                        // Insert match
+                        // Get or insert match
                         $pc_match_id = $row[$idx["PcMatchId"]] === "" ? NULL : intval($row[$idx["PcMatchId"]]);
                         $match_date = date_create_from_format(EXCEL_DATE_FORMAT, $row[$idx["Date"]]);
                         $match_date_str = $match_date->format(DATE_FORMAT);
-                        $insert_match = db_create_insert_match($db);
-                        $insert_match->bindValue(":PcMatchId", $pc_match_id);
-                        $insert_match->bindValue(":Season", intval($match_date->format('Y')));
-                        $insert_match->bindValue(":MatchDate", $match_date_str);
-                        $insert_match->bindValue(":CompetitionType", $row[$idx["Type"]]);
-                        $insert_match->bindValue(":PloughTeamName", $row[$idx["Team"]]);
-                        $insert_match->bindValue(":PloughMatch", true);
-                        $insert_match->bindValue(":OppoClubName", $row[$idx["Opposition"]]);
-                        $match_id = db_insert_and_return_id($db, $insert_match);
+                        $oppo = $row[$idx["Opposition"]];
+                        $match_cache_key = "{$match_date_str}_{$oppo}";
+                        if (!array_key_exists($match_cache_key, $match_cache))
+                        {
+                            $insert_match = db_create_insert_match($db);
+                            $insert_match->bindValue(":PcMatchId", $pc_match_id);
+                            $insert_match->bindValue(":Season", intval($match_date->format('Y')));
+                            $insert_match->bindValue(":MatchDate", $match_date_str);
+                            $insert_match->bindValue(":CompetitionType", $row[$idx["Type"]]);
+                            $insert_match->bindValue(":PloughTeamName", $row[$idx["Team"]]);
+                            $insert_match->bindValue(":PloughMatch", true);
+                            $insert_match->bindValue(":OppoClubName", $oppo);
+                            $match_id = db_insert_and_return_id($db, $insert_match);
+                            $match_cache[$match_cache_key] = $match_id;
+                        }
+                        else
+                        {
+                            $match_id = $match_cache[$match_cache_key];
+                        }
 
-                        // Insert players and performances
+                        // Get or insert players and performances
                         $batting_perf_id_out = NULL;
                         $batting_perf_id_in = NULL;
                         $performance_out = array($row[$idx["Batsman Out"]], $row[$idx["Score Out"]], intval($row[$idx["Position Out"]]), true);
@@ -562,23 +574,32 @@
                         {
                             list($name, $score, $position, $out) = $performance;
                             $player_id = $this->create_or_get_player_id($name, $players);
+                            $perf_cache_key = "${match_cache_key}_{$player_id}";
+                            if (!array_key_exists($perf_cache_key, $perf_cache))
+                            {
+                                // Player performance
+                                $insert_player_perf = db_create_insert_player_performance($db);
+                                $insert_player_perf->bindValue(":MatchId", $match_id);
+                                $insert_player_perf->bindValue(":PlayerId", $player_id);
+                                $player_perf_id = db_insert_and_return_id($db, $insert_player_perf);
 
-                            // Player performance
-                            $insert_player_perf = db_create_insert_player_performance($db);
-                            $insert_player_perf->bindValue(":MatchId", $match_id);
-                            $insert_player_perf->bindValue(":PlayerId", $player_id);
-                            $player_perf_id = db_insert_and_return_id($db, $insert_player_perf);
+                                // Batting performance
+                                $how_out = strpos($score, "*") !== false ? "not out" : "bowled";
+                                $runs = intval(str_replace("*", "", $score));
+                                $insert_batting_perf = db_create_insert_batting_performance($db);
+                                $insert_batting_perf->bindValue(":PlayerPerformanceId", $player_perf_id);
+                                $insert_batting_perf->bindValue(":PlayerId", $player_id);
+                                $insert_batting_perf->bindValue(":Position", $position);
+                                $insert_batting_perf->bindValue(":HowOut", $how_out);
+                                $insert_batting_perf->bindValue(":Runs", $runs);
+                                $batting_perf_id = db_insert_and_return_id($db, $insert_batting_perf);
 
-                            // Batting performance
-                            $how_out = strpos($score, "*") !== false ? "not out" : "bowled";
-                            $runs = intval(str_replace("*", "", $score));
-                            $insert_batting_perf = db_create_insert_batting_performance($db);
-                            $insert_batting_perf->bindValue(":PlayerPerformanceId", $player_perf_id);
-                            $insert_batting_perf->bindValue(":PlayerId", $player_id);
-                            $insert_batting_perf->bindValue(":Position", $position);
-                            $insert_batting_perf->bindValue(":HowOut", $how_out);
-                            $insert_batting_perf->bindValue(":Runs", $runs);
-                            $batting_perf_id = db_insert_and_return_id($db, $insert_batting_perf);
+                                $perf_cache[$perf_cache_key] = array($player_perf_id, $batting_perf_id);
+                            }
+                            else
+                            {
+                                list($player_perf_id, $batting_perf_id) = $perf_cache[$perf_cache_key];
+                            }
 
                             if ($out)
                                 $batting_perf_id_out = $batting_perf_id;
