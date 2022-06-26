@@ -86,29 +86,6 @@
             {
                 $player_id = $player["PlayerId"];
 
-                // Filter
-                $db->query('
-                    DROP TABLE IF EXISTS IncludedPerformance
-                    ');
-                $db->query(
-                    'CREATE TEMPORARY TABLE IncludedPerformance (
-                        PlayerPerformanceId INTEGER PRIMARY KEY
-                        )
-                    ');
-                $statement = $db->prepare(
-                    'INSERT INTO IncludedPerformance
-                     SELECT
-                        pp.PlayerPerformanceId
-                     FROM PlayerPerformance pp
-                     INNER JOIN Match m on m.MatchId = pp.MatchId
-                     LEFT JOIN BattingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
-                     WHERE
-                            pp.PlayerId = :PlayerId
-                        --and m.CompetitionType != \'League\'
-                    ');
-                $statement->bindValue(":PlayerId", $player_id);
-                $statement->execute();
-
                 // Basic fields
                 $statement = $db->prepare(
                     'SELECT
@@ -131,7 +108,6 @@
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
                     INNER JOIN Match m on m.MatchId = pp.MatchId
-                    --INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
                     LEFT JOIN BattingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
@@ -160,7 +136,6 @@
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
                     INNER JOIN Match m on m.MatchId = pp.MatchId
-                    INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
                     LEFT JOIN BattingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
@@ -194,29 +169,6 @@
             {
                 $player_id = $player["PlayerId"];
 
-                // Filter
-                $db->query('
-                    DROP TABLE IF EXISTS IncludedPerformance
-                    ');
-                $db->query(
-                    'CREATE TEMPORARY TABLE IncludedPerformance (
-                        PlayerPerformanceId INTEGER PRIMARY KEY
-                        )
-                    ');
-                $statement = $db->prepare(
-                   'INSERT INTO IncludedPerformance
-                    SELECT
-                        pp.PlayerPerformanceId
-                    FROM PlayerPerformance pp
-                    INNER JOIN Match m on m.MatchId = pp.MatchId
-                    LEFT JOIN BowlingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
-                    WHERE
-                            pp.PlayerId = :PlayerId
-                        --and bp.Position in (1, 2)
-                    ');
-                $statement->bindValue(":PlayerId", $player_id);
-                $statement->execute();
-
                 // Basic fields
                 $statement = $db->prepare(
                    'SELECT
@@ -231,7 +183,6 @@
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
                     INNER JOIN Match m on m.MatchId = pp.MatchId
-                    INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
                     LEFT JOIN BowlingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
@@ -257,7 +208,6 @@
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
                     INNER JOIN Match m on m.MatchId = pp.MatchId
-                    INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
                     LEFT JOIN BowlingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
@@ -287,7 +237,6 @@
                     FROM Player p
                     INNER JOIN PlayerPerformance pp on pp.PlayerId = p.PlayerId
                     INNER JOIN Match m on m.MatchId = pp.MatchId
-                    INNER JOIN IncludedPerformance ip on ip.PlayerPerformanceId = pp.PlayerPerformanceId
                     LEFT JOIN BowlingPerformance bp on bp.PlayerPerformanceId = pp.PlayerPerformanceId
                     WHERE
                             p.PlayerId = :PlayerId
@@ -320,8 +269,6 @@
             foreach ($players as $player)
             {
                 $player_id = $player["PlayerId"];
-
-                // Filter
 
                 // Basic fields
                 $statement = $db->prepare(

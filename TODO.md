@@ -28,9 +28,23 @@ __TODO__
         * Refactoring
         * Improvements
         * Performance
-            * Set up xdebug + cachegrind viewer on laptop
         * New features
             * Tour stats
+                * Tour matches get marked as a special competition type, so we'd have League, Friendly and Tour in that field in the DB. This would need to be done in the match report field.
+                * For current and tour CSV outputs, we'd need career and season stat summaries at different levels:
+                    * "Regular" - league + friendlies
+                    * Tour
+                * What summary levels might we like in future?
+                    * League, friendly, tour
+                    * Regular (league + friendly)
+                    * For league - 1st XI, 2nd XI
+                * Approach
+                    * Season summary tables get type / level field to allow us to create multiple summaries per season
+                    * Parameterise season summary generator on summary type and filter clause needed to isolate those matches
+                    * Have one season summary generator for each base level we want to summarise to - probably league 1s, league 2s, friendly, tour
+                    * Pull out some of the logic in career summary generator around combining two batting / bowling / fielding records
+                    * Add ability (where exactly?) to create another season summary that is the combination of other season summaries
+                    * Need to work out how to include the career stats stuff in here - can we treat as just like other summaries and use the same code? "Summary generator"?
             * Add static season summary support
             * Page per player
                 * What will the format be?

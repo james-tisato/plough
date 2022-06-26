@@ -203,6 +203,7 @@
             TossWonByTeamId INTEGER,
             BattedFirstTeamId INTEGER
             )');
+        $db->query('CREATE INDEX MatchSeasonIndex ON Match (Season)');
 
         $db->query('CREATE TABLE Player (
             PlayerId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -220,6 +221,8 @@
             FOREIGN KEY(MatchId) REFERENCES Match(MatchId) ON DELETE CASCADE,
             FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId) ON DELETE CASCADE
             )');
+        $db->query('CREATE INDEX PlayerPerformanceMatchIdIndex ON PlayerPerformance (MatchId)');
+        $db->query('CREATE INDEX PlayerPerformancePlayerIdIndex ON PlayerPerformance (PlayerId)');
 
         // Raw performances
         $db->query('CREATE TABLE BattingPerformance (
@@ -235,6 +238,8 @@
             FOREIGN KEY(PlayerPerformanceId) REFERENCES PlayerPerformance(PlayerPerformanceId) ON DELETE CASCADE,
             FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId) ON DELETE CASCADE
             )');
+        $db->query('CREATE INDEX BattingPerformancePlayerPerformanceIdIndex ON BattingPerformance (PlayerPerformanceId)');
+        $db->query('CREATE INDEX BattingPerformancePlayerIdIndex ON BattingPerformance (PlayerId)');
 
         $db->query('CREATE TABLE BattingPartnership (
             BattingPartnershipId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -246,6 +251,8 @@
             FOREIGN KEY(BattingPerformanceIdOut) REFERENCES BattingPerformance(BattingPerformanceId) ON DELETE CASCADE,
             FOREIGN KEY(BattingPerformanceIdIn) REFERENCES BattingPerformance(BattingPerformanceId) ON DELETE CASCADE
             )');
+        $db->query('CREATE INDEX BattingPartnershipBattingPerformanceIdOutIndex ON BattingPartnership (BattingPerformanceIdOut)');
+        $db->query('CREATE INDEX BattingPartnershipBattingPerformanceIdInIndex ON BattingPartnership (BattingPerformanceIdIn)');
 
         $db->query('CREATE TABLE BowlingPerformance (
             BowlingPerformanceId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -262,6 +269,8 @@
             FOREIGN KEY(PlayerPerformanceId) REFERENCES PlayerPerformance(PlayerPerformanceId) ON DELETE CASCADE,
             FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId) ON DELETE CASCADE
             )');
+        $db->query('CREATE INDEX BowlingPerformancePlayerPerformanceIdIndex ON BowlingPerformance (PlayerPerformanceId)');
+        $db->query('CREATE INDEX BowlingPerformancePlayerIdIndex ON BowlingPerformance (PlayerId)');
 
         $db->query('CREATE TABLE FieldingPerformance (
             FieldingPerformanceId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -273,6 +282,8 @@
             FOREIGN KEY(PlayerPerformanceId) REFERENCES PlayerPerformance(PlayerPerformanceId) ON DELETE CASCADE,
             FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId) ON DELETE CASCADE
             )');
+        $db->query('CREATE INDEX FieldingPerformancePlayerPerformanceIdIndex ON FieldingPerformance (PlayerPerformanceId)');
+        $db->query('CREATE INDEX FieldingPerformancePlayerIdIndex ON FieldingPerformance (PlayerId)');
 
         // Performance summaries
         $db->query('CREATE TABLE SeasonMatchesSummary (
@@ -281,6 +292,7 @@
             . MATCHES_SUMMARY_COLS .
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
             )');
+        $db->query('CREATE INDEX SeasonMatchesSummaryPlayerIdIndex ON SeasonMatchesSummary (PlayerId)');
 
         $db->query('CREATE TABLE CareerMatchesSummaryBase (
             CareerMatchesSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -288,6 +300,7 @@
             . MATCHES_SUMMARY_COLS .
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
             )');
+        $db->query('CREATE INDEX CareerMatchesSummaryBasePlayerIdIndex ON CareerMatchesSummaryBase (PlayerId)');
 
         $db->query('CREATE TABLE CareerMatchesSummary (
             CareerMatchesSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -295,6 +308,7 @@
             . MATCHES_SUMMARY_COLS .
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
             )');
+        $db->query('CREATE INDEX CareerMatchesSummaryPlayerIdIndex ON CareerMatchesSummary (PlayerId)');
 
         $db->query('CREATE TABLE SeasonBattingSummary (
             SeasonBattingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -303,6 +317,8 @@
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
             FOREIGN KEY(HighScoreMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
             )');
+        $db->query('CREATE INDEX SeasonBattingSummaryPlayerIdIndex ON SeasonBattingSummary (PlayerId)');
+        $db->query('CREATE INDEX SeasonBattingSummaryHighScoreMatchIdIndex ON SeasonBattingSummary (HighScoreMatchId)');
 
         $db->query('CREATE TABLE CareerBattingSummaryBase (
             CareerBattingSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -311,6 +327,8 @@
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
             FOREIGN KEY(HighScoreMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
             )');
+        $db->query('CREATE INDEX CareerBattingSummaryBasePlayerIdIndex ON CareerBattingSummaryBase (PlayerId)');
+        $db->query('CREATE INDEX CareerBattingSummaryBaseHighScoreMatchIdIndex ON CareerBattingSummaryBase (HighScoreMatchId)');
 
         $db->query('CREATE TABLE CareerBattingSummary (
             CareerBattingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -319,6 +337,8 @@
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
             FOREIGN KEY(HighScoreMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
             )');
+        $db->query('CREATE INDEX CareerBattingSummaryPlayerIdIndex ON CareerBattingSummary (PlayerId)');
+        $db->query('CREATE INDEX CareerBattingSummaryHighScoreMatchIdIndex ON CareerBattingSummary (HighScoreMatchId)');
 
         $db->query('CREATE TABLE SeasonBowlingSummary (
             SeasonBowlingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -327,6 +347,8 @@
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
             FOREIGN KEY(BestBowlingMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
             )');
+        $db->query('CREATE INDEX SeasonBowlingSummaryPlayerIdIndex ON SeasonBowlingSummary (PlayerId)');
+        $db->query('CREATE INDEX SeasonBowlingSummaryBestBowlingMatchIdIndex ON SeasonBowlingSummary (BestBowlingMatchId)');
 
         $db->query('CREATE TABLE CareerBowlingSummaryBase (
             CareerBowlingSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -335,6 +357,8 @@
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
             FOREIGN KEY(BestBowlingMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
             )');
+        $db->query('CREATE INDEX CareerBowlingSummaryBasePlayerIdIndex ON CareerBowlingSummaryBase (PlayerId)');
+        $db->query('CREATE INDEX CareerBowlingSummaryBaseBestBowlingMatchIdIndex ON CareerBowlingSummaryBase (BestBowlingMatchId)');
 
         $db->query('CREATE TABLE CareerBowlingSummary (
             CareerBowlingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -343,6 +367,8 @@
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId),
             FOREIGN KEY(BestBowlingMatchId) REFERENCES Match(MatchId) ON DELETE SET NULL
             )');
+        $db->query('CREATE INDEX CareerBowlingSummaryPlayerIdIndex ON CareerBowlingSummary (PlayerId)');
+        $db->query('CREATE INDEX CareerBowlingSummaryHighScoreMatchIdIndex ON CareerBowlingSummary (BestBowlingMatchId)');
 
         $db->query('CREATE TABLE SeasonFieldingSummary (
             SeasonFieldingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -350,6 +376,7 @@
             . FIELDING_SUMMARY_COLS .
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
             )');
+        $db->query('CREATE INDEX SeasonFieldingSummaryPlayerIdIndex ON SeasonFieldingSummary (PlayerId)');
 
         $db->query('CREATE TABLE CareerFieldingSummaryBase (
             CareerFieldingSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -357,6 +384,7 @@
             . FIELDING_SUMMARY_COLS .
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
             )');
+        $db->query('CREATE INDEX CareerFieldingSummaryBasePlayerIdIndex ON CareerFieldingSummaryBase (PlayerId)');
 
         $db->query('CREATE TABLE CareerFieldingSummary (
             CareerFieldingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -364,6 +392,7 @@
             . FIELDING_SUMMARY_COLS .
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
             )');
+        $db->query('CREATE INDEX CareerFieldingSummaryPlayerIdIndex ON CareerFieldingSummary (PlayerId)');
 
         $db->query('CREATE TABLE Milestone (
             MilestoneId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -374,6 +403,7 @@
             Description TEXT,
             FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
             )');
+        $db->query('CREATE INDEX MilestonePlayerIdIndex ON Milestone (PlayerId)');
 
         $db->query('CREATE TABLE LeagueTableEntry (
             LeagueTableEntryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
