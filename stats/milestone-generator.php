@@ -249,10 +249,10 @@
                 LEFT JOIN ' . $table_prefix . 'FieldingSummary f ON f.PlayerId = p.PlayerId
                 WHERE
                         p.PlayerId = :PlayerId
-                    AND m.Season = :Season
-                    AND ba.Season = :Season
-                    AND bo.Season = :Season
-                    AND f.Season = :Season
+                    AND m.Season = :Season AND m.MatchType = \'Regular\'
+                    AND ba.Season = :Season AND ba.MatchType = \'Regular\'
+                    AND bo.Season = :Season AND bo.MatchType = \'Regular\'
+                    AND f.Season = :Season AND f.MatchType = \'Regular\'
                 ORDER BY p.PlayerId
                 ');
             $statement->bindValue(":PlayerId", $player["PlayerId"]);

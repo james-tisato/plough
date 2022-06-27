@@ -56,10 +56,18 @@
             $result_match_type
             )
         {
-            $this->aggregate_matches_summaries($source1_season, $source1_match_type, $source2_season, $source2_match_type, $result_season, $result_match_type);
-            $this->aggregate_batting_summaries($source1_season, $source1_match_type, $source2_season, $source2_match_type, $result_season, $result_match_type);
-            $this->aggregate_bowling_summaries($source1_season, $source1_match_type, $source2_season, $source2_match_type, $result_season, $result_match_type);
-            $this->aggregate_fielding_summaries($source1_season, $source1_match_type, $source2_season, $source2_match_type, $result_season, $result_match_type);
+            $this->aggregate_matches_summaries(
+                $source1_season, $source1_match_type, $source2_season, $source2_match_type, $result_season, $result_match_type
+                );
+            $this->aggregate_batting_summaries(
+                $source1_season, $source1_match_type, $source2_season, $source2_match_type, $result_season, $result_match_type
+                );
+            $this->aggregate_bowling_summaries(
+                $source1_season, $source1_match_type, $source2_season, $source2_match_type, $result_season, $result_match_type
+                );
+            $this->aggregate_fielding_summaries(
+                $source1_season, $source1_match_type, $source2_season, $source2_match_type, $result_season, $result_match_type
+                );
         }
 
         // Matches
@@ -136,13 +144,13 @@
                 // Finally calculate the strike rate
                 $result["StrikeRate"] = get_batting_strike_rate($runs_for_strike_rate, $result["Balls"]);
 
-                if ($source1["HighScore"] > $source2["HighScore"])
+                if ($source1["HighScore"] > $source2["HighScore"] || is_null($source2["HighScore"]))
                 {
                     $result["HighScore"] = $source1["HighScore"];
                     $result["HighScoreNotOut"] = $source1["HighScoreNotOut"];
                     $result["HighScoreMatchId"] = $source1["HighScoreMatchId"];
                 }
-                else if ($source2["HighScore"] > $source1["HighScore"])
+                else if ($source2["HighScore"] > $source1["HighScore"] || is_null($source1["HighScore"]))
                 {
                     $result["HighScore"] = $source2["HighScore"];
                     $result["HighScoreNotOut"] = $source2["HighScoreNotOut"];

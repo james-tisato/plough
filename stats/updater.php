@@ -165,16 +165,7 @@
 
                 log\info("");
                 log\info("Loading career base tables...");
-                log\info("  Matches");
-                $this->_career_summary_generator->load_matches_career_summary_base();
-                log\info("  Batting");
-                $this->_career_summary_generator->load_batting_career_summary_base();
-                log\info("  Bowling");
-                $this->_career_summary_generator->load_bowling_career_summary_base();
-                log\info("  Fielding");
-                $this->_career_summary_generator->load_fielding_career_summary_base();
-                log\info("  Partnerships");
-                $this->_career_summary_generator->load_career_partnerships();
+                $this->_career_summary_generator->load_career_summary_bases();
 
                 log\info("");
                 log\info("Copying career base to career summary...");
@@ -194,20 +185,13 @@
                     log\info("    Generating season summaries");
                     $this->_season_summary_generator->generate_summaries($season);
 
-                    // log\info("");
-                    // log\info("    Generating career milestones achieved this season...");
-                    // $this->_milestone_generator->generate_milestones($season);
+                    log\info("");
+                    log\info("    Generating career milestones achieved this season...");
+                    $this->_milestone_generator->generate_milestones($season);
 
-                    // log\info("");
-                    // log\info("    Adding season summaries to career summaries...");
-                    // log\info("      Matches");
-                    // $this->_career_summary_generator->add_season_to_career_matches_summary($season);
-                    // log\info("      Batting");
-                    // $this->_career_summary_generator->add_season_to_career_batting_summary($season);
-                    // log\info("      Bowling");
-                    // $this->_career_summary_generator->add_season_to_career_bowling_summary($season);
-                    // log\info("      Fielding");
-                    // $this->_career_summary_generator->add_season_to_career_fielding_summary($season);
+                    log\info("");
+                    log\info("    Adding season summaries to career summaries...");
+                    $this->_career_summary_generator->add_season_to_career_summaries($season);
                 }
 
                 // Mark DB update
@@ -237,12 +221,12 @@
                 log\info("  Season $season");
                 $this->_csv_generator->generate_season_csv_files($season);
 
-                // if ($season === $current_season)
-                // {
-                //     log\info("");
-                //     log\info("  Career to end of $season");
-                //     $this->_csv_generator->generate_career_csv_files($season);
-                // }
+                if ($season === $current_season)
+                {
+                    log\info("");
+                    log\info("  Career to end of $season");
+                    $this->_csv_generator->generate_career_csv_files($season);
+                }
             }
 
             log\info("");
