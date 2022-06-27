@@ -19,6 +19,14 @@
     const PERIOD_CAREER = 1;
     const PERIOD_SEASON = 2;
 
+    function get_period_name($period)
+    {
+        if ($period === PERIOD_CAREER)
+            return "Career";
+        else if ($period === PERIOD_SEASON)
+            return "Season";
+    }
+
     function strip_link_html($item)
     {
         $matches = array();

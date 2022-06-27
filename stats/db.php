@@ -72,6 +72,7 @@
     }
 
     const MATCHES_SUMMARY_COLS = '
+        MatchType TEXT,
         Season INTEGER,
         Matches INTEGER,
         MatchesCaptaining INTEGER,
@@ -80,13 +81,14 @@
         ';
 
     const MATCHES_SUMMARY_INSERT = '(
-            PlayerId, Season, Matches, MatchesCaptaining, MatchesFielding, MatchesKeeping
+            PlayerId, MatchType, Season, Matches, MatchesCaptaining, MatchesFielding, MatchesKeeping
             )
         VALUES (
-            :PlayerId, :Season, :Matches, :MatchesCaptaining, :MatchesFielding, :MatchesKeeping
+            :PlayerId, :MatchType, :Season, :Matches, :MatchesCaptaining, :MatchesFielding, :MatchesKeeping
         )';
 
     const BATTING_SUMMARY_COLS = '
+        MatchType TEXT,
         Season INTEGER,
         Innings INTEGER,
         NotOuts INTEGER,
@@ -105,17 +107,18 @@
         ';
 
     CONST BATTING_SUMMARY_INSERT = '(
-            PlayerId, Season, Innings, NotOuts, Runs, Average, StrikeRate,
+            PlayerId, MatchType, Season, Innings, NotOuts, Runs, Average, StrikeRate,
             HighScore, HighScoreNotOut, HighScoreMatchId,
             Fifties, Hundreds, Ducks, Balls, Fours, Sixes
             )
          VALUES (
-             :PlayerId, :Season, :Innings, :NotOuts, :Runs, :Average, :StrikeRate,
+             :PlayerId, :MatchType, :Season, :Innings, :NotOuts, :Runs, :Average, :StrikeRate,
              :HighScore, :HighScoreNotOut, :HighScoreMatchId,
              :Fifties, :Hundreds, :Ducks, :Balls, :Fours, :Sixes
              )';
 
     const BOWLING_SUMMARY_COLS = '
+        MatchType TEXT,
         Season INTEGER,
         CompletedOvers INTEGER,
         PartialBalls INTEGER,
@@ -134,17 +137,18 @@
         ';
 
     const BOWLING_SUMMARY_INSERT = '(
-            PlayerId, Season, CompletedOvers, PartialBalls, Maidens, Runs, Wickets, Average,
+            PlayerId, MatchType, Season, CompletedOvers, PartialBalls, Maidens, Runs, Wickets, Average,
             EconomyRate, StrikeRate, BestBowlingWickets, BestBowlingRuns, BestBowlingMatchId,
             FiveFors, Wides, NoBalls
             )
          VALUES (
-             :PlayerId, :Season, :CompletedOvers, :PartialBalls, :Maidens, :Runs, :Wickets, :Average,
+             :PlayerId, :MatchType, :Season, :CompletedOvers, :PartialBalls, :Maidens, :Runs, :Wickets, :Average,
              :EconomyRate, :StrikeRate, :BestBowlingWickets, :BestBowlingRuns, :BestBowlingMatchId,
              :FiveFors, :Wides, :NoBalls
              )';
 
     const FIELDING_SUMMARY_COLS = '
+        MatchType TEXT,
         Season INTEGER,
         CatchesFielding INTEGER,
         RunOuts INTEGER,
@@ -155,11 +159,11 @@
         ';
 
     const FIELDING_SUMMARY_INSERT = '(
-            PlayerId, Season, CatchesFielding, RunOuts, TotalFieldingWickets,
+            PlayerId, MatchType, Season, CatchesFielding, RunOuts, TotalFieldingWickets,
             CatchesKeeping, Stumpings, TotalKeepingWickets
             )
         VALUES (
-            :PlayerId, :Season, :CatchesFielding, :RunOuts, :TotalFieldingWickets,
+            :PlayerId, :MatchType, :Season, :CatchesFielding, :RunOuts, :TotalFieldingWickets,
             :CatchesKeeping, :Stumpings, :TotalKeepingWickets
             )';
 
@@ -204,6 +208,7 @@
             BattedFirstTeamId INTEGER
             )');
         $db->query('CREATE INDEX MatchSeasonIndex ON Match (Season)');
+        $db->query('CREATE INDEX MatchCompetitionTypeIndex ON Match (CompetitionType)');
 
         $db->query('CREATE TABLE Player (
             PlayerId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
