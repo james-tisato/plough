@@ -298,6 +298,7 @@
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
             )');
         $db->query('CREATE INDEX SeasonMatchesSummaryPlayerIdIndex ON SeasonMatchesSummary (PlayerId)');
+        $db->query('CREATE INDEX SeasonMatchesSummaryMatchTypeIndex ON SeasonMatchesSummary (MatchType)');
 
         $db->query('CREATE TABLE CareerMatchesSummaryBase (
             CareerMatchesSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -314,6 +315,7 @@
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
             )');
         $db->query('CREATE INDEX CareerMatchesSummaryPlayerIdIndex ON CareerMatchesSummary (PlayerId)');
+        $db->query('CREATE INDEX CareerMatchesSummaryMatchTypeIndex ON CareerMatchesSummary (MatchType)');
 
         $db->query('CREATE TABLE SeasonBattingSummary (
             SeasonBattingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -324,6 +326,7 @@
             )');
         $db->query('CREATE INDEX SeasonBattingSummaryPlayerIdIndex ON SeasonBattingSummary (PlayerId)');
         $db->query('CREATE INDEX SeasonBattingSummaryHighScoreMatchIdIndex ON SeasonBattingSummary (HighScoreMatchId)');
+        $db->query('CREATE INDEX SeasonBattingSummaryMatchTypeIndex ON SeasonBattingSummary (MatchType)');
 
         $db->query('CREATE TABLE CareerBattingSummaryBase (
             CareerBattingSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -344,6 +347,7 @@
             )');
         $db->query('CREATE INDEX CareerBattingSummaryPlayerIdIndex ON CareerBattingSummary (PlayerId)');
         $db->query('CREATE INDEX CareerBattingSummaryHighScoreMatchIdIndex ON CareerBattingSummary (HighScoreMatchId)');
+        $db->query('CREATE INDEX CareerBattingSummaryMatchTypeIndex ON CareerBattingSummary (MatchType)');
 
         $db->query('CREATE TABLE SeasonBowlingSummary (
             SeasonBowlingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -354,6 +358,7 @@
             )');
         $db->query('CREATE INDEX SeasonBowlingSummaryPlayerIdIndex ON SeasonBowlingSummary (PlayerId)');
         $db->query('CREATE INDEX SeasonBowlingSummaryBestBowlingMatchIdIndex ON SeasonBowlingSummary (BestBowlingMatchId)');
+        $db->query('CREATE INDEX SeasonBowlingSummaryMatchTypeIndex ON SeasonBowlingSummary (MatchType)');
 
         $db->query('CREATE TABLE CareerBowlingSummaryBase (
             CareerBowlingSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -374,6 +379,7 @@
             )');
         $db->query('CREATE INDEX CareerBowlingSummaryPlayerIdIndex ON CareerBowlingSummary (PlayerId)');
         $db->query('CREATE INDEX CareerBowlingSummaryHighScoreMatchIdIndex ON CareerBowlingSummary (BestBowlingMatchId)');
+        $db->query('CREATE INDEX CareerBowlingSummaryMatchTypeIndex ON CareerBowlingSummary (MatchType)');
 
         $db->query('CREATE TABLE SeasonFieldingSummary (
             SeasonFieldingSummaryId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -382,6 +388,7 @@
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
             )');
         $db->query('CREATE INDEX SeasonFieldingSummaryPlayerIdIndex ON SeasonFieldingSummary (PlayerId)');
+        $db->query('CREATE INDEX SeasonFieldingSummaryMatchTypeIndex ON SeasonFieldingSummary (MatchType)');
 
         $db->query('CREATE TABLE CareerFieldingSummaryBase (
             CareerFieldingSummaryBaseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -398,6 +405,7 @@
             'FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId)
             )');
         $db->query('CREATE INDEX CareerFieldingSummaryPlayerIdIndex ON CareerFieldingSummary (PlayerId)');
+        $db->query('CREATE INDEX CareerFieldingSummaryMatchTypeIndex ON CareerFieldingSummary (MatchType)');
 
         $db->query('CREATE TABLE Milestone (
             MilestoneId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
