@@ -225,8 +225,8 @@
                 LEFT JOIN Match m on m.MatchId = bs.HighScoreMatchId
                 WHERE
                         bs.Innings > 0
-                    AND bs.Season = :Season
-                    AND ms.Season = :Season
+                    AND bs.Season = :Season AND bs.MatchType = \'Regular\'
+                    AND ms.Season = :Season AND ms.MatchType = \'Regular\'
                 ORDER by bs.Runs DESC, bs.Average DESC, bs.Innings DESC, bs.NotOuts DESC, ms.Matches DESC, p.Name
                 ');
             $statement->bindValue(":Season", $season);
@@ -322,8 +322,8 @@
                 LEFT JOIN Match m on m.MatchId = bs.BestBowlingMatchId
                 WHERE
                         (bs.CompletedOvers > 0 OR bs.PartialBalls > 0)
-                    AND bs.Season = :Season
-                    AND ms.Season = :Season
+                    AND bs.Season = :Season AND bs.MatchType = \'Regular\'
+                    AND ms.Season = :Season AND ms.MatchType = \'Regular\'
                 ORDER by bs.Wickets DESC, bs.Average, bs.EconomyRate
                 ');
             $statement->bindValue(":Season", $season);
@@ -397,8 +397,8 @@
                 INNER JOIN ' . $matches_table_name . ' ms on ms.PlayerId = p.PlayerId
                 WHERE
                         fs.TotalFieldingWickets > 0
-                    AND fs.Season = :Season
-                    AND ms.Season = :Season
+                    AND fs.Season = :Season AND fs.MatchType = \'Regular\'
+                    AND ms.Season = :Season AND ms.MatchType = \'Regular\'
                 ORDER by fs.TotalFieldingWickets DESC, fs.CatchesFielding DESC, ms.Matches DESC, p.Name
                 ');
             $statement->bindValue(":Season", $season);
@@ -438,8 +438,8 @@
                 INNER JOIN ' . $matches_table_name . ' ms on ms.PlayerId = p.PlayerId
                 WHERE
                         ' . $filter_clause . '
-                    AND fs.Season = :Season
-                    AND ms.Season = :Season
+                    AND fs.Season = :Season AND fs.MatchType = \'Regular\'
+                    AND ms.Season = :Season AND ms.MatchType = \'Regular\'
                 ORDER by fs.TotalKeepingWickets DESC, fs.CatchesKeeping DESC, ms.Matches DESC, p.Name
                 ');
             $statement->bindValue(":Season", $season);
@@ -561,12 +561,6 @@
                 fputcsv($out, $row);
 
             fclose($out);
-        }
-
-        private function generate_csv_output_from_query($output_name, $statement, $header = null)
-        {
-            $rows = get_formatted_rows_from_query($statement);
-            $this->generate_csv_output($output_name, $rows, $header);
         }
     }
 ?>
