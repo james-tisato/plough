@@ -78,6 +78,7 @@
         public function add_season_to_career_summaries($season)
         {
             $this->_aggregator->aggregate_summaries($season - 1, "Regular", $season, "Regular", $season, "Regular");
+            $this->_aggregator->aggregate_summaries($season - 1, "Tour", $season, "Tour", $season, "Tour");
         }
 
         // Matches

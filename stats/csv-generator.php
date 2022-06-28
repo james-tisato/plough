@@ -271,6 +271,7 @@
                     WHERE
                         ' . $runs_clause . '
                         ' . $season_clause . '
+                        AND m.CompetitionType <> \'Tour\'
                     ORDER BY bp.Runs DESC, bp.Balls, p.Name
                     ');
 
@@ -363,6 +364,7 @@
                 WHERE
                     bp.Wickets >= 5
                     ' . $season_clause . '
+                    AND m.CompetitionType <> \'Tour\'
                 ORDER BY bp.Wickets DESC, bp.Runs, p.Name
                 ');
 
@@ -542,6 +544,7 @@
                 WHERE 1=1
                     ' . $wicket_clause . '
                     ' . $season_clause . '
+                    AND m.CompetitionType <> \'Tour\'
                 ORDER BY part.Runs DESC, part.NotOut DESC, m.MatchDate ASC
                 ' . $limit_clause . '
                 ');

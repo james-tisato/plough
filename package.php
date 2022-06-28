@@ -57,6 +57,7 @@
             add_file($zip, "stats/match-consumer.php");
             add_file($zip, "stats/milestone-generator.php");
             add_file($zip, "stats/season-summary-generator.php");
+            add_file($zip, "stats/summary-aggregator.php");
             add_file($zip, "stats/updater.php");
 
             add_file($zip, "stats/config/default.xml");

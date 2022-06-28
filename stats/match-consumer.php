@@ -148,7 +148,7 @@
                 {
                     log\info("        Skipping match because it is a future fixture...");
                 }
-                else if (strpos($match_detail["match_notes"], "Excluded") !== false)
+                else if (strpos(strtolower($match_detail["match_notes"]), "excluded") !== false)
                 {
                     log\info("        Skipping match because it is marked as excluded from Plough stats...");
                 }
@@ -227,12 +227,17 @@
                         $plough_batted_first = ($batted_first_team_id == $plough_team_id) ? 1 : 0;
                     }
 
+                    if (strpos(strtolower($match_detail["match_notes"]), "tour") !== false)
+                        $competition_type = "Tour";
+                    else
+                        $competition_type = $match_detail["competition_type"];
+
                     // Insert match
                     $insert_match->bindValue(":PcMatchId", $pc_match_id);
                     $insert_match->bindValue(":Status", $match_detail["status"]);
                     $insert_match->bindValue(":Season", $season);
                     $insert_match->bindValue(":MatchDate", $match_date_str);
-                    $insert_match->bindValue(":CompetitionType", $match_detail["competition_type"]);
+                    $insert_match->bindValue(":CompetitionType", $competition_type);
                     $insert_match->bindValue(":HomeClubId", $match_detail["home_club_id"]);
                     $insert_match->bindValue(":HomeClubName", $match_detail["home_club_name"]);
                     $insert_match->bindValue(":HomeTeamId", $match_detail["home_team_id"]);
