@@ -36,6 +36,7 @@
                 INNER JOIN Match m on m.MatchId = pp.MatchId
                 WHERE
                         m.Season = :Season
+                    AND m.CompetitionType <> \'Tour\'
                 ORDER BY Name
                 ');
             $statement->bindValue(":Season", $this->_config->getCurrentSeason());

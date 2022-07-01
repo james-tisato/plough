@@ -96,7 +96,7 @@
                             "player_name": "Patrick Gledhill",
                             "player_id": 3875258,
                             "captain": false,
-                            "wicket_keeper": false
+                            "wicket_keeper": true
                         },
                         {
                             "position": 2,
@@ -117,7 +117,7 @@
                             "player_name": "Freddie Mills",
                             "player_id": 27733,
                             "captain": true,
-                            "wicket_keeper": true
+                            "wicket_keeper": false
                         },
                         {
                             "position": 5,
