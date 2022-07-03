@@ -25,20 +25,14 @@ __TODO__
             * Can we do the same for warnings?
     * Stats
         * Bugs
+            * Retries and HTTP params in file_get_contents helper
         * Refactoring
         * Improvements
         * Performance
         * New features
             * Tour stats
-                * Tour matches get marked as a special competition type, so we'd have League, Friendly and Tour in that field in the DB. This would need to be done in the match report field.
-                * For current and tour CSV outputs, we'd need career and season stat summaries at different levels:
-                    * "Regular" - league + friendlies
-                    * Tour
-                * What summary levels might we like in future?
-                    * League, friendly, tour
-                    * Regular (league + friendly)
-                    * For league - 1st XI, 2nd XI
-                * Approach
+                * Tour pages on website
+                * Try to get more tour scorecards
             * Add static season summary support
             * Page per player
                 * What will the format be?
