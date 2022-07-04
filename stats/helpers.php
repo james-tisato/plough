@@ -1,7 +1,9 @@
 <?php
     namespace plough\stats;
+    use plough\log;
 
     require_once("db.php");
+    require_once("../logger.php");
 
     require_once(__DIR__ . '/../vendor/autoload.php');
 
@@ -34,6 +36,37 @@
             return $matches[1];
         else
             return $item;
+    }
+
+    function safe_file_get_contents(
+        string $filename,
+        bool $use_include_path = false,
+        ?\resource $context = null,
+        int $attempts = 4
+        )
+    {
+        while (true)
+        {
+            $result = file_get_contents($filename, $use_include_path, $context);
+            if (!$result)
+            {
+                if ($attempts > 0)
+                {
+                    log\warning("************** file_get_contents failed - retrying **************");
+                    $attempts--;
+                    sleep(3);
+                }
+                else 
+                {
+                    log\critical("************** file_get_contents failed - all retry attempts exhausted **************");
+                    throw new \Exception("file_get_contents failed - all retry attempts exhausted");
+                }
+            }
+            else
+            {
+                return $result;
+            }
+        }
     }
 
     // DB helpers

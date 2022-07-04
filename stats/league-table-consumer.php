@@ -40,7 +40,7 @@
                 $table_path = $input_mapper->getLeagueTablePath($season, $division);
                 if (!is_null($table_path))
                 {
-                    $table_str = file_get_contents($table_path);
+                    $table_str = safe_file_get_contents($table_path);
                     if ($table_str)
                     {
                         if ($this->_config->dumpInputs())
