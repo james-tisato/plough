@@ -25,7 +25,7 @@ __TODO__
             * Can we do the same for warnings?
     * Stats
         * Bugs
-            * Retries and HTTP params in file_get_contents helper
+            * Further investigation of errors occurring during http fetches
         * Refactoring
         * Improvements
         * Performance

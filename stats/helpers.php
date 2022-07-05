@@ -3,7 +3,7 @@
     use plough\log;
 
     require_once("db.php");
-    require_once("../logger.php");
+    require_once(__DIR__ . "/../logger.php");
 
     require_once(__DIR__ . '/../vendor/autoload.php');
 
@@ -45,6 +45,7 @@
         int $attempts = 4
         )
     {
+        //log\debug($filename);
         while (true)
         {
             $result = file_get_contents($filename, $use_include_path, $context);

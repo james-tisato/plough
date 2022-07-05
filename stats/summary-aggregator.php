@@ -326,8 +326,10 @@
                      FROM Career' . $summary_type . 'SummaryBase
                      WHERE
                             PlayerId = :PlayerId
+                        AND MatchType = :MatchType
                     ');
                 $statement->bindValue(":PlayerId", $player_id);
+                $statement->bindValue(":MatchType", $result_match_type);
                 $career_summary_base = $statement->execute()->fetchArray(SQLITE3_ASSOC);
 
                 // Source 1

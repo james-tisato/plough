@@ -67,7 +67,6 @@
             }
 
             $matches_path = $input_mapper->getMatchesPath($season, $matches_from_date);
-            //log\debug("        " . $matches_path);
             $matches_str = safe_file_get_contents($matches_path);
 
             if ($this->_config->dumpInputs())
