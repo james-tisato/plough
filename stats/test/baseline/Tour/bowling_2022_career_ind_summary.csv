@@ -28,6 +28,7 @@ Player,Mat,Overs,Mdns,Runs,Wkts,Ave,Econ,SR,Best,5wi,Wides,NBs,Active,"2022 Care
 "Oli Lonsdale",42,188.2,22,857,60,14.28,4.55,18.83,"<a href=https://ploughmans.play-cricket.com/website/results/5307330>7/39</a>",3,141,34,Y,"<span class='achieved-milestone'>50 wickets</span>"
 "Joe Green",31,269.0,45,1015,58,17.50,3.77,27.83,5/30,2,0,0,N,
 "Freddie Mills",115,249.5,17,1130,57,19.82,4.52,26.30,5/61,1,4,1,N,
+"Ed Beesley",50,287.3,29,1130,56,20.18,3.93,30.80,5/52,1,43,1,N,
 "Ian Berry",158,267.0,0,1327,56,23.70,4.97,28.61,5/45,1,0,0,N,
 "S Follows",67,333.0,32,1754,56,31.32,5.27,35.68,5/28,1,0,0,N,
 "S Hussain",104,260.0,6,1785,55,32.45,6.87,28.36,5/24,1,0,0,N,
@@ -36,7 +37,6 @@ Player,Mat,Overs,Mdns,Runs,Wkts,Ave,Econ,SR,Best,5wi,Wides,NBs,Active,"2022 Care
 "Niraj Tailor",64,259.5,13,1491,53,28.13,5.74,29.42,"<a href=https://ploughmans.play-cricket.com/website/results/4104805>4/32</a>",0,31,5,Y,
 "Matt Spencer",60,344.4,28,1719,53,32.43,4.99,39.02,"<a href=https://ploughmans.play-cricket.com/website/results/4077787>3/25</a>",0,139,28,Y,"<span class='achieved-milestone'>50 matches</span>
 <span class='achieved-milestone'>50 wickets</span>"
-"Ed Beesley",50,272.3,29,1078,51,21.14,3.96,32.06,4/10,0,43,1,N,
 "Ben Hynes",23,167.0,46,477,50,9.54,2.86,20.04,6/25,3,1,0,N,
 "R Srivastava",84,382.0,44,1676,49,34.20,4.39,46.78,5/27,1,0,0,N,
 "William Barras",52,274.0,28,1334,48,27.79,4.87,34.25,4/9,0,0,0,N,
@@ -147,7 +147,6 @@ Player,Mat,Overs,Mdns,Runs,Wkts,Ave,Econ,SR,Best,5wi,Wides,NBs,Active,"2022 Care
 "Giordy Diangienda",10,54.0,3,304,6,50.67,5.63,54.00,"<a href=https://ploughmans.play-cricket.com/website/results/5450510>2/43</a>",0,16,2,Y,
 "Simon Crane",21,52.0,0,327,6,54.50,6.29,52.00,"<a href=https://ploughmans.play-cricket.com/website/results/4895220>3/21</a>",0,34,9,Y,
 "Ed Woolcock",5,7.0,1,23,5,4.60,3.29,8.40,4/18,0,3,0,N,
-"E Perry",11,15.0,0,52,5,10.40,3.47,18.00,5/52,1,0,0,N,
 "W Seymour",4,18.0,2,61,5,12.20,3.39,21.60,3/39,0,0,0,N,
 "M Hiley",23,14.0,1,80,5,16.00,5.71,16.80,4/45,0,0,0,N,
 "J Meade",92,15.0,0,115,5,23.00,7.67,18.00,4/1,0,0,0,N,

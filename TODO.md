@@ -31,7 +31,6 @@ __TODO__
         * Performance
         * New features
             * Tour stats
-                * Tour pages on website
                 * Try to get more tour scorecards
             * Add static season summary support
             * Page per player
