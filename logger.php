@@ -1,9 +1,9 @@
 <?php
     namespace plough\log;
 
-    require_once("Psr/Log/LoggerInterface.php");
-    require_once("Psr/Log/LogLevel.php");
-    require_once("Psr/Log/AbstractLogger.php");
+    require_once(__DIR__."/Psr/Log/LoggerInterface.php");
+    require_once(__DIR__."/Psr/Log/LogLevel.php");
+    require_once(__DIR__."/Psr/Log/AbstractLogger.php");
     require_once("utils.php");
 
     // Global logger instance

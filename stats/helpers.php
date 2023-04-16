@@ -172,6 +172,8 @@
             return array("prem");
         else if ($season == 2022)
             return array("prem", "2");
+        else if ($season == 2023)
+            return array("1", "2");
         else
             throw new \Exception("Unknown season {$season}");
     }
