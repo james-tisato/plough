@@ -8,6 +8,7 @@
     require_once("helpers.php");
 
     // Constants
+    const ABANDONED = "Abandoned";
     const DELETED = "Deleted";
     const UNSURE_NAME = "Unsure";
 
@@ -146,6 +147,12 @@
                 else if (empty($match_detail["result"]))
                 {
                     log\info("        Skipping match because it is a future fixture...");
+                }
+                else if ($match_detail["result_description"] == ABANDONED && 
+                         empty($match_detail["innings"][0]["overs"]) &&
+                         empty($match_detail["innings"][1]["overs"]))
+                {
+                    log\info("        Skipping match because it was abandoned without a ball being bowled...");
                 }
                 else if (strpos(strtolower($match_detail["match_notes"]), "excluded") !== false)
                 {
