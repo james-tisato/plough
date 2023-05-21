@@ -9,6 +9,7 @@
 
     // Constants
     const ABANDONED = "Abandoned";
+    const CANCELLED = "Cancelled";
     const DELETED = "Deleted";
     const UNSURE_NAME = "Unsure";
 
@@ -153,6 +154,10 @@
                          empty($match_detail["innings"][1]["overs"]))
                 {
                     log\info("        Skipping match because it was abandoned without a ball being bowled...");
+                }
+                else if ($match_detail["result_description"] == CANCELLED)
+                {
+                    log\info("        Skipping match because it was cancelled...");
                 }
                 else if (strpos(strtolower($match_detail["match_notes"]), "excluded") !== false)
                 {
