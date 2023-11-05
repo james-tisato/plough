@@ -494,7 +494,7 @@
             foreach ($match_types as $match_type)
             {
                 $header = array(
-                    "Wicket", "Runs", "Batsman 1", "Score", "Batsman 2", "Score",
+                    "Wicket", "Runs", "Batter 1", "Score", "Batter 2", "Score",
                     "Opposition", "Team", "Type", "Date"
                     );
 
