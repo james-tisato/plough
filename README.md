@@ -58,6 +58,11 @@ The version of PHP that the plugin runs on in production is managed by SiteGroun
 ## Continuous integration
 There is a plan to set up automated testing and packaging on circleci at some point in the future. Currently tests are run locally whenever changes are made, and packaging is done locally as well. Plugin deployment is done via the WP Admin UI.
 
+## Updating for a new season
+1. Update stats/config/default.xml and stats/config/local-test.xml to have CurrentSeason = <new season year>.
+2. Update helpers.php to have an entry for the new season year, depending on what divisions the club is playing that year.
+3. Update LEAGUE_TABLE_DIVISON_ID_MAP in data-mapper.php to have the league table ids for the new season.
+
 ## Other Notes
 ### SSL certificates
 - On Macbook, downloaded latest cacert.pem from https://curl.se/docs/caextract.html and put it in /usr/local/php5/ssl/cert.pem

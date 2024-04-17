@@ -44,9 +44,9 @@
         // These need to be updated each season by looking on Play-Cricket at the
         // league tables for the new season
         const LEAGUE_TABLE_DIVISON_ID_MAP = array(
-            "prem" => 111970,
-            "1" => 111971,
-            "2" => 111972
+            "prem" => 119610,
+            "1" => 119611,
+            "2" => 119612
             );
 
         public function getMatchesPath($season, $from_date)

@@ -1,7 +1,7 @@
 <StatsConfig>
     <!-- Seasons -->
     <Pair Key="CareerBaseSeason" Value="2017" />
-    <Pair Key="CurrentSeason" Value="2023" />
+    <Pair Key="CurrentSeason" Value="2024" />
 
     <!-- Database -->
     <Pair Key="ClearDb" Value="false" />
