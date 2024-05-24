@@ -3,7 +3,7 @@ Forhad Ahmed,0,0,0,0
 A Akash,0,0,0,0
 B Ali,0,0,0,0
 S Ali,1,0,0,0
-S Anaokar,25,0,40,0
+S Anaokar,25,0,55,15
 Matthew Ashton,34,0,0,0
 J Baird-Murray,2,0,0,0
 P Baker,1,0,0,0
@@ -38,8 +38,8 @@ M Brown,0,0,0,0
 P Brown,2,0,0,0
 D Bruce,0,0,0,0
 G Buckley,0,0,0,0
-Richard Buckley,67,0,21,2
-G Buckner,5,0,1,0
+Richard Buckley,67,0,21,10
+G Buckner,5,0,43,36
 Alex Burriel,5,0,0,0
 Rhys Byrne,4,0,0,0
 M Callanan,9,0,0,0
@@ -60,7 +60,7 @@ N Creek,1,0,0,0
 M Crew,0,0,1,0
 V Cruickshank,0,0,0,0
 S Dalton,0,0,0,0
-Dyll Davies,26,0,2,0
+Dyll Davies,26,0,77,26
 Harry Davies,8,0,0,0
 J Davies,0,0,0,0
 L Derbyshire,1,0,0,0
@@ -72,7 +72,7 @@ M Dudley,0,0,0,0
 Gordon Dunne,0,0,0,0
 H Ewinger,8,0,0,0
 E Feast,3,0,0,0
-Chris Feeney,6,0,29,0
+Chris Feeney,6,0,62,26
 P Fenech,7,0,0,0
 T Flavin,1,0,0,0
 S Follows,16,0,0,0
@@ -82,7 +82,7 @@ Sav Gatfield,1,0,0,0
 C Gibbons,1,0,0,0
 Simon Gillman,34,0,0,0
 R Gladstone,5,0,0,0
-Patrick Gledhill,3,0,32,3
+Patrick Gledhill,3,0,32,13
 Ben Glover,2,0,0,0
 Liam Gray,11,1,0,0
 Joe Green,15,0,0,0
@@ -127,7 +127,7 @@ J Kirwan,0,0,0,0
 S Kripalani,1,0,0,0
 Bala Krishna,2,0,0,0
 Arvind Kumar,51,0,3,0
-M Lachmann,2,0,1,0
+M Lachmann,2,0,5,3
 Paul Lane,10,0,0,0
 Piran Legg,0,0,0,0
 G Le Grange,15,0,0,0
@@ -135,7 +135,7 @@ J Lewen,1,0,0,0
 H Lewis,5,0,0,0
 Chris Lilford,4,2,0,0
 J Lloyd,6,0,0,0
-Tom Lockhart,4,2.5,69,6
+Tom Lockhart,4,2.5,69,15
 Tom Lonnen,151,0,0,0
 Ross Lonsdale,3,0,0,0
 D Machine,0,0,0,0
@@ -173,7 +173,7 @@ T Oxenham,0,0,2,0
 N Palmer,2,0,0,0
 S Pande,0,0,0,0
 R Paramo,1,0,0,0
-Leon Parks,68,1.5,44,0
+Leon Parks,68,1.5,44,6
 N Paropkari,0,0.5,1,1
 H Parnell,5,0,0,0
 L Patel,22,0,0,0
@@ -201,7 +201,7 @@ A Reed,11,0,0,0
 E Reed,2,0,0,0
 M Rees,5,0,0,0
 I Reham,0,0,0,0
-R Richardson,3,0,15,0
+R Richardson,3,0,15,9
 Matt Ridgway,101,1,1,0
 Nick Ridgway,136,1,2,0
 D Riley,0,0,1,0
