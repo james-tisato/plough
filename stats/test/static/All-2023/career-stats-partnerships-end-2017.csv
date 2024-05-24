@@ -1,0 +1,65 @@
+Wicket,Runs,Position Out,Batsman Out,Score Out,Position In,Batsman In,Score In,Opposition,Team,Type,Date,PcMatchId
+1,192*,1,P Basic,56*,2,Steve Britto,100*,South Harrow CC,Friendly XI,Friendly,27/8/06,
+1,101,1,Adam Barraclough,35,2,Steve Britto,70,Woking XI CC,1st XI,League,7/5/16,2791892
+1,95,1,Richard Buckley,43,2,Ed Woolcock,52,Croydon Lions CC,1st XI,League,17/6/17,3024850
+1,82,1,Chris Ovens,32,2,Adam Barraclough,48,Woking XI CC,1st XI,League,25/6/16,2791850
+1,75,2,Steve Britto,18,1,James Tisato,46,Park Hill CC,1st XI,League,10/6/17,3024560
+1,62,1,Steve Britto,20,2,Adam Barraclough,54*,Park Hill CC,1st XI,League,21/5/16,2791848
+1,57,1,Paul Hynes,20,2,Leon Parks,54,London Welsh CC,1st XI,League,1/7/17,3024980
+1,46,1,Steve Britto,22,2,Adam Barraclough,80,London Welsh CC,1st XI,League,13/8/16,2791852
+1,43,2,Steve Britto,16,1,Paul Hynes,56*,Morden CC,1st XI,League,6/9/14,2164614
+2,174,2,W Skidelsky,62,3,S Anaokar,111,Swamibapa CC,1st XI,League,28/8/04,
+2,122,1,Steve Britto,42,3,Chris Ovens,69,Croydon Lions CC,1st XI,League,16/7/16,2791851
+2,97,3,Ben Stinson,60,2,Rory Turner,47,Morden CC,1st XI,League,31/5/14,2164644
+2,82,3,R Richardson,42,2,Adam Barraclough,80,London Welsh CC,1st XI,League,13/8/16,2791852
+2,71,1,Paul Hynes,38,3,Chris Ovens,38*,London Welsh CC,1st XI,League,2/7/16,2791886
+2,65,3,Dave Risley,37,1,Steve Britto,23,Kingstonian CC,1st XI,League,24/6/17,3024882
+2,64,3,James Tisato,25,2,Adam Barraclough,73*,"Spencer CC, Surrey",1st XI,League,5/8/17,3025979
+2,64,2,Richard Buckley,15,3,James Tisato,49,Sutton Challengers CC,1st XI,League,15/7/17,3025921
+2,64,3,Matt Ridgway,27,2,Paul Hynes,50,Croydon Lions CC,1st XI,League,28/5/16,2791864
+2,58,3,Patrick Gledhill,8,2,James Tisato,55,Park Hill CC,1st XI,League,12/8/17,3025993
+2,56,1,Tom Lockhart,27,3,Chris Lilford,36,Commonwealth Offices CC,1st XI,League,30/4/16,2791847
+2,54,2,Ed Woolcock,52,3,James Tisato,79*,Croydon Lions CC,1st XI,League,17/6/17,3024850
+2,45,3,Paul Hynes,16,1,Ben Stinson,62,Battersea Ironsides CC,1st XI,League,19/7/14,2164656
+3,60*,4,Dave Risley,11,2,Adam Barraclough,73*,"Spencer CC, Surrey",1st XI,League,5/8/17,3025979
+3,46*,3,Chris Ovens,38*,4,Freddie Mills,23*,London Welsh CC,1st XI,League,2/7/16,2791886
+3,198,3,Steve Britto,113,4,Dyll Davies,77,North Harrow CC,1st XI,League,28/5/05,
+3,131,2,Steve Britto,38,4,Nicko Dowell,213,"Spencer CC, Surrey",1st XI,League,8/7/17,3025133
+3,77,4,Paul Hynes,36,3,James Tisato,79*,Croydon Lions CC,1st XI,League,17/6/17,3024850
+3,65,2,Rory Turner,47,4,Nicko Dowell,52,Morden CC,1st XI,League,31/5/14,2164644
+3,64,2,Adam Barraclough,80,4,Freddie Mills,63,London Welsh CC,1st XI,League,13/8/16,2791852
+3,57,1,Steve Britto,28,4,Paul Hynes,43,London Welsh CC,1st XI,League,29/4/17,3021230
+3,52,2,Paul Hynes,50,4,Freddie Mills,67*,Croydon Lions CC,1st XI,League,28/5/16,2791864
+4,47*,5,Grant Wolledge,31*,2,Adam Barraclough,54*,Park Hill CC,1st XI,League,21/5/16,2791848
+4,191,5,Steve Britto,55,4,Freddie Mills,132*,Cranbourne CC,1st XI,Friendly,10/9/11,
+4,115,4,Steve Britto,41,5,Paul Hynes,127*,Ham and Petersham CC,Friendly XI,Friendly,2/7/17,3188631
+4,100,5,Duray Pretorius,27,4,Nicko Dowell,213,"Spencer CC, Surrey",1st XI,League,8/7/17,3025133
+4,91,5,Chris Ovens,27,4,Freddie Mills,63,London Welsh CC,1st XI,League,13/8/16,2791852
+4,91,5,Nicko Dowell,53,1,Paul Hynes,56*,Morden CC,1st XI,League,6/9/14,2164614
+4,76,5,Grant Wolledge,23,4,Freddie Mills,67*,Croydon Lions CC,1st XI,League,28/5/16,2791864
+4,70,5,M Callanan,10,4,Nicko Dowell,98,Battersea Ironsides CC,1st XI,League,19/7/14,2164656
+4,37,5,Steve Britto,20,4,Paul Hynes,23,London Welsh CC,1st XI,League,13/6/15,2546793
+5,75*,5,Tom Lonnen,33*,3,Paul Hynes,72*,Spelthorne Sports CC,1st XI,League,23/7/16,2791970
+5,127*,5,Leon Parks,91*,6,Sav Gatfield,59*,Morden CC,Friendly XI,Friendly,13/6/10,
+5,98,4,Adam Barraclough,60,6,Duray Pretorius,57,Commonwealth Offices CC,1st XI,League,30/7/16,2791861
+5,84,6,Nick Ridgway,47,5,Paul Hynes,127*,Ham and Petersham CC,Friendly XI,Friendly,2/7/17,3188631
+5,78,5,Matt Bolshaw,44,6,Bala Krishna,35,London Welsh CC,1st XI,League,1/7/17,3024980
+5,63,6,Henry Webster,19,5,Rory Turner,64,Beddington Village CC,1st XI,League,27/6/15,2546808
+5,61,6,Matt Bolshaw,26,5,Duray Pretorius,81,GSK House CC,Friendly XI,Friendly,9/7/17,3275156
+5,55,4,Nick Ridgway,45,6,Duray Pretorius,92,Kingstonian CC,1st XI,League,24/6/17,3024882
+5,49,4,Paul Hynes,31,6,Steve Hamer,36*,Park Hill CC,1st XI,League,20/8/16,2791878
+5,47,6,Freddie Mills,22,4,Nicko Dowell,98,Battersea Ironsides CC,1st XI,League,19/7/14,2164656
+6,123,6,Matt Ridgway,75,7,R McHarg,56*,Hendon Edgware CC,1st XI,League,16/5/09,
+6,45,7,Ashish Paul,5,4,Nicko Dowell,98,Battersea Ironsides CC,1st XI,League,19/7/14,2164656
+7,149,7,J Meade,41,8,L Patel,100*,Colemans Hatch CC,1st XI,Friendly,13/7/96,
+7,87,6,Duray Pretorius,92,8,Chris Lilford,30*,Kingstonian CC,1st XI,League,24/6/17,3024882
+7,79,8,Nick Risley,20,4,Nicko Dowell,213,"Spencer CC, Surrey",1st XI,League,8/7/17,3025133
+7,52,5,Dave Conway,24,8,Henry Webster,12,Ali CC,1st XI,League,9/5/15,2546745
+8,83,8,Simon Carson,42,9,Sid Swaminathan,47,Northfields CC,Friendly XI,Friendly,24/7/11,
+8,45,9,Tom Lonnen,35,6,Steve Hamer,36*,Park Hill CC,1st XI,League,20/8/16,2791878
+8,32,7,Alex Burriel,31,9,Tom Lonnen,61*,London Welsh CC,1st XI,League,13/6/15,2546793
+9,74*,9,Matthew Ashton,43*,10,Simon Gillman,35*,SAI CC,Friendly XI,Friendly,25/4/04,
+9,64*,10,Harry Davies,5*,9,Tom Lonnen,61*,London Welsh CC,1st XI,League,13/6/15,2546793
+10,58*,10,J Ferrier,53*,11,Simon Gillman,21*,Muktajavan CC,1st XI,League,2/8/02,
+10,48,11,Robert Cox,15,10,P Hanice,24*,Ali CC,1st XI,League,9/5/15,2546745
+10,47,11,Ross Lonsdale,26,9,Julian Bell,32*,Spelthorne Sports CC,1st XI,League,4/6/16,2791849
