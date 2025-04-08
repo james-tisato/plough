@@ -66,3 +66,18 @@ There is a plan to set up automated testing and packaging on circleci at some po
 ## Other Notes
 ### SSL certificates
 - On Macbook, downloaded latest cacert.pem from https://curl.se/docs/caextract.html and put it in /usr/local/php5/ssl/cert.pem
+
+### Updating at the start of a new season
+1. Create regression test for previous season:
+    1. Set input dump dir in local-test.xml to dump to the input folder for the new test, e.g. `<Pair Key="InputDumpDir" Value="{stats_root}/test/input/All-2024" />` - this might take a while.
+    2. Run local-update.php to dump the test input into the above folder.
+    3. Create test config, e.g. test/test/All-2024.xml, by copying the previous year's file and updating.
+    4. Create static data folder in test/static by copying the current data from stats/static.
+    5. Run the new test and wait for it to fail (all baseline files are missing).
+    6. Copy the result folder that was created in the previous step into the baseline folder.
+    7. Run the test again and ensure it passes.
+    8. Revert changes to local-test.xml.
+2. Update stats/config/default.xml and stats/config/local-test.xml to set current season.
+3. Update plugin version in plough.php.
+4. Add all new test files and commit changes.
+5. Package and deploy.

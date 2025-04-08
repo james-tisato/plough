@@ -177,6 +177,6 @@
         else if ($season == 2024)
             return array("1", "2");
         else
-            throw new \Exception("Unknown season {$season}");
+            return array();     // No longer producing league tables after 2024
     }
 ?>
