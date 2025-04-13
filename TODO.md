@@ -25,6 +25,15 @@ __TODO__
             * Can we do the same for warnings?
     * Stats
         * Bugs
+            * Duplicate players with same name
+                * T Burns and Dave Graydon appear as two separate PC players
+                * getPlayersByName collapses these into one record with only one of the PC player ids
+                * In Graydon case, he played across 2019 and 2020 with different PC player ids => only 2020 stats included
+                * In Burns case, in one match he has no PC player id (how is that even possible?) => getPlayersByName includes the record where he has no PC player id => he's missing from stats entirely
+                * Can we avoid collapsing player records with the same name? How will that fit in with creating player records from career base data where we don't know the PC player id?
+                * If we do allow multiple records with the same name, need to flag this somewhere - on the stats website as a warning, hoping someone will see it?
+                * Ultimately need to fix up records for both players
+                * For now, have decided to keep the code as-is but fix the players in PC...and at some later date add a notification system that looks for duplicate players in the database (same name, different PC player id)
             * Further investigation of errors occurring during http fetches
         * Refactoring
         * Improvements
