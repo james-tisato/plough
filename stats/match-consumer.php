@@ -122,6 +122,20 @@
                 $pc_match_id = $match["id"];
                 log\info("      Processing match $match_idx (Play-Cricket id $pc_match_id)...");
 
+                // Regardless of the status of the match, delete any previously loaded record of it. This allows us to 
+                // skip a match for one of the reasons further below AND ensure it doesn't hang around in the existing
+                // stats database from a previous load (e.g. before the match exclusion text was added)
+                
+                // Start transaction for deleting whole of match
+                $db->exec('BEGIN');
+
+                // Delete match (and associated performances) if it has been added to the database before
+                $delete_match->bindValue(":PcMatchId", $pc_match_id);
+                $delete_match->execute();
+
+                // End transaction for deleting whole of match
+                $db->exec('COMMIT');
+
                 // Get match detail
                 $match_detail_path = $input_mapper->getMatchDetailPath($season, $pc_match_id);
                 $match_detail_str = safe_file_get_contents($match_detail_path);
@@ -140,7 +154,7 @@
                 }
 
                 $match_detail = json_decode($match_detail_str, true)["match_details"][0];
-
+                
                 if ($match_detail["status"] == DELETED)
                 {
                     log\info("        Skipping match because it was deleted...");
@@ -165,16 +179,6 @@
                 }
                 else
                 {
-                    // Start transaction for deleting whole of match
-                    $db->exec('BEGIN');
-
-                    // Delete match (and associated performances) if it has been added to the database before
-                    $delete_match->bindValue(":PcMatchId", $pc_match_id);
-                    $delete_match->execute();
-
-                    // End transaction for deleting whole of match
-                    $db->exec('COMMIT');
-
                     // Start transaction for adding whole of match
                     $db->exec('BEGIN');
 
