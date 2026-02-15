@@ -1,5 +1,5 @@
 # Ploughmans Cricket Club (PCC) statistics
-This repo primarily provides a Wordpress plugin that automatically generates the cricket stats tables published at https://ploughmanscc.com/.
+This repo primarily provides a Wordpress plugin that automatically generates the cricket stats tables published at https://ploughmanscclegacy.com/.
 
 ## Stats data flow
 1. Each week the club enters scorecard data from its matches on the ECB Play-Cricket site: https://ploughmans.play-cricket.com/
@@ -28,9 +28,9 @@ This repo primarily provides a Wordpress plugin that automatically generates the
     * CSV generator: [stats/csv-generator.php](stats/csv-generator.php)
 11. The Tablepress plugin on the Wordpress installation is configured to populate a set of tables from the generated CSV files. This Cron job runs periodically as well.
 12. When all relevant Tablepress tables have been updated, the latest stats pages on the website are now up to date, e.g.
-    * https://ploughmanscc.com/statistics-career/
-    * https://ploughmanscc.com/statistics/
-    * https://ploughmanscc.com/statistics-2021-partnerships/
+    * https://ploughmanscclegacy.com/statistics-career/
+    * https://ploughmanscclegacy.com/statistics/
+    * https://ploughmanscclegacy.com/statistics-2021-partnerships/
 
 The end result is that both season and career stats are automatically updated and visible on the club website within ~15-30 minutes of scorecards being entered each weekend.
 
