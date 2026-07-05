@@ -35,6 +35,7 @@ __TODO__
                 * Ultimately need to fix up records for both players
                 * For now, have decided to keep the code as-is but fix the players in PC...and at some later date add a notification system that looks for duplicate players in the database (same name, different PC player id)
             * Further investigation of errors occurring during http fetches
+            * Intra-club 50s/100s/5fas/partnerships may not show the correct team name that the performance occurred under (it will always say the home team)
         * Refactoring
         * Improvements
         * Performance

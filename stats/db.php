@@ -202,6 +202,7 @@
             OppoClubName TEXT,
             OppoTeamId INTEGER,
             OppoTeamName TEXT,
+            IsIntraClub INTEGER,
             Result TEXT,
             ResultAppliedToTeamId INTEGER,
             TossWonByTeamId INTEGER,

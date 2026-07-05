@@ -311,6 +311,7 @@
                             $insert_match->bindValue(":PloughTeamName", $row[$idx["Team"]]);
                             $insert_match->bindValue(":PloughMatch", true);
                             $insert_match->bindValue(":OppoClubName", $oppo);
+                            $insert_match->bindValue(":IsIntraClub", 0);
                             $match_id = db_insert_and_return_id($db, $insert_match);
                             $match_cache[$match_cache_key] = $match_id;
                         }

@@ -281,6 +281,7 @@
                     $insert_match->bindValue(":OppoClubName", $oppo_club_name);
                     $insert_match->bindValue(":OppoTeamId", $oppo_team_id);
                     $insert_match->bindValue(":OppoTeamName", $oppo_team_name);
+                    $insert_match->bindValue(":IsIntraClub", $intra_club_match);
                     $insert_match->bindValue(":Result", $match_result);
                     $insert_match->bindValue(":ResultAppliedToTeamId", $result_applied_to_team_id);
                     $insert_match->bindValue(":TossWonByTeamId", $toss_won_by_team_id);
