@@ -20,9 +20,9 @@ Player,Mat,Ct,RO,Total,Active,"2025 Career Milestones"
 "Ashish Paul",212,43,6,49,Y,
 "Grant Wolledge",167,47,1,48,Y,"<span class='next-milestone'>50 catches
 (3 needed)</span>"
+"Benny Cobbett",80,45,3,48,Y,
 "James Barron",53,41,7,48,Y,"<span class='achieved-milestone'>25 catches</span>"
 "Logan Cassin",59,35,13,48,Y,
-"Benny Cobbett",79,45,2,47,Y,
 "Paul Hynes",95,44,0,44,Y,
 "James Tisato",82,40,2,42,N,
 "Ajit Prasad",93,38,4,42,Y,
@@ -37,15 +37,15 @@ Player,Mat,Ct,RO,Total,Active,"2025 Career Milestones"
 "Damon Greeney",103,29,2,31,Y,"<span class='achieved-milestone'>25 catches</span>"
 "Sean McGurn",78,27,4,31,Y,"<span class='achieved-milestone'>25 catches</span>"
 "Ian Berry",158,30,0,30,N,
-"Nicko Dowell",108,27,3,30,Y,"<span class='achieved-milestone'>25 catches</span>"
+"Nicko Dowell",109,27,3,30,Y,"<span class='achieved-milestone'>25 catches</span>"
 "Niraj Tailor",140,26,4,30,Y,"<span class='achieved-milestone'>25 catches</span>"
 "Jo Hockings",75,27,2,29,Y,"<span class='achieved-milestone'>25 catches</span>"
 "Greg Willis",49,27,2,29,Y,"<span class='achieved-milestone'>25 catches</span>"
 "Freddie Mills",125,28,0,28,Y,
-"Umar Iqbal",75,28,0,28,Y,"<span class='achieved-milestone'>25 catches</span>"
+"Umar Iqbal",76,28,0,28,Y,"<span class='achieved-milestone'>25 catches</span>"
 "Chris Roden-Smith",79,26,2,28,Y,"<span class='achieved-milestone'>25 catches</span>"
 "Drew Withers",40,26,2,28,N,
-"Oliver Lonsdale",68,25,3,28,Y,"<span class='achieved-milestone'>25 catches</span>"
+"Oliver Lonsdale",69,25,3,28,Y,"<span class='achieved-milestone'>25 catches</span>"
 "Nigel Stephenson",161,24,2.50,26.50,Y,"<span class='next-milestone'>25 catches
 (1 needed)</span>"
 "Dyll Davies",261,26,0,26,N,
@@ -57,10 +57,10 @@ Player,Mat,Ct,RO,Total,Active,"2025 Career Milestones"
 "T Pring",78,25,0,25,N,
 "George Tunnacliffe",46,23,2,25,Y,"<span class='next-milestone'>25 catches
 (2 needed)</span>"
-"Leo Nieboer",78,21,4,25,Y,
+"Leo Nieboer",79,21,4,25,Y,
 "Lewis Wilby",71,21,4,25,Y,
 "Chris Ovens",74,18,7,25,Y,
-"Tom Glynne-Jones",49,20,4,24,Y,
+"Tom Glynne-Jones",50,20,4,24,Y,
 "S Houchin",146,23,0,23,N,
 "Alex Jullienne",66,19,4,23,Y,
 "Scott Hoskin",127,22,0,22,N,
@@ -105,6 +105,7 @@ Player,Mat,Ct,RO,Total,Active,"2025 Career Milestones"
 "R McHarg",28,12,0,12,N,
 "Kevin Chau",37,11,1,12,N,
 "Hugh Lilburn",23,10,2,12,Y,
+"Nealon Francois",22,10,2,12,Y,
 "Alex Webster",22,9,3,12,Y,
 "Chris Butlin",56,11,0,11,Y,
 "Chris Silvapulle",55,11,0,11,N,
@@ -119,8 +120,7 @@ Player,Mat,Ct,RO,Total,Active,"2025 Career Milestones"
 "V Raman",15,10,0,10,N,
 "Matt Jones",32,9,1,10,N,
 "George Stanley",28,9,1,10,Y,
-"Nealon Francois",21,8,2,10,Y,
-"Ritik Jaat",21,8,2,10,Y,
+"Ritik Jaat",22,8,2,10,Y,
 "Azharul Haque",84,6,4,10,Y,
 "Justin Cash",36,9,0,9,Y,
 "Dave Conway",30,9,0,9,N,
@@ -129,7 +129,7 @@ Player,Mat,Ct,RO,Total,Active,"2025 Career Milestones"
 "Adeel Riaz",17,9,0,9,Y,
 "Steve Tsonas",12,9,0,9,N,
 "Jahangir Sarfaraz",11,9,0,9,Y,
-"Callum Daley",36,8,1,9,Y,
+"Callum Daley",37,8,1,9,Y,
 "Max Wright",36,8,1,9,Y,
 "Fred Gumpert",29,8,1,9,Y,
 "Andrew McEwen",25,8,1,9,N,
@@ -143,7 +143,7 @@ Player,Mat,Ct,RO,Total,Active,"2025 Career Milestones"
 "Aman Jain",31,8,0,8,Y,
 "Will Curtis",29,8,0,8,Y,
 "D Hooper",25,8,0,8,N,
-"Oscar Sawyer",24,8,0,8,Y,
+"Oscar Sawyer",25,8,0,8,Y,
 "R Hobbs",22,8,0,8,N,
 "H Ewinger",20,8,0,8,N,
 "A Whale",18,8,0,8,N,
@@ -198,10 +198,10 @@ Player,Mat,Ct,RO,Total,Active,"2025 Career Milestones"
 "Rahul Saha",6,5,0,5,N,
 "James Sully",4,5,0,5,N,
 "Bharat Ramesh",42,4,1,5,Y,
+"Jay Patel",29,4,1,5,Y,
 "J Meade",92,4,0,4,N,
 "K McEvoy",33,4,0,4,N,
 "T Orr",33,4,0,4,N,
-"Jay Patel",28,4,0,4,Y,
 "John Walton",21,4,0,4,Y,
 "Michael Scantlebury",21,4,0,4,Y,
 "M Worden",19,4,0,4,N,

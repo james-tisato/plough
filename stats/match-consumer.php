@@ -193,6 +193,7 @@
                     $batted_first_team_id = $match_detail["batted_first"];
 
                     // Get team info
+                    $intra_club_match = 0;
                     if ($match_detail["home_club_name"] == CLUB_NAME)
                     {
                         $plough_club_id = $match_detail["home_club_id"];
@@ -205,6 +206,13 @@
                         $oppo_club_name = $match_detail["away_club_name"];
                         $oppo_team_id = $match_detail["away_team_id"];
                         $oppo_team_name = $match_detail["away_team_name"];
+
+                        if ($match_detail["away_club_name"] == CLUB_NAME) {
+                            // Intra-club match - include away player performances as well
+                            $players = array_merge($players, $match_detail["players"][1]["away_team"]);
+                            $intra_club_match = 1;
+                            log\info("        Match is an intra-club match - player performances from both teams will be counted");
+                        }
                     }
                     else if ($match_detail["away_club_name"] == CLUB_NAME)
                     {
@@ -282,7 +290,7 @@
                     if ($plough_match)
                     {
                         $this->consume_player_performances(
-                            $players, $match_id, $match_detail, $plough_team_id
+                            $players, $match_id, $match_detail, $plough_team_id, $intra_club_match
                             );
                     }
 
@@ -292,7 +300,7 @@
             }
         }
 
-        private function consume_player_performances($players, $match_id, $match_detail, $plough_team_id)
+        private function consume_player_performances($players, $match_id, $match_detail, $plough_team_id, $intra_club_match)
         {
             $db = $this->_db;
             $insert_player = db_create_insert_player($db);
@@ -341,7 +349,8 @@
             $innings = $match_detail["innings"];
             foreach ($innings as $inning_idx => $inning)
             {
-                if ($inning["team_batting_id"] == $plough_team_id)
+                $plough_batting = $inning["team_batting_id"] == $plough_team_id;
+                if ($plough_batting || $intra_club_match)
                 {
                     // Plough batting
                     $batting_perfs = $inning["bat"];
@@ -349,7 +358,8 @@
 
                     $this->consume_batting_partnerships($inning, $batting_perf_cache);
                 }
-                else
+                
+                if (!$plough_batting || $intra_club_match)
                 {
                     // Plough bowling
                     $bowling_perfs = $inning["bowl"];
